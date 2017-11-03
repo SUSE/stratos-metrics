@@ -1,0 +1,12 @@
+FROM opensuse:latest
+
+ENV FIREHOSE_EXPORTER_VERSION 4.2.5
+ENV ARCH linux-amd64
+ADD https://github.com/cloudfoundry-community/firehose_exporter/releases/download/v${FIREHOSE_EXPORTER_VERSION}/firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz  
+
+RUN zypper in -y tar && \
+    tar -xzf /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
+    cp /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}/firehose_exporter /bin/firehose_exporter
+ENTRYPOINT ["/bin/firehose_exporter"]
+EXPOSE 9186    
+    

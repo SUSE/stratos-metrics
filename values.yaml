@@ -1,0 +1,20 @@
+cfName:
+dockerRepository: docker.io
+dockerOrganization: splatform
+imageTag: opensuse
+prometheus:
+  serviceName: prometheus-service
+  servicePort: 9090
+  scrapeInterval: 15s
+  evaluationInterval: 15s
+  image: stratos-prometheus
+firehoseExporter:
+  serviceName: fn-service
+  servicePort: 9186
+  image: stratos-firehose-exporter
+  uaaEndpoint: https://cf.uaa.cf-dev.io:8443
+  dopplerUrl: wss://doppler.cf-dev.io:4443
+  doppskipSslVerification: "true"
+  uaaClientId: prometheus-firehose
+  uaaClientSecret: prometheus-client-secret
+  initContainerImage: stratos-firehose-init

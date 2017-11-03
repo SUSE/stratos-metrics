@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Stratos Metrics component to fetch metrics data from S/CF. Uses Prometheus and Firehose Exporter
+name: stratos-metrics
+version: 0.1.0
