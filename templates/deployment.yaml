@@ -42,10 +42,27 @@ spec:
   template:
     metadata:
       labels:
-        app: "stratos-metrics-{{ .Values.cfName }}-firehose-exporter"
+        app: "stratos-metrics-{{ .Values.cfName }}"
         component: firehose-exporter
     spec:
       containers:
+      - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.nginx.image}}:{{.Values.imageTag}}
+        name: nginx
+        env:
+        - name: USERNAME
+          value: "{{ .Values.nginx.username }}"
+        - name: PASSWORD
+          value: "{{ .Values.nginx.password }}"
+        ports:
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        volumeMounts:
+        - name: ssl-cert
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
         name: firehose-exporter
         env:
@@ -85,3 +102,13 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
+      volumes:
+      - name: ssl-cert
+        secret:
+          secretName: "{{ .Release.Name }}-nginx-tls"
+      - name: nginx-config
+        configMap:
+          name: "{{ .Release.Name }}-config"
+          items:
+          - key: nginx-config
+            path: nginx.conf

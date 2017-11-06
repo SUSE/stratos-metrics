@@ -1,0 +1,6 @@
+FROM splatform/stratos-nginx-base:opensuse
+
+RUN zypper in -y apache2-utils
+ADD run-nginx.sh /run-nginx.sh
+
+ENTRYPOINT ["/run-nginx.sh"]

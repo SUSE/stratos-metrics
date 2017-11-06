@@ -34,3 +34,21 @@ spec:
   selector:
     app: "stratos-metrics-{{ .Values.cfName }}"
     component: firehose-exporter
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: "stratos-metrics-{{ .Values.cfName }}"
+    component: firehose-exporter
+spec:
+  type: {{ .Values.nginx.serviceType }}
+  ports:
+  - port: {{ .Values.nginx.externalPort }}
+    targetPort: 443
+    protocol: TCP
+    name: nginx
+  selector:
+    app: "stratos-metrics-{{ .Values.cfName }}"
+    component: firehose-exporter
