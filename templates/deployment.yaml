@@ -1,89 +1,87 @@
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  app: stratos-metrics-"{{ .Values.cfName }}"
+  name: "stratos-metrics-{{ .Values.cfName }}-prometheus"
+  labels:
+    component: prometheus
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: stratos-metrics-"{{ .Values.cfName }}"
+        app: "stratos-metrics-{{ .Values.cfName }}"
         component: prometheus
     spec:
       containers:
-      - image: {{.Values.dockerRegistry}}/{{.Values.dockerOrganization}}/{{.Values.prometheus.image}}:{{.Values.imageTag}}
+      - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.prometheus.image}}:{{.Values.imageTag}}
         name: prometheus
-        env:
-        - name: ENCRYPTION_KEY_VOLUME
-          value: "{{ .Release.Name }}-encryption-key-volume"
         volumeMounts:
-        - mountPath: /etc/secrets/
-          name: "{{ .Release.Name }}-secret"
-          readOnly: true
-        - mountPath: "/{{ .Release.Name }}-encryption-key-volume"
-          name: "{{ .Release.Name }}-encryption-key-volume"
-          readOnly: true
+        - name: prometheus-config
+          mountPath: /etc/prometheus/
         ports:
         - containerPort: 9090
-          name: http
+          name: prometheus
           protocol: TCP
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: "{{ .Release.Name }}-config"
+          items:
+          - key: prometheus-config
+            path: prometheus.yml
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  app: stratos-metrics-"{{ .Values.cfName }}"
-  component: firehose-exporter
+  name: "stratos-metrics-{{ .Values.cfName }}"
+  labels:
+    component: firehose-exporter
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: stratos-metrics-"{{ .Values.cfName }}"
+        app: "stratos-metrics-{{ .Values.cfName }}-firehose-exporter"
+        component: firehose-exporter
     spec:
       containers:
-      - image: {{.Values.dockerRegistry}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
-        name: firehose_exporter
+      - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
+        name: firehose-exporter
         env:
         - name: FIREHOSE_EXPORTER_UAA_URL
-          value: "https://{{ .Values.firehoseExporters.uaaCfIdentityZone }}.{{ .Values.firehoseExporter.uaaEndpoint }}"
+          value: "https://{{ .Values.firehoseExporter.uaa.cfIdentityZone }}.{{ .Values.firehoseExporter.uaa.endpoint }}"
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
-          value: "{{ .Values.firehoseExporter.uaaClientId }}"
+          value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
-          value: "{{ .Values.firehoseExporter.uaaClientSecret }}"
+          value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
           value: "{{ .Values.firehoseExporter.dopplerUrl }}"
         - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
-          value: "{{ .Values.firehoseExporter.skipSslVerification}}"
+          value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
         ports:
         - containerPort: 9186
-          name: firehose_nozzle
+          name: fh-exp
           protocol: TCP
-        volumeMounts:
-        - mountPath: "/{{ .Release.Name }}-upgrade-volume"
-          name: "{{ .Release.Name }}-upgrade-volume"
-        - mountPath: "/{{ .Release.Name }}-encryption-key-volume"
-          name: "{{ .Release.Name }}-encryption-key-volume"
-        - mountPath: /etc/secrets/
-          name: "{{ .Release.Name }}-secret"
-          readOnly: true
       initContainers:
       - name: setup-uaa
-        image: {{.Values.dockerRegistry}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.initContainerImage}}:{{.Values.imageTag}} 
+        image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.initContainerImage}}:{{.Values.imageTag}} 
         env:
         - name: SKIP_SSL_VALIDATION
-          value: "{{ .Values.firehoseExporter.skipSslVerification}}"
+          value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
         - name: UAA_ENDPOINT
-          value: "{{ .Values.firehoseExporter.uaaEndpoint }}"
+          value: "{{ .Values.firehoseExporter.uaa.endpoint }}"
+        - name: UAA_ADMIN
+          value: "{{ .Values.firehoseExporter.uaa.admin.client }}"
         - name: UAA_ADMIN_SECRET
-          value: "{{ .Values.firehoseExporter.uaaAdminSecret }}"
+          value: "{{ .Values.firehoseExporter.uaa.admin.clientSecret }}"
         - name: CF_IDENTITY_ZONE
-          value: "{{ .Values.firehoseExporter.cfIdentityZone }}"
-      volumes:
-      - name: "{{ .Release.Name }}-upgrade-volume"
-        persistentVolumeClaim:
-          claimName: "{{ .Release.Name }}-upgrade-volume"
-      - name: "{{ .Release.Name }}-encryption-key-volume"
-        persistentVolumeClaim:
-          claimName: "{{ .Release.Name }}-encryption-key-volume"
-      - name: "{{ .Release.Name }}-secret"
-        secret:
-          secretName: "{{ .Release.Name }}-secret"
+          value: "{{ .Values.firehoseExporter.uaa.cfIdentityZone }}"
+        - name: PROMETHEUS_ADMIN_CLIENT
+          value: "{{ .Values.firehoseExporter.uaa.prometheusAdmin.client }}"
+        - name: PROMETHEUS_ADMIN_CLIENT_SECRET
+          value: "{{ .Values.firehoseExporter.uaa.prometheusAdmin.clientSecret }}"
+        - name: PROMETHEUS_CLIENT
+          value: "{{ .Values.firehoseExporter.uaa.client }}"
+        - name: PROMETHEUS_CLIENT_SECRET
+          value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"

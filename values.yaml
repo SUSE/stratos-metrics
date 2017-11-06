@@ -1,20 +1,33 @@
-cfName:
+cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
 imageTag: opensuse
 prometheus:
   serviceName: prometheus-service
   servicePort: 9090
+  externalPort: 9090
+  serviceType: NodePort
   scrapeInterval: 15s
   evaluationInterval: 15s
   image: stratos-prometheus
+
 firehoseExporter:
-  serviceName: fn-service
+  serviceName: f-exp-service
   servicePort: 9186
+  externalPort: 9186
+  serviceType: ClusterIP
   image: stratos-firehose-exporter
-  uaaEndpoint: https://cf.uaa.cf-dev.io:8443
-  dopplerUrl: wss://doppler.cf-dev.io:4443
-  doppskipSslVerification: "true"
-  uaaClientId: prometheus-firehose
-  uaaClientSecret: prometheus-client-secret
   initContainerImage: stratos-firehose-init
+  dopplerUrl: wss://doppler.cf-dev.io:4443
+  uaa:
+    endpoint: uaa.cf-dev.io:2793
+    skipSslVerification: "true"
+    cfIdentityZone: cf
+    admin:
+      client: admin
+      clientSecret: admin_secret
+    prometheusAdmin:
+      client: prom_admin
+      clientSecret: prom_admin_secret
+    client: prometheus-firehose
+    clientSecret: prometheus-client-secret

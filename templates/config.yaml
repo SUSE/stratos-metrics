@@ -4,18 +4,18 @@ kind: ConfigMap
 metadata:
   name: "{{ .Release.Name }}-config"
   labels:
-    release: {{ .Release.Name }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    app: stratos-metrics-"{{.Values.cfName}}"
+    release: "{{ .Release.Name }}"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "stratos-metrics-{{.Values.cfName}}"
 data:
-  prometheus.yaml: |
-  global:
-    scrape_interval:     "{{.Values.prometheus.scrapeInterval}}"
-    evaluation_interval: "{{.Values.prometheus.evaluationInterval}}"
-    external_labels:
-        monitor: 'test-monitor'
-  scrape_configs:
-    - job_name: "{{.Values.cfName}}"
-      scrape_interval: "{{.Values.prometheus.scrapeInterval}}"
-      static_configs:
-      - targets: ["{{.Values.firehoseNozzle.serviceName}}:{{.Values.firehoseNozzle.servicePort}}", "{{.Values.prometheus.serviceName}}:{{.Values.prometheus.servicePort}}"]
+  prometheus-config: |
+    global:
+      scrape_interval:     "{{.Values.prometheus.scrapeInterval}}"
+      evaluation_interval: "{{.Values.prometheus.evaluationInterval}}"
+      external_labels:
+          monitor: 'test-monitor'
+    scrape_configs:
+      - job_name: "{{.Values.cfName}}"
+        scrape_interval: "{{.Values.prometheus.scrapeInterval}}"
+        static_configs:
+        - targets: ["{{.Values.firehoseExporter.serviceName}}:{{.Values.firehoseExporter.servicePort}}", "{{.Values.prometheus.serviceName}}:{{.Values.prometheus.servicePort}}"]
