@@ -32,8 +32,8 @@ uaac.ruby2.1 token client get ${UAA_ADMIN} -s ${UAA_ADMIN_SECRET}
 # Check if client already exists
 clientGetResponse=$(uaac.ruby2.1 -t curl -k -H"X-Identity-Zone-Id:${CF_IDENTITY_ZONE}" -XGET /oauth/clients/${PROMETHEUS_ADMIN_CLIENT})
 clientExists=""
-responseWas200=$(echo $clientGetResponse | grep "200 OK")
-responseWas404=$(echo $clientGetResponse | grep "404 Not Found")
+responseWas200=$(echo $clientGetResponse | grep "200")
+responseWas404=$(echo $clientGetResponse | grep "404")
 if [ ! -z "${responseWas404}" ]; then
 # Create client
 uaac.ruby2.1 -t curl -k -H"X-Identity-Zone-Id:${CF_IDENTITY_ZONE}" -XPOST -H"Content-Type:application/json" -H"Accept:application/json" --data "$(get_post_data)" /oauth/clients
