@@ -112,3 +112,5 @@ spec:
           items:
           - key: nginx-config
             path: nginx.conf
+          - key: nginx-metadata
+            path: metadata.json

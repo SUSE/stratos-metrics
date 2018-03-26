@@ -28,6 +28,14 @@ data:
         scrape_interval: "{{.Values.prometheus.scrapeInterval}}"
         static_configs:
         - targets: ["{{.Values.firehoseExporter.serviceName}}:{{.Values.firehoseExporter.servicePort}}", "{{.Values.prometheus.serviceName}}:{{.Values.prometheus.servicePort}}"]
+  nginx-metadata: |
+    [
+      {
+        "type": "cf",
+        "url": "{{ .Values.firehoseExporter.dopplerUrl }}",
+        "job": "{{ .Values.cfName }}"
+      }
+    ]
   nginx-config: |
     upstream prometheus {
         least_conn;
@@ -43,6 +51,12 @@ data:
       ssl_ciphers                 HIGH:!aNULL:!MD5;
 
       client_max_body_size        50M;
+
+      location /stratos { 
+          alias /etc/nginx/conf.d/metadata.json;
+          auth_basic "metrics-auth";
+          auth_basic_user_file /etc/nginx/.htpasswd;
+      }
 
       location / {
           proxy_pass_header       Server;
