@@ -33,7 +33,7 @@ data:
       {
         "type": "cf",
       {{- if .Values.env.DOMAIN }}  
-        "url": "wss://doppler.{{ .Values.env.DOMAIN }}:4443",
+        "url": "wss://doppler.{{ .Values.env.DOMAIN }}",
       {{- else }}
         "url": "{{ .Values.firehoseExporter.dopplerUrl }}",
       {{- end }}
