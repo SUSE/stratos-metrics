@@ -66,14 +66,29 @@ spec:
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
         name: firehose-exporter
         env:
+        {{- if .Values.env.UAA_HOST }}  
+        - name: FIREHOSE_EXPORTER_UAA_URL
+          value: "https://{{ .Values.firehoseExporter.uaa.cfIdentityZone }}.{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"
+        {{- else }}
         - name: FIREHOSE_EXPORTER_UAA_URL
           value: "https://{{ .Values.firehoseExporter.uaa.cfIdentityZone }}.{{ .Values.firehoseExporter.uaa.endpoint }}"
+        {{- end }}
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
           value: "{{ .Values.firehoseExporter.uaa.client }}"
+        {{- if .Values.env.UAA_ADMIN_CLIENT_SECRET }}  
+        - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
+          value: "{{ .Values.env.UAA_ADMIN_CLIENT_SECRET }}"
+        {{- else }}
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
+        {{- end }}
+        {{- if .Values.env.DOMAIN }}  
+        - name: FIREHOSE_EXPORTER_DOPPLER_URL
+          value: "wss://doppler.{{ .Values.env.DOMAIN }}:4443"
+        {{- else }}
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
           value: "{{ .Values.firehoseExporter.dopplerUrl }}"
+        {{- end }}
         - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
           value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
         ports:

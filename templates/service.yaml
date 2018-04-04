@@ -43,9 +43,26 @@ metadata:
     app: "stratos-metrics-{{ .Values.cfName }}"
     component: firehose-exporter
 spec:
+{{- if .Values.useLb }}
+  type: LoadBalancer
+{{- else }}
   type: {{ .Values.nginx.serviceType }}
+{{- end }}
+{{- if .Values.kube.external_ip }}
+  externalIPs:
+  -  {{ .Values.kube.external_ip }}
+{{- else }}
+  {{- if .Values.metrics.externalIP }}
+  externalIPs:
+  -  {{ .Values.metrics.externalIP }}
+  {{- end }}
+{{- end }}
   ports:
+{{- if and .Values.kube.external_ip .Values.kube.external_metrics_port }}
+  - port: {{ .Values.kube.external_metrics_port }}
+{{- else }}
   - port: {{ .Values.nginx.externalPort }}
+{{- end }}
     targetPort: 443
     protocol: TCP
     name: nginx

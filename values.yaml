@@ -2,6 +2,7 @@ cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
 imageTag: opensuse
+useLb: false
 prometheus:
   serviceName: prometheus-service
   servicePort: 9090
@@ -88,6 +89,11 @@ nginx:
       42qv5Z0qoLTOch+GVuj0ZF1UgJh+RJWom7lPhTS0UP+VZFBc++nGl7PGTRflm3Zd
       mEVvEQxyBz3V1fZ0Yz246W60
       -----END PRIVATE KEY-----
-
-
-
+ # SCF values compatability 
+env:
+  UAA_HOST: 
+  UAA_ADMIN_CLIENT_SECRET: 
+  UAA_PORT: 2793
+  DOMAIN:
+kube:
+  external_metrics_port: 8543
