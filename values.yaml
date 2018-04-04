@@ -93,7 +93,8 @@ nginx:
 env:
   UAA_HOST: 
   UAA_ADMIN_CLIENT_SECRET: 
+  UAA_CF_IDENTITY_ZONE: scf
   UAA_PORT: 2793
   DOMAIN:
 kube:
-  external_metrics_port: 8543
+  external_metrics_port: 7443
