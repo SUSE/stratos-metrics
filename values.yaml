@@ -3,6 +3,8 @@ dockerRepository: docker.io
 dockerOrganization: splatform
 imageTag: opensuse
 useLb: false
+metrics:
+  externalIP: 
 prometheus:
   serviceName: prometheus-service
   servicePort: 9090
