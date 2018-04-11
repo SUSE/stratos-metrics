@@ -21,7 +21,6 @@ run:
       ROOT_DIR=$PWD
       STRATOS_METRICS=${ROOT_DIR}/stratos-metrics
       STRATOS_MASTER=${ROOT_DIR}/stratos-master
-      cd ${STRATOS_METRICS}/build
       TAG=$(cat dev-release-tag)
       IMAGE_TAG=${TAG}-$(git rev-parse HEAD | head -c 8)
       CHART_PATH=$STRATOS_METRICS
@@ -32,8 +31,9 @@ run:
       sed -i -e 's/version: 0.1.0/version: '"${TAG}"'/g' ${CHART_PATH}/Chart.yaml  
 
       # Generate Helm package
-      helm package console-metrics
-      cp console*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${IMAGE_TAG}.tgz
+      cd ${STRATOS_METRICS}
+      helm package ./
+      mv stratos-*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${IMAGE_TAG}.tgz
       cd ${ROOT_DIR}/helm-chart/
       INDEX_FILE=${STRATOS_MASTER}/index.yaml
       CHART_FILE=${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${IMAGE_TAG}.tgz

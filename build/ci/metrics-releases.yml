@@ -1,4 +1,12 @@
 ---
+resource_types:
+- name: docker-image
+  type: docker-image
+  privileged: true
+  source:
+    repository: ((docker-image-resource))
+    tag: ((docker-image-resource-tag))
+
 resources:
 - name: stratos-metrics
   type: git
@@ -24,13 +32,13 @@ resources:
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-org))stratos-firehose-init
+    repository: ((docker-org))/stratos-firehose-init
 - name: stratos-metrics-nginx
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-org))stratos-metrics-nginx
+    repository: ((docker-org))/stratos-metrics-nginx
 - name: stratos-prometheus
   type: docker-image
   source:
