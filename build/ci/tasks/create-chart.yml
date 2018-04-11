@@ -21,7 +21,7 @@ run:
       ROOT_DIR=$PWD
       STRATOS_METRICS=${ROOT_DIR}/stratos-metrics
       STRATOS_MASTER=${ROOT_DIR}/stratos-master
-      TAG=$(cat dev-release-tag)
+      TAG=$(cat ${STRATOS_METRICS}/build/dev-release-tag)
       IMAGE_TAG=${TAG}-$(git rev-parse HEAD | head -c 8)
       CHART_PATH=$STRATOS_METRICS
       # Patch Helm chart
