@@ -48,14 +48,8 @@ spec:
 {{- else }}
   type: {{ .Values.nginx.serviceType }}
 {{- end }}
-{{- if .Values.kube.external_ip }}
-  externalIPs:
-  -  {{ .Values.kube.external_ip }}
-{{- else }}
-  {{- if .Values.metrics.externalIP }}
-  externalIPs:
-  -  {{ .Values.metrics.externalIP }}
-  {{- end }}
+{{- if or .Values.kube.external_ip .Values.kube.external_ips .Values.metrics.externalIP  }}
+  externalIPs: {{ template "service.externalIPs" . }} 
 {{- end }}
   ports:
 {{- if and .Values.kube.external_ip .Values.kube.external_metrics_port }}

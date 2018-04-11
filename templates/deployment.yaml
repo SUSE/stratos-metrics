@@ -106,13 +106,8 @@ spec:
         {{- end }}
         - name: UAA_ADMIN
           value: "{{ .Values.firehoseExporter.uaa.admin.client }}"
-        {{- if .Values.env.UAA_ADMIN_CLIENT_SECRET }}  
         - name: UAA_ADMIN_SECRET
-          value: "{{ .Values.env.UAA_ADMIN_CLIENT_SECRET }}"
-        {{- else }}
-        - name: UAA_ADMIN_SECRET
-          value: "{{ .Values.firehoseExporter.uaa.admin.clientSecret }}"
-        {{- end }}
+          value: "{{ template "uaaClientSecret" . }}"
         - name: CF_IDENTITY_ZONE
         {{- if .Values.env.UAA_CF_IDENTITY_ZONE }}  
           value: "{{ .Values.env.UAA_CF_IDENTITY_ZONE }}"
