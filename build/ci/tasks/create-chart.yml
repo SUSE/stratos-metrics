@@ -1,0 +1,91 @@
+---
+platform: linux
+inputs:
+- name: stratos-metrics
+- name: stratos-master
+outputs:
+- name: helm-chart
+image_resource:
+  type: docker-image
+  source:
+   repository:  splatform/ci-stratos-helm
+   tag: "latest"
+
+run:
+  path: bash
+  args:
+    - -xc
+    - |
+
+      helm init || true
+      ROOT_DIR=$PWD
+      STRATOS_METRICS=${ROOT_DIR}/stratos-metrics
+      STRATOS_MASTER=${ROOT_DIR}/stratos-master
+      cd ${STRATOS_METRICS}/build
+      TAG=$(cat dev-release-tag)
+      IMAGE_TAG=${TAG}-$(git rev-parse HEAD | head -c 8)
+      CHART_PATH=$STRATOS_METRICS
+      # Patch Helm chart
+      sed -i -e 's/imageTag: opensuse/imageTag: '"${IMAGE_TAG}"'/g' ${CHART_PATH}/values.yaml
+      sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
+      sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REG}"'/g' ${CHART_PATH}/values.yaml
+      sed -i -e 's/version: 0.1.0/version: '"${TAG}"'/g' ${CHART_PATH}/Chart.yaml  
+
+      # Generate Helm package
+      helm package console-metrics
+      cp console*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${IMAGE_TAG}.tgz
+      cd ${ROOT_DIR}/helm-chart/
+      INDEX_FILE=${STRATOS_MASTER}/index.yaml
+      CHART_FILE=${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${IMAGE_TAG}.tgz
+      if [ -f ${INDEX_FILE} ]; then
+            NIGHTLY_EXISTS=$(cat  ${INDEX_FILE} | grep ${TAG})
+            NIGHTLY_EXISTS=$(echo $?)
+            if [ $NIGHTLY_EXISTS -eq 0 ]; then
+              # Patch Digest
+              INDEX_SHA256SUM=$(grep -B5 -A0 ${TAG} ${INDEX_FILE} | sed -n 's/digest: \([a-zA-Z0-9]*\)/\1/p' | xargs)
+              CURR_SHA256SUM=$(sha256sum  ${CHART_FILE}| cut -d' ' -f1)
+              if [ "${INDEX_SHA256SUM}" = "${CURR_SHA256SUM}" ]; then
+                echo 'Checksum is equal, quitting'
+              else
+                echo 'Checksum not equal, patching index.yaml'
+                sed -i 's/'"${INDEX_SHA256SUM}"'/'"${CURR_SHA256SUM}"'/g' ${INDEX_FILE}
+              fi
+
+              # Patch Version
+              INDEX_VERSION=$(sed -n 's/version: \(2.0.0-metrics-dev.*\)/\1/p' ${INDEX_FILE} | xargs)
+              if [ "${INDEX_VERSION}" = "${IMAGE_TAG}" ]; then
+                echo 'version is equal, quitting'
+              else
+                echo 'version not equal, patching index.yaml'
+                sed -i 's/'"${INDEX_VERSION}"'/'"${IMAGE_TAG}"'/g' ${INDEX_FILE}
+              fi
+
+              # Patch Created Date
+              CREATED_DATE=$(grep -B5 -A0 ${TAG} ${INDEX_FILE} | sed -n 's/created: \(.*\)/\1/p' | xargs)
+              sed -i 's/'"${CREATED_DATE}"'/'"$(date +%Y-%m-%dT%H:%M:%S.%NZ)"'/g' ${INDEX_FILE}
+            else
+              # Index file exists, but no 2.0.0-dev release has ever been published 
+              cp  ${INDEX_FILE} ${ROOT_DIR}/helm-chart/
+              MERGE_INDEX="--merge index.yaml"
+              helm repo index ./ ${MERGE_INDEX} --url https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/releases/download/${TAG}/
+              cp index.yaml ${STRATOS_MASTER}/
+            fi
+      fi
+
+      # Update Helm Repository
+      cd ${STRATOS_MASTER}
+      git config --global user.name ${GIT_USER}
+      git config --global user.email ${GIT_EMAIL}
+
+      mkdir -p /root/.ssh/
+      echo "${GIT_PRIVATE_KEY}" > /root/.ssh/id_rsa
+      chmod 600 /root/.ssh/id_rsa
+      git stash
+      git pull --rebase
+      git stash pop
+      echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+      git add index.yaml
+      git commit -m "Dev releases Helm repository updated for tag: ${IMAGE_TAG}"
+      git config --global push.default simple
+      git push origin HEAD:master
+
