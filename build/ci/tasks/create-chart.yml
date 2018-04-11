@@ -28,8 +28,8 @@ run:
       # Patch Helm chart
       sed -i -e 's/imageTag: opensuse/imageTag: '"${IMAGE_TAG}"'/g' ${CHART_PATH}/values.yaml
       sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
-      sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REG}"'/g' ${CHART_PATH}/values.yaml
-      sed -i -e 's/version: 0.1.0/version: '"${TAG}"'/g' ${CHART_PATH}/Chart.yaml  
+      sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' ${CHART_PATH}/values.yaml
+      sed -i -e 's/version: 0.1.0/version: '"${IMAGE_TAG}"'/g' ${CHART_PATH}/Chart.yaml  
 
       # Generate Helm package
       helm package ./
