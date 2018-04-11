@@ -62,6 +62,7 @@ resources:
     repository: ((metrics-repository))
     access_token: ((github-access-token))
     pre_release: true
+    release: false
 
 jobs:
 - name: build-images
