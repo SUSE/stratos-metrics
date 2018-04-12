@@ -1,0 +1,126 @@
+---
+resource_types:
+- name: docker-image
+  type: docker-image
+  privileged: true
+  source:
+    repository: ((docker-image-resource))
+    tag: ((docker-image-resource-tag))
+
+resources:
+- name: stratos-metrics
+  type: git
+  source:
+    uri: git@github.com:((metrics-organization))/((metrics-repository))
+    branch: ((metrics-branch))
+    private_key: ((github-private-key))
+- name: stratos-master
+  type: git
+  source:
+    uri: git@github.com:((stratos-organization))/((stratos-repository))
+    branch: master
+    private_key: ((github-private-key))
+# Docker Images
+- name: stratos-firehose-exporter
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-firehose-exporter
+- name: stratos-firehose-init
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-firehose-init
+- name: stratos-metrics-nginx
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-metrics-nginx
+- name: stratos-prometheus
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-prometheus
+
+- name: helm-chart-tarball
+  type: s3
+  source:
+    bucket: concourse-stratos-ui
+    endpoint: {{minio-server-endpoint}}
+    regexp: temp-artifacts/console-metrics-helm-chart-(?P<version>.*).tgz
+    access_key_id: {{minio-access-key}}
+    secret_access_key: {{minio-secret-access-key}}
+    region_name: eu-central-1
+- name: metrics-release
+  type: github-release
+  source:
+    owner: ((metrics-organization))
+    repository: ((metrics-repository))
+    access_token: ((github-access-token))
+    pre_release: true
+    release: false
+
+jobs:
+- name: build-images
+  plan:
+  - get: stratos-metrics
+  - aggregate:
+    - do:
+      - put: stratos-firehose-exporter
+        params:
+          dockerfile: stratos-metrics/build/Dockerfile.firehose-exporter
+          build: stratos-metrics/build/
+          tag: stratos-metrics/build/dev-release-tag
+          tag_commit: true
+      - put: stratos-firehose-init
+        params:
+          dockerfile: stratos-metrics/build/Dockerfile.firehose-init
+          build: stratos-metrics/build/
+          tag: stratos-metrics/build/dev-release-tag
+          tag_commit: true
+      - put: stratos-metrics-nginx
+        params:
+          dockerfile: stratos-metrics/build/Dockerfile.nginx
+          build: stratos-metrics/build/
+          tag: stratos-metrics/build/dev-release-tag
+          tag_commit: true
+      - put: stratos-prometheus
+        params:
+          dockerfile: stratos-metrics/build/Dockerfile.prometheus
+          build: stratos-metrics/build/
+          tag: stratos-metrics/build/dev-release-tag
+          tag_commit: true
+- name: create-chart
+  plan:
+  - get: stratos-metrics
+    passed: [build-images]
+    trigger: true
+  - get: stratos-master
+  - do:
+    - task: build
+      privileged: true
+      timeout: 30m
+      file: stratos-metrics/build/ci/tasks/create-chart.yml
+      params:
+        GIT_USER: ((concourse-user))
+        GIT_EMAIL: ((concourse-email))
+        GITHUB_ORG: ((metrics-organization))
+        GITHUB_REPO: ((metrics-repository))
+        GIT_PRIVATE_KEY: ((github-private-key))
+        DOCKER_ORG: ((artifact-docker-organization))
+        DOCKER_REGISTRY: ((artifact-docker-registry))
+    - put: helm-chart-tarball
+      params:
+       file: helm-chart/*.tgz
+       acl: public-read
+    - put: metrics-release
+      params:
+        name: stratos-metrics/build/dev-release-name
+        tag: stratos-metrics/build/dev-release-tag
+        body: stratos-metrics/build/dev-release-description
+        globs:
+        - helm-chart-tarball/*.tgz
