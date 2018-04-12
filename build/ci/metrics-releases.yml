@@ -8,7 +8,7 @@ resource_types:
     tag: ((docker-image-resource-tag))
 
 resources:
-- name: stratos-metrics
+- name: metrics
   type: git
   source:
     uri: git@github.com:((metrics-organization))/((metrics-repository))
@@ -38,7 +38,7 @@ resources:
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-org))/stratos-metrics-nginx
+    repository: ((docker-org))/metrics-nginx
 - name: stratos-prometheus
   type: docker-image
   source:
@@ -67,36 +67,36 @@ resources:
 jobs:
 - name: build-images
   plan:
-  - get: stratos-metrics
+  - get: metrics
   - aggregate:
     - do:
       - put: stratos-firehose-exporter
         params:
-          dockerfile: stratos-metrics/build/Dockerfile.firehose-exporter
-          build: stratos-metrics/build/
-          tag: stratos-metrics/build/dev-release-tag
+          dockerfile: metrics/build/Dockerfile.firehose-exporter
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
           tag_commit: true
       - put: stratos-firehose-init
         params:
-          dockerfile: stratos-metrics/build/Dockerfile.firehose-init
-          build: stratos-metrics/build/
-          tag: stratos-metrics/build/dev-release-tag
+          dockerfile: metrics/build/Dockerfile.firehose-init
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
           tag_commit: true
       - put: stratos-metrics-nginx
         params:
-          dockerfile: stratos-metrics/build/Dockerfile.nginx
-          build: stratos-metrics/build/
-          tag: stratos-metrics/build/dev-release-tag
+          dockerfile: metrics/build/Dockerfile.nginx
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
           tag_commit: true
       - put: stratos-prometheus
         params:
-          dockerfile: stratos-metrics/build/Dockerfile.prometheus
-          build: stratos-metrics/build/
-          tag: stratos-metrics/build/dev-release-tag
+          dockerfile: metrics/build/Dockerfile.prometheus
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
           tag_commit: true
 - name: create-chart
   plan:
-  - get: stratos-metrics
+  - get: metrics
     passed: [build-images]
     trigger: true
   - get: stratos-master
@@ -104,7 +104,7 @@ jobs:
     - task: build
       privileged: true
       timeout: 30m
-      file: stratos-metrics/build/ci/tasks/create-chart.yml
+      file: metrics/build/ci/tasks/create-chart.yml
       params:
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
@@ -119,8 +119,8 @@ jobs:
        acl: public-read
     - put: metrics-release
       params:
-        name: stratos-metrics/build/dev-release-name
-        tag: stratos-metrics/build/dev-release-tag
-        body: stratos-metrics/build/dev-release-description
+        name: metrics/build/dev-release-name
+        tag: metrics/build/dev-release-tag
+        body: metrics/build/dev-release-description
         globs:
         - helm-chart-tarball/*.tgz
