@@ -24,7 +24,7 @@ UAA Client Secret
 {{- define "uaaClientSecret" -}}
 {{- if .Values.env.UAA_ADMIN_CLIENT_SECRET -}}
 {{- .Values.env.UAA_ADMIN_CLIENT_SECRET }}
-{{- else if .Values.secrets.UAA_ADMIN_CLIENT_SECRET -}}
+{{- else if and .Values.secrets .Values.secrets.UAA_ADMIN_CLIENT_SECRET -}}
 {{- .Values.secrets.UAA_ADMIN_CLIENT_SECRET }}
 {{- else -}}
 {{- .Values.firehoseExporter.uaa.admin.clientSecret }}

@@ -38,7 +38,7 @@ resources:
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-org))/metrics-nginx
+    repository: ((docker-org))/stratos-metrics-nginx
 - name: stratos-prometheus
   type: docker-image
   source:
