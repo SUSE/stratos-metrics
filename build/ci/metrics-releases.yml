@@ -8,7 +8,7 @@ resource_types:
     tag: ((docker-image-resource-tag))
 
 resources:
-- name: stratos-metrics
+- name: metrics
   type: git
   source:
     uri: git@github.com:((metrics-organization))/((metrics-repository))
@@ -67,7 +67,7 @@ resources:
 jobs:
 - name: build-images
   plan:
-  - get: stratos-metrics
+  - get: metrics
   - aggregate:
     - do:
       - put: stratos-firehose-exporter
@@ -96,7 +96,7 @@ jobs:
           tag_commit: true
 - name: create-chart
   plan:
-  - get: stratos-metrics
+  - get: metrics
     passed: [build-images]
     trigger: true
   - get: stratos-master
