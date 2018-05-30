@@ -1,0 +1,45 @@
+FROM splatform/stratos-bk-build-base:opensuse as builder
+RUN zypper in -y make
+
+# use --target=configmap-reload to build an image for Kubernetes
+FROM builder as configmap-reload-builder
+RUN cd /tmp && \
+    git clone https://github.com/jimmidyson/configmap-reload.git && \
+    cd configmap-reload && \
+    git checkout v0.2.1 && \
+    make
+
+FROM opensuse:latest as configmap-reload  
+COPY --from=configmap-reload-builder /tmp/configmap-reload/out/configmap-reload /configmap-reload
+ENTRYPOINT ["/configmap-reload"]
+
+# use --target=kube-state-metrics to build an image for Kubernetes
+FROM builder as kube-state-metrics-builder
+RUN cd /tmp && \
+    wget https://github.com/kubernetes/kube-state-metrics/archive/v1.3.0.tar.gz && \
+    mkdir -p /tmp/src/k8s.io/kube-state-metrics && \
+    tar -xvf v1.3.0.tar.gz -C /tmp/src/k8s.io/kube-state-metrics --strip 1 && \
+    export GOPATH=/tmp && \
+    cd /tmp/src/k8s.io/kube-state-metrics && \
+    make build
+
+# use --target=kube-state-metrics to build an image for Kubernetes
+FROM opensuse:latest as kube-state-metrics
+COPY --from=kube-state-metrics-builder /tmp/src/k8s.io/kube-state-metrics/kube-state-metrics /kube-state-metrics
+ENTRYPOINT ["/kube-state-metrics"]
+
+# use --target=init-chown-data to build an image for Kubernetes
+FROM opensuse:latest as init-chown-data
+
+# use --target=node-exporter to build an image for Kubernetes
+FROM builder as node-exporter-builder
+ENV NODE_EXPORTER_VERSION 0.16.0
+ENV ARCH linux-amd64
+RUN cd /tmp && \
+    wget https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
+    tar -xvf node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
+    cp node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}/node_exporter /tmp
+
+FROM opensuse:latest as node-exporter
+COPY --from=node-exporter-builder /tmp/node_exporter /node_exporter
+ENTRYPOINT ["/node_exporter"]
