@@ -1,4 +1,4 @@
-FROM splatform/stratos-bk-build-base:opensuse as builder
+FROM splatform/stratos-go-build-base:opensuse as builder
 RUN zypper in -y make
 
 # use --target=configmap-reload to build an image for Kubernetes

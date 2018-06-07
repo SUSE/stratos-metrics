@@ -248,6 +248,8 @@ function unPatchDockerfile {
 # MAIN ------------------------------------------------------
 #
 
+pushd ${__DIRNAME}
+
 # cleanup output, intermediate artifacts
 cleanup
 
@@ -301,3 +303,5 @@ if [ ${CONCOURSE_BUILD:-"not-set"} == "not-set" ]; then
   echo "To deploy using Helm, execute the following: "
   echo "helm install console -f values.yaml --namespace console --name my-console"
 fi
+
+popd

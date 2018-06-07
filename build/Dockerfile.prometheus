@@ -1,6 +1,8 @@
+# See: https://hub.docker.com/r/prom/prometheus/~/dockerfile
+
 FROM opensuse:latest
 
-ENV PROMETHEUS_VERSION 1.8.1
+ENV PROMETHEUS_VERSION 2.2.1
 ENV ARCH linux-amd64
 RUN zypper in -y tar
 ADD https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz
