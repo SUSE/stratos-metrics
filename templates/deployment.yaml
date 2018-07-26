@@ -34,7 +34,10 @@ spec:
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
         name: firehose-exporter
         env:
-        {{- if .Values.env.UAA_HOST }}  
+        {{- if .Values.firehoseExporter.noIdentityZone }}  
+        - name: FIREHOSE_EXPORTER_UAA_URL
+          value: "https://{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"
+        {{- else if .Values.env.UAA_HOST }}  
         - name: FIREHOSE_EXPORTER_UAA_URL
           value: "https://{{ .Values.env.UAA_CF_IDENTITY_ZONE }}.{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"
         {{- else }}
@@ -47,7 +50,7 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
         {{- if .Values.env.DOMAIN }}  
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
-          value: "wss://doppler.{{ .Values.env.DOMAIN }}:4443"
+          value: "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}"
         {{- else }}
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
           value: "{{ .Values.firehoseExporter.dopplerUrl }}"
