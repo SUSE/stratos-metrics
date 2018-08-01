@@ -114,3 +114,23 @@ nginx:
   password: <PASSWORD>
 
 ```
+
+## To Use with PCF Dev
+To setup `stratos-metrics` instance against [PCF Dev](), save the following to a file called `pcf.yaml`
+```
+env:
+    CLUSTER_ADMIN_PASSWORD: admin
+    UAA_CF_IDENTITY_ZONE: uaa
+    DOMAIN: local.pcfdev.io
+    UAA_ADMIN_CLIENT_SECRET: admin-client-secret
+    UAA_HOST: uaa.local.pcfdev.io
+    UAA_PORT: 443
+    DOPPLER_PORT: 443
+firehoseExporter:
+    noIdentityZone: true
+```
+
+To deploy `stratos-metrics` helm chart:
+```
+$helm install stratos-metrics -f pcf.yaml --namespace stratos-metrics
+```

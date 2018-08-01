@@ -1,3 +1,4 @@
+# Default values for stratos-metrics.
 cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
@@ -5,22 +6,15 @@ imageTag: opensuse
 useLb: false
 metrics:
   externalIP: 
-prometheus:
-  serviceName: prometheus-service
-  servicePort: 9090
-  externalPort: 9090
-  serviceType: NodePort
-  scrapeInterval: 15s
-  evaluationInterval: 15s
-  image: stratos-prometheus
 firehoseExporter:
   serviceName: f-exp-service
   servicePort: 9186
   externalPort: 9186
   serviceType: ClusterIP
-  image: stratos-firehose-exporter
-  initContainerImage: stratos-firehose-init
+  image: stratos-metrics-firehose-exporter
+  initContainerImage: stratos-metrics-firehose-init
   dopplerUrl: wss://doppler.cf-dev.io:4443
+  noIdentityZone: false
   uaa:
     endpoint: uaa.cf-dev.io:2793
     skipSslVerification: "true"
@@ -98,5 +92,52 @@ env:
   UAA_CF_IDENTITY_ZONE: scf
   UAA_PORT: 2793
   DOMAIN:
+  DOPPLER_PORT: 4443
 kube:
   external_metrics_port: 7443
+
+# Values for the Promethues sub-chart
+prometheus:
+  alertmanager:
+    enabled: false
+  kubeStateMetrics:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  pushgateway:
+    enabled: false
+  configmapReload:
+    image:
+      repository: splatform/stratos-metrics-configmap-reload
+      tag: latest
+  initChownData:
+    image:
+      repository: splatform/stratos-metrics-init-chown-data
+      tag: latest
+  kubeStateMetrics:    
+    image:
+      repository: splatform/stratos-metrics-kube-state-metrics
+      tag: latest
+  nodeExporter:    
+    image:
+      repository: splatform/stratos-metrics-node-exporter
+      tag: latest
+  server:
+    name: prometheus
+    fullnameOverride: prometheus-service
+    configMapOverrideName: stratos-metrics-config
+    image:
+      repository: splatform/stratos-metrics-prometheus
+      tag: latest
+    replicaCount: 1
+    service:
+      servicePort: 9090
+  serviceAccounts:
+    alertmanager:
+      create: false
+    pushgateway:
+      create: false
+
+  serverFiles:
+    alerts: {}
+    rules: {}

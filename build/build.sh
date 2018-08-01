@@ -301,7 +301,7 @@ echo "Org: ${DOCKER_ORG}"
 echo "Tag: ${TAG}"
 if [ ${CONCOURSE_BUILD:-"not-set"} == "not-set" ]; then
   echo "To deploy using Helm, execute the following: "
-  echo "helm install console -f values.yaml --namespace console --name my-console"
+  echo "helm install stratos-metrics -f values.yaml --namespace console --name my-console"
 fi
 
 popd
