@@ -14,7 +14,7 @@ firehoseExporter:
   image: stratos-metrics-firehose-exporter
   initContainerImage: stratos-metrics-firehose-init
   dopplerUrl: wss://doppler.cf-dev.io:4443
-    noIdentityZone: false
+  noIdentityZone: false
   uaa:
     endpoint: uaa.cf-dev.io:2793
     skipSslVerification: "true"

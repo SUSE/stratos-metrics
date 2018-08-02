@@ -2,7 +2,6 @@
 cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
-#imageTag: 0.1.0-gb4c2143
 imageTag: latest
 useLb: false
 metrics:
@@ -15,6 +14,7 @@ firehoseExporter:
   image: stratos-metrics-firehose-exporter
   initContainerImage: stratos-metrics-firehose-init
   dopplerUrl: wss://doppler.cf-dev.io:4443
+  noIdentityZone: false
   uaa:
     endpoint: uaa.cf-dev.io:2793
     skipSslVerification: "true"
@@ -28,6 +28,7 @@ firehoseExporter:
     client: prometheus-firehose
     clientSecret: prometheus-client-secret
 nginx:
+  serviceName: metrics-nginx
   username: metrics
   password: s3cr3t
   image: stratos-metrics-nginx
@@ -92,6 +93,7 @@ env:
   UAA_CF_IDENTITY_ZONE: scf
   UAA_PORT: 2793
   DOMAIN:
+  DOPPLER_PORT: 4443
 kube:
   external_metrics_port: 7443
 
