@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.firehoseExporter.serviceName }}
+  name: {{ .Release.Name }}-{{ .Values.firehoseExporter.serviceName }}
   labels:
     app: "stratos-metrics-{{ .Values.cfName }}"
     component: firehose-exporter
@@ -20,7 +20,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx
+  name: {{ .Release.Name }}-{{ .Values.nginx.serviceName }}
   labels:
     app: "stratos-metrics-{{ .Values.cfName }}"
     component: firehose-exporter
