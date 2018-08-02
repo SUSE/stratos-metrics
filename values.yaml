@@ -93,7 +93,7 @@ env:
   UAA_CF_IDENTITY_ZONE: scf
   UAA_PORT: 2793
   DOMAIN:
-    DOPPLER_PORT: 4443
+  DOPPLER_PORT: 4443
 kube:
   external_metrics_port: 7443
 
