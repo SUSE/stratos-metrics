@@ -1,1 +1,5 @@
+.git
+values.yaml.tmpl
+.gitignore
+.helmignore
 build/
