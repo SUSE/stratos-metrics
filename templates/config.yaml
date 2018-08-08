@@ -22,11 +22,11 @@ data:
       {
         "type": "cf",
       {{- if .Values.env.DOMAIN }}  
-        "url": "wss://doppler.{{ .Values.env.DOMAIN }}:4443",
+        "url": "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}",
       {{- else }}
         "url": "{{ .Values.firehoseExporter.dopplerUrl }}",
       {{- end }}
-        "job": "{{ .Values.cfName }}"
+        "job": "cf-firehose"
       }
     ]
   nginx-config: |
@@ -82,19 +82,14 @@ data:
       - /etc/config/alerts
 
     scrape_configs:
-      - job_name: prometheus
-        static_configs:
-          - targets:
-            - "{{.Values.prometheus.serviceName}}:{{.Values.prometheus.servicePort}}"
-
       # Firehose exporter job
       - job_name: cf-firehose
         static_configs:
           - targets:
-            - "{{.Values.firehoseExporter.serviceName}}:{{.Values.firehoseExporter.servicePort}}"
+            - "{{ .Release.Name }}-{{.Values.firehoseExporter.serviceName}}:{{.Values.firehoseExporter.servicePort}}"
             labels:
               {{- if .Values.env.DOMAIN }}  
-              doppler_endpoint: "wss://doppler.{{ .Values.env.DOMAIN }}:4443"
+              doppler_endpoint: "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}"
               {{- else }}
               doppler_endpoint: "{{ .Values.firehoseExporter.dopplerUrl }}"
               {{- end }}

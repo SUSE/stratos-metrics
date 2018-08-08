@@ -59,7 +59,7 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
         {{- if .Values.env.DOMAIN }}  
         - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
-          value: "wss://doppler.{{ .Values.env.DOMAIN }}:4443"
+          value: "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}"
         {{- else }}
         - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
           value: "{{ .Values.firehoseExporter.dopplerUrl }}"
