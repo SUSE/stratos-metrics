@@ -31,6 +31,7 @@ spec:
           readOnly: true
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/
+      {{- if .Values.firehoseExporter.enabled }}
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
         name: firehose-exporter
         env:
@@ -100,6 +101,7 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
+      {{- end }}
       volumes:
       - name: ssl-cert
         secret:
