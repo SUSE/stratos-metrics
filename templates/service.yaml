@@ -1,3 +1,4 @@
+{{- if .Values.firehoseExporter.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -16,6 +17,7 @@ spec:
   selector:
     app: "stratos-metrics-{{ .Values.cfName }}"
     component: firehose-exporter
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
