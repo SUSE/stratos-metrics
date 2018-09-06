@@ -102,35 +102,33 @@ kube:
 prometheus:
   alertmanager:
     enabled: false
-  kubeStateMetrics:
-    enabled: false
-  nodeExporter:
-    enabled: false
   pushgateway:
     enabled: false
   configmapReload:
     image:
       repository: splatform/stratos-metrics-configmap-reload
-      tag: latest
+      tag: opensuse
   initChownData:
     image:
       repository: splatform/stratos-metrics-init-chown-data
-      tag: latest
+      tag: opensuse
   kubeStateMetrics:    
+    enabled: false
     image:
       repository: splatform/stratos-metrics-kube-state-metrics
-      tag: latest
+      tag: opensuse
   nodeExporter:    
+    enabled: false
     image:
       repository: splatform/stratos-metrics-node-exporter
-      tag: latest
+      tag: opensuse
   server:
     name: prometheus
     fullnameOverride: prometheus-service
     configMapOverrideName: stratos-metrics-config
     image:
       repository: splatform/stratos-metrics-prometheus
-      tag: latest
+      tag: opensuse
     replicaCount: 1
     service:
       servicePort: 9090

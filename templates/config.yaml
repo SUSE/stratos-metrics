@@ -82,6 +82,7 @@ data:
       - /etc/config/alerts
 
     scrape_configs:
+    {{- if .Values.firehoseExporter.enabled }}
       # Firehose exporter job
       - job_name: cf-firehose
         static_configs:
@@ -93,6 +94,7 @@ data:
               {{- else }}
               doppler_endpoint: "{{ .Values.firehoseExporter.dopplerUrl }}"
               {{- end }}
+    {{- end }}
 
     # A scrape configuration for running Prometheus on a Kubernetes cluster.
       # This uses separate scrape configs for cluster components (i.e. API server, node)

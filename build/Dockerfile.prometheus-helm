@@ -26,7 +26,7 @@ RUN cd /tmp && \
 # use --target=kube-state-metrics to build an image for Kubernetes
 FROM opensuse:latest as kube-state-metrics
 COPY --from=kube-state-metrics-builder /tmp/src/k8s.io/kube-state-metrics/kube-state-metrics /kube-state-metrics
-ENTRYPOINT ["/kube-state-metrics"]
+ENTRYPOINT ["/kube-state-metrics", "--port=8080", "--telemetry-port=8081"]
 
 # use --target=init-chown-data to build an image for Kubernetes
 FROM opensuse:latest as init-chown-data
