@@ -6,6 +6,8 @@ imageTag: opensuse
 useLb: false
 metrics:
   externalIP: 
+kubernetes:
+  authEndpoint: 
 firehoseExporter:
   enabled: true
   serviceName: f-exp-service
