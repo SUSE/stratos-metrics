@@ -19,6 +19,7 @@ metadata:
 data:
   nginx-metadata: |
     [
+      {{- if .Values.firehoseExporter.enabled }}
       {
         "type": "cf",
       {{- if .Values.env.DOMAIN }}  
@@ -28,6 +29,17 @@ data:
       {{- end }}
         "job": "cf-firehose"
       }
+      {{- end }}
+      {{- if .Values.kubernetes.authEndpoint }}
+        {{- if .Values.firehoseExporter.enabled }}
+            ,
+        {{- end }}
+      {
+        "type": "k8s",
+        "url": "{{ .Values.kubernetes.authEndpoint }}",
+        "job": "k8s-metrics"
+      }
+      {{- end }}
     ]
   nginx-config: |
     upstream prometheus {
@@ -82,6 +94,7 @@ data:
       - /etc/config/alerts
 
     scrape_configs:
+    {{- if .Values.firehoseExporter.enabled }}
       # Firehose exporter job
       - job_name: cf-firehose
         static_configs:
@@ -93,6 +106,7 @@ data:
               {{- else }}
               doppler_endpoint: "{{ .Values.firehoseExporter.dopplerUrl }}"
               {{- end }}
+    {{- end }}
 
     # A scrape configuration for running Prometheus on a Kubernetes cluster.
       # This uses separate scrape configs for cluster components (i.e. API server, node)

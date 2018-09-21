@@ -1,5 +1,5 @@
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: "stratos-metrics-{{ .Values.cfName }}"
@@ -12,6 +12,8 @@ spec:
       labels:
         app: "stratos-metrics-{{ .Values.cfName }}"
         component: firehose-exporter
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        version: "{{ .Chart.AppVersion }}"
     spec:
       containers:
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.nginx.image}}:{{.Values.imageTag}}
@@ -31,6 +33,7 @@ spec:
           readOnly: true
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/
+      {{- if .Values.firehoseExporter.enabled }}
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
         name: firehose-exporter
         env:
@@ -100,6 +103,7 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
+      {{- end }}
       volumes:
       - name: ssl-cert
         secret:

@@ -1,3 +1,4 @@
+{{- if .Values.firehoseExporter.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -5,6 +6,8 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.firehoseExporter.serviceName }}
   labels:
     app: "stratos-metrics-{{ .Values.cfName }}"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    version: "{{ .Chart.AppVersion }}"
     component: firehose-exporter
 spec:
   type: {{ .Values.firehoseExporter.serviceType }}
@@ -16,6 +19,7 @@ spec:
   selector:
     app: "stratos-metrics-{{ .Values.cfName }}"
     component: firehose-exporter
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -24,6 +28,8 @@ metadata:
   labels:
     app: "stratos-metrics-{{ .Values.cfName }}"
     component: firehose-exporter
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    version: "{{ .Chart.AppVersion }}"
 spec:
 {{- if .Values.useLb }}
   type: LoadBalancer
