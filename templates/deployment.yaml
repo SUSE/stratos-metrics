@@ -77,7 +77,10 @@ spec:
         env:
         - name: SKIP_SSL_VALIDATION
           value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
-
+        {{- if .Values.firehoseExporter.noIdentityZone }}  
+        - name: IGNORE_IDENTITY_ZONE
+          value: "true"
+        {{- end }}
         {{- if .Values.env.UAA_HOST }}  
         - name: UAA_ENDPOINT
           value: "{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"

@@ -43,8 +43,11 @@ elif [ -z "${responseWas200}" && -z "${responseWas404}" ]; then
 echo "Something unexpected happened. UAA Response was: ${clientGetResponse}"
 exit 1
 fi
-
-uaac.ruby2.1 target ${ARGS} https://${CF_IDENTITY_ZONE}.${UAA_ENDPOINT}
+if [ -z "${IGNORE_IDENTITY_ZONE}" ]; then
+  uaac.ruby2.1 target ${ARGS} https://${CF_IDENTITY_ZONE}.${UAA_ENDPOINT}
+else 
+  uaac.ruby2.1 target ${ARGS} https://${UAA_ENDPOINT}
+fi
 uaac.ruby2.1 token client get prom_admin -s ${PROMETHEUS_ADMIN_CLIENT_SECRET}
 
 # Check if client has already been created
