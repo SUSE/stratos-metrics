@@ -4,16 +4,21 @@ kind: Deployment
 metadata:
   name: "stratos-metrics-{{ .Values.cfName }}"
   labels:
-    component: firehose-exporter
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}"
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: "stratos-metrics-{{ .Values.cfName }}"
-        component: firehose-exporter
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-        version: "{{ .Chart.AppVersion }}"
+        app.kubernetes.io/name: "stratos-metrics"
+        app.kubernetes.io/instance: "{{ .Release.Name }}"
+        app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+        app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}"
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
       containers:
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.nginx.image}}:{{.Values.imageTag}}

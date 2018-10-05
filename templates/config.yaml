@@ -13,9 +13,11 @@ kind: ConfigMap
 metadata:
   name: "{{ .Release.Name }}-stratos-metrics-config"
   labels:
-    release: "{{ .Release.Name }}"
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "stratos-metrics-{{.Values.cfName}}"
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-config"
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 data:
   nginx-metadata: |
     [
