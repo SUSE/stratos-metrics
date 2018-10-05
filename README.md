@@ -134,3 +134,22 @@ To deploy `stratos-metrics` helm chart:
 ```
 $helm install stratos-metrics -f pcf.yaml --namespace stratos-metrics
 ```
+
+## Enabling Kubernetes Monitoring
+Stratos can display information about a registered Kubernetes endpoint. To see metrics (pod usage/node usage etc.) of the cluster, the `stratos-metrics` chart can be deployed to gather those metrics.
+
+To enable kubernetes monitoring, the following configuration needs to be provided. In this example configuration, `$KUBE_SERVER_ADDRESS` should be the Kubernetes cluster server address. You can usually find this address from your `kubeconfig` under `cluster.server`.
+Please note, that this URL should be the same as the URL of the Kubernetes cluster registered in Stratos.
+
+```
+kubernetes:
+  authEndpoint: $KUBE_SERVER_ADDRESS
+prometheus:
+  kubeStateMetrics:    
+    enabled: true
+```
+
+To deploy `stratos-metrics` helm chart:
+```
+$helm install stratos-metrics -f kube.yaml --namespace stratos-metrics
+```
