@@ -5,10 +5,10 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-{{ .Values.firehoseExporter.serviceName }}
   labels:
-    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/name: "metrics"
     app.kubernetes.io/instance: "{{ .Release.Name }}"
     app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-firehose-exporter-service"
+    app.kubernetes.io/component: "metrics-{{ .Values.cfName }}-firehose-exporter-service"
 spec:
   type: {{ .Values.firehoseExporter.serviceType }}
   ports:
@@ -17,8 +17,8 @@ spec:
     protocol: TCP
     name: {{ .Values.firehoseExporter.serviceName }}
   selector:
-    app: "stratos-metrics-{{ .Values.cfName }}"
-    component: firehose-exporter
+    app.kubernetes.io/name: "metrics"
+    app.kubernetes.io/component: "metrics-{{ .Values.cfName }}-firehose-exporter-service"
 {{- end }}
 ---
 apiVersion: v1
@@ -26,10 +26,10 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-{{ .Values.nginx.serviceName }}
   labels:
-    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/name: "metrics"
     app.kubernetes.io/instance: "{{ .Release.Name }}"
     app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-nginx-service"
+    app.kubernetes.io/component: "metrics-{{ .Values.cfName }}-nginx-service"
 spec:
 {{- if .Values.useLb }}
   type: LoadBalancer
@@ -49,5 +49,5 @@ spec:
     protocol: TCP
     name: nginx
   selector:
-    app: "stratos-metrics-{{ .Values.cfName }}"
-    component: firehose-exporter
+    app.kubernetes.io/name: "metrics"
+    app.kubernetes.io/component: "metrics-{{ .Values.cfName }}-firehose-exporter-service"
