@@ -169,7 +169,7 @@ prometheus:
 
 Deploy `stratos-metrics` helm chart with the override:
 ```
-$helm install stratos-metrics -f eks.yaml --namespace eks-metrics
+$ helm install stratos-metrics -f eks.yaml --namespace eks-metrics
 ```
 
 After deployment, fetch the external endpoint for the Metrics service.
@@ -185,7 +185,7 @@ eks-metrics-prometheus-kube-state-metrics   ClusterIP      None             <non
 prometheus-service                          ClusterIP      10.100.135.21    <none>                    
                                               9090/TCP        40s                    
                                               ```
-
+```
 In this example, the metrics endpoint will be `https://aaaa-759563135.us-east-1.elb.amazonaws.com`
 
 > **Note: If the pods are stuck in `pending` state, then there probably was an issue with the storage volumes. Create the approriate storage class and bind it to a specific zone to address the problem.
