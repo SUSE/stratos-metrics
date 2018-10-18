@@ -9,7 +9,7 @@ RUN cd /tmp && \
     git checkout v0.2.1 && \
     make
 
-FROM  splatform/stratos-bk-build-base:opensuse as configmap-reload  
+FROM  splatform/stratos-bk-base:opensuse as configmap-reload  
 COPY --from=configmap-reload-builder /tmp/configmap-reload/out/configmap-reload /configmap-reload
 ENTRYPOINT ["/configmap-reload"]
 
@@ -25,11 +25,13 @@ RUN cd /tmp && \
 
 # use --target=kube-state-metrics to build an image for Kubernetes
 FROM  splatform/stratos-bk-build-base:opensuse as kube-state-metrics
+WORKDIR /
+USER root
 COPY --from=kube-state-metrics-builder /tmp/src/k8s.io/kube-state-metrics/kube-state-metrics /kube-state-metrics
 ENTRYPOINT ["/kube-state-metrics", "--port=8080", "--telemetry-port=8081"]
 
 # use --target=init-chown-data to build an image for Kubernetes
-FROM opensuse:latest as init-chown-data
+FROM splatform/stratos-bk-base:opensuse as init-chown-data
 
 # use --target=node-exporter to build an image for Kubernetes
 FROM builder as node-exporter-builder
@@ -40,6 +42,6 @@ RUN cd /tmp && \
     tar -xvf node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     cp node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}/node_exporter /tmp
 
-FROM opensuse:latest as node-exporter
+FROM splatform/stratos-bk-base:opensuse as node-exporter
 COPY --from=node-exporter-builder /tmp/node_exporter /node_exporter
 ENTRYPOINT ["/node_exporter"]
