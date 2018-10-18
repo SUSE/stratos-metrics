@@ -9,7 +9,7 @@ RUN cd /tmp && \
     git checkout v0.2.1 && \
     make
 
-FROM opensuse:latest as configmap-reload  
+FROM  splatform/stratos-bk-build-base:opensuse as configmap-reload  
 COPY --from=configmap-reload-builder /tmp/configmap-reload/out/configmap-reload /configmap-reload
 ENTRYPOINT ["/configmap-reload"]
 
@@ -24,7 +24,7 @@ RUN cd /tmp && \
     make build
 
 # use --target=kube-state-metrics to build an image for Kubernetes
-FROM opensuse:latest as kube-state-metrics
+FROM  splatform/stratos-bk-build-base:opensuse as kube-state-metrics
 COPY --from=kube-state-metrics-builder /tmp/src/k8s.io/kube-state-metrics/kube-state-metrics /kube-state-metrics
 ENTRYPOINT ["/kube-state-metrics", "--port=8080", "--telemetry-port=8081"]
 
