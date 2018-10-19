@@ -17,7 +17,7 @@ TAG_LATEST="false"
 PUSH="false"
 NO_PATCH="false"
 
-while getopts ":ho:r:t:Tcplub:Pu:" opt; do
+while getopts ":ho:r:t:Tcplub:Cu:" opt; do
   case $opt in
     h)
       echo
@@ -52,7 +52,7 @@ while getopts ":ho:r:t:Tcplub:Pu:" opt; do
     c)
       CONCOURSE_BUILD="true"
       ;;
-    P)
+    C)
       ADD_OFFICIAL_TAG="true"
       ;;
     l)
