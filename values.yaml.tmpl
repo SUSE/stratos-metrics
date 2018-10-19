@@ -126,7 +126,6 @@ prometheus:
       tag: latest
   server:
     name: prometheus
-    fullnameOverride: prometheus-service
     configMapOverrideName: stratos-metrics-config
     image:
       repository: splatform/stratos-metrics-prometheus
