@@ -3,9 +3,7 @@ FROM splatform/stratos-bk-build-base:opensuse
 WORKDIR /
 USER root
 RUN zypper in -y ruby ruby-devel gcc-c++ && \
-    zypper install -y --type pattern devel_basis && \
-    gem install cf-uaac && \
-    zypper remove -y --type pattern devel_basisc
+    gem install cf-uaac
 ADD setup-uaa.sh /setup-uaa.sh
 RUN chmod +x /setup-uaa.sh
 ENTRYPOINT ["/setup-uaa.sh"]
