@@ -6,7 +6,9 @@ SLES=$(cat /etc/os-release | grep SLES)
 IS_SLES=$?
 
 if [ $IS_SLES = 1 ]; then
-    zypper install -y --type pattern devel_basis
+    zypper in -y --type pattern devel_basis
+else
+    zypper in -y ruby-devel
 fi
 
 gem install cf-uaac
