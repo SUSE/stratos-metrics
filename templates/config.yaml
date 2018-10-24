@@ -49,6 +49,11 @@ data:
         server                      prometheus-service:9090;
         keepalive                   32;
     }
+    upstream grafana {
+        least_conn;
+        server                      metrics-grafana:80;
+        keepalive                   32;
+    }
     server {
       listen                      443 ssl;
 
@@ -65,6 +70,21 @@ data:
           auth_basic_user_file /etc/nginx/.htpasswd;
       }
 
+      location /grafana {
+          proxy_pass_header       Server;
+          proxy_set_header        Host $http_host;
+          proxy_redirect          off;
+          proxy_set_header        X-Real-IP $remote_addr;
+          proxy_set_header        X-Scheme $scheme;
+          proxy_set_header        X-WEBAUTH-USER $remote_user;
+          proxy_set_header        Authorization "";
+          proxy_pass              http://grafana/;
+          proxy_intercept_errors  on;
+          proxy_http_version      1.1;
+          auth_basic "metrics-auth";
+          auth_basic_user_file /etc/nginx/.htpasswd;
+          rewrite  ^/grafana/(.*)  /$1 break;
+      }
       location / {
           proxy_pass_header       Server;
           proxy_set_header        Host $http_host;

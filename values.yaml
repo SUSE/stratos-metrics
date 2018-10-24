@@ -2,7 +2,7 @@
 cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
-imageTag: opensuse
+imageTag: test-gc99c226
 useLb: false
 metrics:
   externalIP: 
@@ -109,28 +109,28 @@ prometheus:
   configmapReload:
     image:
       repository: splatform/stratos-metrics-configmap-reload
-      tag: opensuse
+      tag: test-gc99c226
   initChownData:
     image:
       repository: splatform/stratos-metrics-init-chown-data
-      tag: opensuse
+      tag: test-gc99c226
   kubeStateMetrics:    
     enabled: false
     image:
       repository: splatform/stratos-metrics-kube-state-metrics
-      tag: opensuse
+      tag: test-gc99c226
   nodeExporter:    
     enabled: false
     image:
       repository: splatform/stratos-metrics-node-exporter
-      tag: opensuse
+      tag: test-gc99c226
   server:
     name: prometheus
     fullnameOverride: prometheus-service
     configMapOverrideName: stratos-metrics-config
     image:
       repository: splatform/stratos-metrics-prometheus
-      tag: opensuse
+      tag: test-gc99c226
     replicaCount: 1
     service:
       servicePort: 9090
@@ -143,3 +143,50 @@ prometheus:
   serverFiles:
     alerts: {}
     rules: {}
+grafana:
+  service:
+    type: NodePort
+  adminUser: metrics
+  adminPassword: s3cr3t
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClassName:
+    accessModes: ["ReadWriteOnce"]
+  # plugins:
+  #   - grafana-clock-panel
+  #   - grafana-diagram
+  #   - grafana-histogram-panel
+  #   - grafana-piechart-panel
+  #   - grafana-status-panel
+  #   - grafana-worldmap-panel
+  sidecar:
+    dashboards:
+      enabled: true
+      label: "stratos-metrics-dashboard"
+    datasources:
+      enabled: true
+      label: "stratos-metrics-datasource"
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+    paths:
+      data: /var/lib/grafana/data
+      logs: /var/log/grafana
+      plugins: /var/lib/grafana/plugins
+      provisioning: /etc/grafana/provisioning
+    analytics:
+      check_for_updates: true
+    log:
+      mode: console
+    grafana_net:
+      url: https://grafana.net
+    users:
+      allow_sign_up: false
+      auto_assign_org: true
+      auto_assign_org_role: Editor
+    auth.proxy:
+      enabled: true
+      header_name: X-WEBAUTH-USER
+      header_property: username
+      auto_sign_up: true
