@@ -2,7 +2,7 @@
 cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
-imageTag: test-gc99c226
+imageTag: opensuse
 useLb: false
 metrics:
   externalIP: 
@@ -109,28 +109,28 @@ prometheus:
   configmapReload:
     image:
       repository: splatform/stratos-metrics-configmap-reload
-      tag: test-gc99c226
+      tag: opensuse
   initChownData:
     image:
       repository: splatform/stratos-metrics-init-chown-data
-      tag: test-gc99c226
+      tag: opensuse
   kubeStateMetrics:    
     enabled: false
     image:
       repository: splatform/stratos-metrics-kube-state-metrics
-      tag: test-gc99c226
+      tag: opensuse
   nodeExporter:    
     enabled: false
     image:
       repository: splatform/stratos-metrics-node-exporter
-      tag: test-gc99c226
+      tag: opensuse
   server:
     name: prometheus
     fullnameOverride: prometheus-service
     configMapOverrideName: stratos-metrics-config
     image:
       repository: splatform/stratos-metrics-prometheus
-      tag: test-gc99c226
+      tag: opensuse
     replicaCount: 1
     service:
       servicePort: 9090
@@ -144,6 +144,8 @@ prometheus:
     alerts: {}
     rules: {}
 grafana:
+  # By default Grafana is disabled
+  enabled: false
   service:
     type: NodePort
   adminUser: metrics
