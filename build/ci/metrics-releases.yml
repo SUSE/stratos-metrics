@@ -100,6 +100,8 @@ jobs:
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
           target_name: configmap-reload
       - put: stratos-metrics-init-chown-data
         params:
@@ -107,6 +109,8 @@ jobs:
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))\n
           target_name: init-chown-data
       - put: stratos-metrics-node-exporter
         params:
@@ -114,6 +118,8 @@ jobs:
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
           target_name: node-exporter
       - put: stratos-metrics-kube-state-metrics
         params:
@@ -121,12 +127,16 @@ jobs:
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
           target_name: kube-state-metrics
         params:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
           target_name: kube-state-metrics
       - put: stratos-metrics-firehose-exporter
         params:
@@ -134,24 +144,32 @@ jobs:
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
       - put: stratos-metrics-firehose-init
         params:
           dockerfile: metrics/build/Dockerfile.firehose-init
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
       - put: stratos-metrics-nginx
         params:
           dockerfile: metrics/build/Dockerfile.nginx
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
       - put: stratos-metrics-prometheus
         params:
           dockerfile: metrics/build/Dockerfile.prometheus
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
 - name: create-chart
   plan:
   - get: metrics
