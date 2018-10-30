@@ -1,26 +1,37 @@
 {{- if .Values.firehoseExporter.enabled }}
+
+{{ $releaseName := .Release.Name }}
+{{ $firehoseExporter := .Values.firehoseExporter }}
+{{ $appVersion := .Chart.AppVersion }}
+{{ $cfName :=  .Values.cfName }}
+{{ $helmChartName :=  .Chart.Name }}
+{{ $helmChartVersion :=  .Chart.Version }}
+  {{- range int .Values.firehoseExporter.instances | until }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.firehoseExporter.serviceName }}
+  name: {{ $releaseName }}-{{ $firehoseExporter.serviceName }}-{{ . }}
   labels:
     app.kubernetes.io/name: "stratos-metrics"
-    app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-firehose-exporter-service"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/instance: "{{ $releaseName }}"
+    app.kubernetes.io/version: "{{ $appVersion }}"
+    app.kubernetes.io/component: "stratos-metrics-{{ $cfName }}-firehose-exporter-service"
+    helm.sh/chart: "{{ $helmChartName }}-{{ $helmChartVersion | replace "+" "_" }}"
 spec:
-  type: {{ .Values.firehoseExporter.serviceType }}
+  type: {{ $firehoseExporter.serviceType }}
   ports:
-  - port: {{ .Values.firehoseExporter.externalPort }}
-    targetPort: {{ .Values.firehoseExporter.internalPort }}
+  - port: {{ $firehoseExporter.externalPort }}
+    targetPort: {{ $firehoseExporter.internalPort }}
     protocol: TCP
-    name: {{ .Values.firehoseExporter.serviceName }}
+    name: {{ $firehoseExporter.serviceName }}
   selector:
     app.kubernetes.io/name: "stratos-metrics"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-nginx"
+    app.kubernetes.io/component: "stratos-metrics-{{ $cfName }}-firehose-exporters-{{ . }}"
+  {{- end }}
 {{- end }}
+
+
 ---
 apiVersion: v1
 kind: Service
