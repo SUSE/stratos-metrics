@@ -147,7 +147,7 @@ grafana:
   # By default Grafana is disabled
   enabled: false
   service:
-    type: NodePort
+    port: 9091
   adminUser: metrics
   adminPassword: s3cr3t
   persistence:
@@ -155,6 +155,7 @@ grafana:
     size: 1Gi
     storageClassName:
     accessModes: ["ReadWriteOnce"]
+  # Plugins disabled due to issue https://github.com/helm/charts/issues/7905
   # plugins:
   #   - grafana-clock-panel
   #   - grafana-diagram
