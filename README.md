@@ -153,3 +153,40 @@ To deploy `stratos-metrics` helm chart:
 ```
 $helm install stratos-metrics -f kube.yaml --namespace stratos-metrics
 ```
+
+## Deploying Metrics in EKS
+
+
+To deploy `metrics` in an EKS cluster, the following configuration overrides are required, save the following to `eks.yaml`:
+```
+useLb: true
+kubernetes:
+  authEndpoint: https://aaaaaa.sk1.us-east-1.eks.amazonaws.com // Your EKS endpoint address
+prometheus:
+  kubeStateMetrics:    
+    enabled: true
+```
+
+Deploy `stratos-metrics` helm chart with the override:
+```
+$ helm install stratos-metrics -f eks.yaml --namespace eks-metrics
+```
+
+After deployment, fetch the external endpoint for the Metrics service.
+```
+11:04 $ kubectl get services --namespace eks-metrics                                                  
+                                                                                                      
+
+NAME                                        TYPE           CLUSTER-IP       EXTERNAL-IP               
+                                              PORT(S)         AGE                                     
+eks-metrics-metrics-nginx                   LoadBalancer   10.100.196.146   aaaa-759563135.us-east-1.elb.amazonaws.com   443:30241/TCP   39s                                     
+eks-metrics-prometheus-kube-state-metrics   ClusterIP      None             <none>                    
+                                              80/TCP          40s                                     
+prometheus-service                          ClusterIP      10.100.135.21    <none>                    
+                                              9090/TCP        40s                    
+                                              ```
+```
+In this example, the metrics endpoint will be `https://aaaa-759563135.us-east-1.elb.amazonaws.com`
+
+> **Note: If the pods are stuck in `pending` state, then there probably was an issue with the storage volumes. Create the approriate storage class and bind it to a specific zone to address the problem.
+**
