@@ -17,7 +17,7 @@ TAG_LATEST="false"
 PUSH="false"
 NO_PATCH="false"
 
-while getopts ":ho:r:t:Tcplub:Ou:" opt; do
+while getopts ":ho:r:t:Tcplub:Cu:" opt; do
   case $opt in
     h)
       echo
@@ -52,7 +52,7 @@ while getopts ":ho:r:t:Tcplub:Ou:" opt; do
     c)
       CONCOURSE_BUILD="true"
       ;;
-    O)
+    C)
       ADD_OFFICIAL_TAG="true"
       ;;
     l)
@@ -130,7 +130,6 @@ function buildAndPublishImage {
   if [ "${NO_PATCH}" = "false" ]; then
     patchDockerfile ${DOCKER_FILE} ${FOLDER}
   fi
-
   IMAGE_URL=${DOCKER_REGISTRY}/${DOCKER_ORG}/${NAME}:${TAG}
   echo Building Docker Image for ${NAME}
 
@@ -254,7 +253,6 @@ pushd ${__DIRNAME}
 cleanup
 
 updateTagForRelease
-
 # Build the images for Stratos Metrics
 buildAndPublishImage stratos-metrics-configmap-reload Dockerfile.prometheus-helm . configmap-reload
 buildAndPublishImage stratos-metrics-kube-state-metrics Dockerfile.prometheus-helm . kube-state-metrics
