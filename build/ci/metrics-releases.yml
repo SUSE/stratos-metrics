@@ -111,6 +111,8 @@ jobs:
 - name: build-images
   plan:
   - get: metrics
+    passed: [generate-tag]
+    trigger: true
   - get: image-tag
     passed: [generate-tag]
     params:
