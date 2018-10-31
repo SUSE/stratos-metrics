@@ -21,35 +21,59 @@ resources:
     branch: master
     private_key: ((github-private-key))
 # Docker Images
-- name: stratos-firehose-exporter
+- name: stratos-metrics-configmap-reload
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-org))/stratos-firehose-exporter
-- name: stratos-firehose-init
+    repository: ((docker-org))/stratos-metrics-configmap-reload
+- name: stratos-metrics-kube-state-metrics
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-org))/stratos-firehose-init
+    repository: ((docker-org))/stratos-metrics-kube-state-metrics
+- name: stratos-metrics-init-chown-data
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-metrics-init-chown-data 
+- name: stratos-metrics-node-exporter
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-metrics-node-exporter
+- name: stratos-metrics-firehose-exporter
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-metrics-firehose-exporter
+- name: stratos-metrics-firehose-init
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-org))/stratos-metrics-firehose-init
 - name: stratos-metrics-nginx
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
     repository: ((docker-org))/stratos-metrics-nginx
-- name: stratos-prometheus
+- name: stratos-metrics-prometheus
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-org))/stratos-prometheus
+    repository: ((docker-org))/stratos-metrics-prometheus
 
 - name: helm-chart-tarball
   type: s3
   source:
-    bucket: concourse-stratos-ui
+    bucket: {{minio-bucket}}
     endpoint: {{minio-server-endpoint}}
     regexp: temp-artifacts/console-metrics-helm-chart-(?P<version>.*).tgz
     access_key_id: {{minio-access-key}}
@@ -70,30 +94,74 @@ jobs:
   - get: metrics
   - aggregate:
     - do:
-      - put: stratos-firehose-exporter
+      - put: stratos-metrics-configmap-reload
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
+          tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: configmap-reload
+      - put: stratos-metrics-init-chown-data
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
+          tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: init-chown-data
+      - put: stratos-metrics-node-exporter
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
+          tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: node-exporter
+      - put: stratos-metrics-kube-state-metrics
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: metrics/build/dev-release-tag
+          tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: kube-state-metrics
+      - put: stratos-metrics-firehose-exporter
         params:
           dockerfile: metrics/build/Dockerfile.firehose-exporter
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
-      - put: stratos-firehose-init
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+      - put: stratos-metrics-firehose-init
         params:
           dockerfile: metrics/build/Dockerfile.firehose-init
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
       - put: stratos-metrics-nginx
         params:
           dockerfile: metrics/build/Dockerfile.nginx
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
-      - put: stratos-prometheus
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+      - put: stratos-metrics-prometheus
         params:
           dockerfile: metrics/build/Dockerfile.prometheus
           build: metrics/build/
           tag: metrics/build/dev-release-tag
           tag_commit: true
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
 - name: create-chart
   plan:
   - get: metrics
