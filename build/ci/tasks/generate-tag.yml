@@ -19,7 +19,7 @@ run:
     cd metrics
     COMMIT=$(git log -1 --format="%h")
     VERSION=$(cat Chart.yaml | grep appVersion| cut -d' ' -f2 | tr -d '\n')
-    echo $VERSION > release-tag
+    echo $VERSION-${COMMIT} > release-tag
     tar -cf release-tag-${COMMIT}.tar release-tag
 
     mv *.tar ../image-tag/
