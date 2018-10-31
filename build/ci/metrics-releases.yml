@@ -70,6 +70,15 @@ resources:
     password: ((docker-password))
     repository: ((docker-org))/stratos-metrics-prometheus
 
+- name: image-tag
+  type: s3
+  source:
+    bucket: {{minio-bucket}}
+    endpoint: {{minio-server-endpoint}}
+    regexp: temp-artifacts/release-tag-(.*).tar
+    access_key_id: {{minio-access-key}}
+    secret_access_key: {{minio-secret-access-key}}
+    region_name: eu-central-1
 - name: helm-chart-tarball
   type: s3
   source:
@@ -89,16 +98,32 @@ resources:
     release: false
 
 jobs:
+- name: generate-tag
+  plan:
+  - get: metrics
+  - do:
+    - task: generate-tag
+      file: metrics/build/ci/tasks/generate-tag.yml
+    - put: image-tag
+      params:
+        file: image-tag/*.tar
+        acl: public-read
 - name: build-images
   plan:
   - get: metrics
+    passed: [generate-tag]
+    trigger: true
+  - get: image-tag
+    passed: [generate-tag]
+    params:
+      unpack: true
   - aggregate:
     - do:
       - put: stratos-metrics-configmap-reload
         params:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -107,7 +132,7 @@ jobs:
         params:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -116,7 +141,7 @@ jobs:
         params:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -125,7 +150,7 @@ jobs:
         params:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -134,7 +159,7 @@ jobs:
         params:
           dockerfile: metrics/build/Dockerfile.firehose-exporter
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -142,7 +167,7 @@ jobs:
         params:
           dockerfile: metrics/build/Dockerfile.firehose-init
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -150,7 +175,7 @@ jobs:
         params:
           dockerfile: metrics/build/Dockerfile.nginx
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -158,7 +183,7 @@ jobs:
         params:
           dockerfile: metrics/build/Dockerfile.prometheus
           build: metrics/build/
-          tag: metrics/build/dev-release-tag
+          tag: image-tag/release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
@@ -188,7 +213,7 @@ jobs:
     - put: metrics-release
       params:
         name: metrics/build/dev-release-name
-        tag: metrics/build/dev-release-tag
+        tag: image-tag/release-tag
         body: metrics/build/dev-release-description
         globs:
         - helm-chart-tarball/*.tgz
