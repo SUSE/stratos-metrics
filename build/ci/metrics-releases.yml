@@ -17,8 +17,8 @@ resources:
 - name: stratos-master
   type: git
   source:
-    uri: git@github.com:((stratos-organization))/((stratos-repository))
-    branch: master
+    uri: git@github.com:((helm-repo-github-organization))/((helm-repo-github-repository))
+    branch: ((helm-repo-branch))
     private_key: ((github-private-key))
 # Docker Images
 - name: stratos-metrics-configmap-reload
