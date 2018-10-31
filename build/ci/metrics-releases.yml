@@ -110,7 +110,7 @@ jobs:
           tag: metrics/build/dev-release-tag
           tag_commit: true
           patch_base_reg: ((patch-base-reg))
-          patch_base_tag: ((patch-base-tag))\n
+          patch_base_tag: ((patch-base-tag))
           target_name: init-chown-data
       - put: stratos-metrics-node-exporter
         params:
@@ -122,14 +122,6 @@ jobs:
           patch_base_tag: ((patch-base-tag))
           target_name: node-exporter
       - put: stratos-metrics-kube-state-metrics
-        params:
-          dockerfile: metrics/build/Dockerfile.prometheus-helm
-          build: metrics/build/
-          tag: metrics/build/dev-release-tag
-          tag_commit: true
-          patch_base_reg: ((patch-base-reg))
-          patch_base_tag: ((patch-base-tag))
-          target_name: kube-state-metrics
         params:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
