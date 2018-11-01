@@ -193,6 +193,10 @@ jobs:
     passed: [build-images]
     trigger: true
   - get: stratos-master
+  - get: image-tag
+    passed: [generate-tag]
+    params:
+      unpack: true
   - do:
     - task: build
       privileged: true
@@ -206,6 +210,7 @@ jobs:
         GIT_PRIVATE_KEY: ((github-private-key))
         DOCKER_ORG: ((artifact-docker-organization))
         DOCKER_REGISTRY: ((artifact-docker-registry))
+        HELM_REPO_BRANCH: ((helm-repo-branch))
     - put: helm-chart-tarball
       params:
        file: helm-chart/*.tgz
