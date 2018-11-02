@@ -99,7 +99,8 @@ env:
   DOPPLER_PORT: 4443
 kube:
   external_metrics_port: 7443
-
+secrets:
+  UAA_ADMIN_CLIENT_SECRET:
 # Values for the Promethues sub-chart
 prometheus:
   alertmanager:
