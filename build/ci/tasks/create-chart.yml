@@ -2,7 +2,7 @@
 platform: linux
 inputs:
 - name: metrics
-- name: stratos-master
+- name: helm-repo
 - name: image-tag
 outputs:
 - name: helm-chart
@@ -22,7 +22,7 @@ run:
       ROOT_DIR=$PWD
       STRATOS_METRICS=${ROOT_DIR}/metrics
       IMAGE_TAG_DIR=${ROOT_DIR}/image-tag
-      STRATOS_MASTER=${ROOT_DIR}/stratos-master
+      HELM_REPO=${ROOT_DIR}/helm-repo
       TAG=$(cat ${IMAGE_TAG_DIR}/release-tag)
       cd ${STRATOS_METRICS}
       CHART_PATH=$STRATOS_METRICS
@@ -37,7 +37,7 @@ run:
       helm package ./
       mv metrics-*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
       cd ${ROOT_DIR}/helm-chart/
-      INDEX_FILE=${STRATOS_MASTER}/index.yaml
+      INDEX_FILE=${HELM_REPO}/index.yaml
       CHART_FILE=${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
       if [ -f ${INDEX_FILE} ]; then
             NIGHTLY_EXISTS=$(cat  ${INDEX_FILE} | grep ${TAG})
@@ -70,12 +70,12 @@ run:
               cp  ${INDEX_FILE} ${ROOT_DIR}/helm-chart/
               MERGE_INDEX="--merge index.yaml"
               helm repo index ./ ${MERGE_INDEX} --url https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/releases/download/${TAG}/
-              cp index.yaml ${STRATOS_MASTER}/
+              cp index.yaml ${HELM_REPO}/
             fi
       fi
 
       # Update Helm Repository
-      cd ${STRATOS_MASTER}
+      cd ${HELM_REPO}
       git config --global user.name ${GIT_USER}
       git config --global user.email ${GIT_EMAIL}
 
