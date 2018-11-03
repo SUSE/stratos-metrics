@@ -91,8 +91,8 @@ resources:
 - name: metrics-release
   type: github-release
   source:
-    owner: ((metrics-organization))
-    repository: ((metrics-repository))
+    owner: ((helm-repo-github-organization))
+    repository: ((helm-repo-github-repository))
     access_token: ((github-access-token))
     pre_release: true
     release: false
@@ -104,6 +104,8 @@ jobs:
   - do:
     - task: generate-tag
       file: metrics/build/ci/tasks/generate-tag.yml
+      params:
+        TAG_SUFFIX: ((tag-suffix))
     - put: image-tag
       params:
         file: image-tag/*.tar
@@ -124,7 +126,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
           target_name: configmap-reload
@@ -133,7 +134,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
           target_name: init-chown-data
@@ -142,7 +142,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
           target_name: node-exporter
@@ -151,7 +150,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.prometheus-helm
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
           target_name: kube-state-metrics
@@ -160,7 +158,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.firehose-exporter
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
       - put: stratos-metrics-firehose-init
@@ -168,7 +165,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.firehose-init
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
       - put: stratos-metrics-nginx
@@ -176,7 +172,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.nginx
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
       - put: stratos-metrics-prometheus

@@ -19,7 +19,15 @@ run:
     cd metrics
     COMMIT=$(git log -1 --format="%h")
     VERSION=$(cat Chart.yaml | grep version| cut -d' ' -f2 | tr -d '\n')
-    echo $VERSION-${COMMIT} > release-tag
+
+    TAG=$VERSION-${COMMIT}
+    if [ ! -z ${TAG_SUFFIX} ]; then
+      if [ "${TAG_SUFFIX}" != "null" ]; then
+          TAG=${TAG}-${TAG_SUFFIX}
+      fi
+    fi
+
+    echo $TAG > release-tag
     tar -cf release-tag-${COMMIT}.tar release-tag
 
     mv *.tar ../image-tag/
