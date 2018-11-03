@@ -189,7 +189,7 @@ jobs:
     trigger: true
   - get: helm-repo
   - get: image-tag
-    passed: [generate-tag]
+    passed: [build-images]
     params:
       unpack: true
   - do:
