@@ -46,7 +46,7 @@ data:
   nginx-config: |
     upstream prometheus {
         least_conn;
-        server                      {{ .Values.prometheus.server.fullnameOverride }}:{{ .Values.prometheus.server.service.servicePort }};
+        server                      {{ .Release.Name }}-prometheus-prometheus:9090;
         keepalive                   32;
     }
     server {
