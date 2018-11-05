@@ -2,8 +2,6 @@
 
 Stratos Metrics provides a Helm chart for deploying Prometheus and the Cloud Foundry Firehose exporter to Kubernetes.
 
-> **Note: This is in-development and by no means ready for production.**
-
 It deploys both of these components and fronts the Prometheus server with an nginx server to provide authenticated access to Prometheus (currently basic authentication over https).
 
 It also contains an initialization script that will setup a user in the UAA that has correct scopes/permissions to be able to read data from the firehose.
