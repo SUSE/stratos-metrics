@@ -2,6 +2,7 @@
 cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
+dockerRegistrySecret: regsecret
 imageTag: opensuse
 useLb: false
 metrics:
@@ -102,6 +103,7 @@ kube:
 
 # Values for the Promethues sub-chart
 prometheus:
+  imagePullSecrets:
   alertmanager:
     enabled: false
   pushgateway:
@@ -142,3 +144,7 @@ prometheus:
   serverFiles:
     alerts: {}
     rules: {}
+kube:
+  registry:
+    password:
+    username:
