@@ -97,17 +97,22 @@ data:
 
     scrape_configs:
     {{- if .Values.firehoseExporter.enabled }}
+    {{ $releaseName := .Release.Name }}
+    {{ $values :=  .Values }}
+
       # Firehose exporter job
       - job_name: cf-firehose
         static_configs:
           - targets:
-            - "{{ .Release.Name }}-{{.Values.firehoseExporter.serviceName}}:{{.Values.firehoseExporter.servicePort}}"
+      {{- range int .Values.firehoseExporter.instances | until }}
+            - "{{  $releaseName }}-{{$values.firehoseExporter.serviceName}}-{{.}}:{{$values.firehoseExporter.servicePort}}"
+      {{- end}}
             labels:
-              {{- if .Values.env.DOMAIN }}  
-              doppler_endpoint: "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}"
-              {{- else }}
-              doppler_endpoint: "{{ .Values.firehoseExporter.dopplerUrl }}"
-              {{- end }}
+            {{- if $values.env.DOMAIN }}  
+              doppler_endpoint: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
+            {{- else }}
+              doppler_endpoint: "{{ $values.firehoseExporter.dopplerUrl }}"
+            {{- end }}
     {{- end }}
 
     # A scrape configuration for running Prometheus on a Kubernetes cluster.

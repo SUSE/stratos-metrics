@@ -188,3 +188,13 @@ In this example, the metrics endpoint will be `https://aaaa-759563135.us-east-1.
 
 > **Note: If the pods are stuck in `pending` state, then there probably was an issue with the storage volumes. Create the approriate storage class and bind it to a specific zone to address the problem.
 **
+
+## Scaling Firehose Nozzles
+
+You can scale the firehose nozzle in Stratos-Metrics by specifying the following override:
+```
+firehoseExporter:
+  instances: 1
+```
+
+Please note, the number of firehose nozzles should be proportional to the number of Traffic Controllers in your Cloud Foundry ([see docs](https://docs.cloudfoundry.org/loggregator/log-ops-guide.html)). Otherwise, Loggregator will not split the firehose between the nozzles.

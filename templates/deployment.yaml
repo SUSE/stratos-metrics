@@ -3,12 +3,6 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: "stratos-metrics-{{ .Values.cfName }}"
-  labels:
-    app.kubernetes.io/name: "stratos-metrics"
-    app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
   replicas: 1
   template:
@@ -38,44 +32,6 @@ spec:
           readOnly: true
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/
-      {{- if .Values.firehoseExporter.enabled }}
-      - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.image}}:{{.Values.imageTag}}
-        name: firehose-exporter
-        env:
-        {{- if .Values.firehoseExporter.noIdentityZone }}  
-        - name: FIREHOSE_EXPORTER_UAA_URL
-          value: "https://{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"
-        {{- else if .Values.env.UAA_HOST }}  
-        - name: FIREHOSE_EXPORTER_UAA_URL
-          value: "https://{{ .Values.env.UAA_CF_IDENTITY_ZONE }}.{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"
-        {{- else }}
-        - name: FIREHOSE_EXPORTER_UAA_URL
-          value: "https://{{ .Values.firehoseExporter.uaa.cfIdentityZone }}.{{ .Values.firehoseExporter.uaa.endpoint }}"
-        {{- end }}
-        - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
-          value: "{{ .Values.firehoseExporter.uaa.client }}"
-        - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
-          value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
-        {{- if .Values.env.DOMAIN }}  
-        - name: FIREHOSE_EXPORTER_DOPPLER_URL
-          value: "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}"
-        {{- else }}
-        - name: FIREHOSE_EXPORTER_DOPPLER_URL
-          value: "{{ .Values.firehoseExporter.dopplerUrl }}"
-        {{- end }}
-        - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
-          value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
-        {{- if .Values.env.DOMAIN }}  
-        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
-          value: "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}"
-        {{- else }}
-        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
-          value: "{{ .Values.firehoseExporter.dopplerUrl }}"
-        {{- end }}
-        ports:
-        - containerPort: 9186
-          name: fh-exp
-          protocol: TCP
       initContainers:
       - name: setup-uaa
         image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.initContainerImage}}:{{.Values.imageTag}} 
@@ -111,7 +67,6 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
-      {{- end }}
       {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
       imagePullSecrets:
       - name: {{.Values.dockerRegistrySecret}}
@@ -128,3 +83,77 @@ spec:
             path: nginx.conf
           - key: nginx-metadata
             path: metadata.json
+
+{{- if .Values.firehoseExporter.enabled }}
+{{ $releaseName := .Release.Name }}
+{{ $firehoseExporter := .Values.firehoseExporter }}
+{{ $appVersion := .Chart.AppVersion }}
+{{ $cfName :=  .Values.cfName }}
+{{ $helmChartName :=  .Chart.Name }}
+{{ $helmChartVersion :=  .Chart.Version }}
+{{ $values :=  .Values }}
+  {{- range int .Values.firehoseExporter.instances | until }}
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: "stratos-metrics-{{ $cfName }}-firehose-exporters-{{ . }}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "stratos-metrics"
+        app.kubernetes.io/instance: "{{ $releaseName }}"
+        app.kubernetes.io/version: "{{ $appVersion }}"
+        app.kubernetes.io/component: "stratos-metrics-{{ $cfName }}-firehose-exporters-{{ . }}"
+        helm.sh/chart: "{{ $helmChartName }}-{{ $helmChartVersion | replace "+" "_" }}"
+    spec:
+      containers:
+      - image: {{$values.dockerRepository}}/{{$values.dockerOrganization}}/{{$values.firehoseExporter.image}}:{{$values.imageTag}}
+        name: firehose-exporter
+        env:
+        {{- if $values.firehoseExporter.noIdentityZone }}  
+        - name: FIREHOSE_EXPORTER_UAA_URL
+          value: "https://{{ $values.env.UAA_HOST }}:{{ $values.env.UAA_PORT }}"
+        {{- else if $values.env.UAA_HOST }}  
+        - name: FIREHOSE_EXPORTER_UAA_URL
+          value: "https://{{ $values.env.UAA_CF_IDENTITY_ZONE }}.{{ $values.env.UAA_HOST }}:{{ $values.env.UAA_PORT }}"
+        {{- else }}
+        - name: FIREHOSE_EXPORTER_UAA_URL
+          value: "https://{{ $values.firehoseExporter.uaa.cfIdentityZone }}.{{ $values.firehoseExporter.uaa.endpoint }}"
+        {{- end }}
+        - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
+          value: "{{ $values.firehoseExporter.uaa.client }}"
+        - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
+          value: "{{ $values.firehoseExporter.uaa.clientSecret }}"
+        - name: FIREHOSE_EXPORTER_DOPPLER_SUBSCRIPTION_ID
+          value: "{{ $releaseName }}-prometheus"
+        {{- if $values.env.DOMAIN }}  
+        - name: FIREHOSE_EXPORTER_DOPPLER_URL
+          value: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
+        {{- else }}
+        - name: FIREHOSE_EXPORTER_DOPPLER_URL
+          value: "{{ $values.firehoseExporter.dopplerUrl }}"
+        {{- end }}
+        - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
+          value: "{{ $values.firehoseExporter.uaa.skipSslVerification}}"
+        {{- if $values.env.DOMAIN }}  
+        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
+          value: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
+        {{- else }}
+        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
+          value: "{{ $values.firehoseExporter.dopplerUrl }}"
+        {{- end }}
+        ports:
+        - containerPort: 9186
+          name: fh-exp
+          protocol: TCP
+     {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
+      imagePullSecrets:
+      - name: {{.Values.dockerRegistrySecret}}
+     {{- end }}
+   
+  {{- end }}
+{{- end }}

@@ -11,6 +11,7 @@ kubernetes:
   authEndpoint: 
 firehoseExporter:
   enabled: true
+  instances: 1
   serviceName: f-exp-service
   servicePort: 9186
   externalPort: 9186
