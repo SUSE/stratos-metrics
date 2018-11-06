@@ -179,7 +179,6 @@ jobs:
           dockerfile: metrics/build/Dockerfile.prometheus
           build: metrics/build/
           tag: image-tag/release-tag
-          tag_commit: true
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
 - name: create-chart
