@@ -35,6 +35,7 @@ run:
       sed -i -e 's/version: 0.1.0/version: '"${TAG}"'/g' ${CHART_PATH}/Chart.yaml  
 
       # Generate Helm package
+      helm dep update
       helm package ./
       mv metrics-*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
       cd ${ROOT_DIR}/helm-chart/

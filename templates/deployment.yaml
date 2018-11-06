@@ -67,6 +67,10 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
+      {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
+      imagePullSecrets:
+      - name: {{.Values.dockerRegistrySecret}}
+      {{- end }}
       volumes:
       - name: ssl-cert
         secret:
@@ -146,6 +150,10 @@ spec:
         - containerPort: 9186
           name: fh-exp
           protocol: TCP
+     {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
+      imagePullSecrets:
+      - name: {{.Values.dockerRegistrySecret}}
+     {{- end }}
    
   {{- end }}
 {{- end }}
