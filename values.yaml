@@ -144,3 +144,7 @@ prometheus:
   serverFiles:
     alerts: {}
     rules: {}
+kube:
+  registry:
+    password:
+    username:
