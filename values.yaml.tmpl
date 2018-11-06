@@ -2,6 +2,7 @@
 cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
+dockerRegistrySecret: regsecret
 imageTag: latest
 useLb: false
 metrics:
@@ -103,6 +104,7 @@ secrets:
   UAA_ADMIN_CLIENT_SECRET:
 # Values for the Promethues sub-chart
 prometheus:
+  imagePullSecrets:
   alertmanager:
     enabled: false
   pushgateway:
