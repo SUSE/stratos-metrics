@@ -32,6 +32,7 @@ spec:
           readOnly: true
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/
+  {{- if .Values.firehoseExporter.enabled }}
       initContainers:
       - name: setup-uaa
         image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.initContainerImage}}:{{.Values.imageTag}} 
@@ -67,6 +68,7 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
+  {{- end }}
       {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
       imagePullSecrets:
       - name: {{.Values.dockerRegistrySecret}}
