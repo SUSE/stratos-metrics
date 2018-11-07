@@ -116,7 +116,6 @@ nginx:
 ## To Use with PCF Dev
 To setup `stratos/metrics` instance against [PCF Dev](), save the following to a file called `pcf.yaml`
 ```
-enabled: true
 env:
     CLUSTER_ADMIN_PASSWORD: admin
     UAA_CF_IDENTITY_ZONE: uaa
