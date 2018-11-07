@@ -152,9 +152,9 @@ spec:
         - containerPort: 9186
           name: fh-exp
           protocol: TCP
-     {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
+     {{- if and $values.kube.registry.username $values.kube.registry.password }}
       imagePullSecrets:
-      - name: {{.Values.dockerRegistrySecret}}
+      - name: {{ $values.dockerRegistrySecret}}
      {{- end }}
    
   {{- end }}
