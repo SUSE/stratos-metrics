@@ -198,3 +198,24 @@ firehoseExporter:
 ```
 
 Please note, the number of firehose nozzles should be proportional to the number of Traffic Controllers in your Cloud Foundry ([see docs](https://docs.cloudfoundry.org/loggregator/log-ops-guide.html)). Otherwise, Loggregator will not split the firehose between the nozzles.
+
+## Deploying Metrics from a Private Image Repository
+
+If the images used by the chart are hosted in a private repository, the following needs to be specified. Save the following to a file called `private_overrides.yaml`. Replace `REGISTRY USER PASSSWORD`, `REGISTRY USERNAME`, `REGISTRY URL` with the appropriate values. `USER EMAIL` can be left blank.
+
+```
+prometheus:
+  imagePullSecrets:
+  - name: regsecret
+kube:
+  registry:
+    password: <REGISTRY USER PASSWORD>
+    username: <REGISTRY USERNAME>
+    hostname: <REGISTRY URL>
+    email: <USER EMAIL or leave blank>
+```
+
+To deploy `stratos-metrics` helm chart:
+```
+$helm install stratos-metrics -f private_overrides.yaml --namespace stratos-metrics
+```
