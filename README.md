@@ -114,21 +114,19 @@ nginx:
 ```
 
 ## To Use with PCF Dev
-To setup `stratos-metrics` instance against [PCF Dev](), save the following to a file called `pcf.yaml`
+To setup `stratos/metrics` instance against [PCF Dev](), save the following to a file called `pcf.yaml`
 ```
-consoleVersion: 2.0.0
-metrics:
-    enabled: true
-    env:
-        CLUSTER_ADMIN_PASSWORD: admin
-        UAA_CF_IDENTITY_ZONE: uaa
-        DOMAIN: local.pcfdev.io
-        UAA_ADMIN_CLIENT_SECRET: admin-client-secret
-        UAA_HOST: uaa.local.pcfdev.io
-        UAA_PORT: 443
-        DOPPLER_PORT: 443
-    firehoseExporter:
-        noIdentityZone: true
+enabled: true
+env:
+    CLUSTER_ADMIN_PASSWORD: admin
+    UAA_CF_IDENTITY_ZONE: uaa
+    DOMAIN: local.pcfdev.io
+    UAA_ADMIN_CLIENT_SECRET: admin-client-secret
+    UAA_HOST: uaa.local.pcfdev.io
+    UAA_PORT: 443
+    DOPPLER_PORT: 443
+firehoseExporter:
+    noIdentityZone: true
 ```
 
 To deploy `stratos/metrics` helm chart:
@@ -137,22 +135,17 @@ $helm install stratos/metrics -f pcf.yaml --namespace stratos-metrics
 ```
 
 ## Enabling Kubernetes Monitoring
-Stratos can display information about a registered Kubernetes endpoint. To see metrics (pod usage/node usage etc.) of the cluster, the `stratos-metrics` chart can be deployed to gather those metrics.
+Stratos can display information about a registered Kubernetes endpoint. To see metrics (pod usage/node usage etc.) of the cluster, the `stratos/metrics` chart can be deployed to gather those metrics.
 
-To enable kubernetes monitoring, use the configuration below. In this example configuration, `$KUBE_SERVER_ADDRESS` should be the Kubernetes cluster server address. You can usually find this address from your `kubeconfig` under `cluster.server`.
+To enable kubernetes monitoring, the following configuration needs to be provided. In this example configuration, `$KUBE_SERVER_ADDRESS` should be the Kubernetes cluster server address. You can usually find this address from your `kubeconfig` under `cluster.server`.
 Please note, that this URL should be the same as the URL of the Kubernetes cluster registered in Stratos.
 
-> If the `metrics` object already exists, add the `kubernetes` and `prometheus` sections to it
-
 ```
-consoleVersion: 2.0.0
-metrics:
+kubernetes:
+  authEndpoint: $KUBE_SERVER_ADDRESS
+prometheus:
+  kubeStateMetrics:
     enabled: true
-    kubernetes:
-      authEndpoint: $KUBE_SERVER_ADDRESS
-    prometheus:
-      kubeStateMetrics:    
-        enabled: true
 ```
 
 To deploy `stratos/metrics` helm chart:
@@ -162,9 +155,7 @@ $helm install stratos/metrics -f kube.yaml --namespace stratos-metrics
 
 ## Deploying Metrics in EKS
 
-To deploy `metrics` in an EKS cluster, the following configuration overrides are required, save the following to `eks.yaml`:
-
-> If the `metrics` object already exists, add the `useLb`, `kubernetes` and `prometheus` sections to it
+To deploy `stratos/metrics` in an EKS cluster, the following configuration overrides are required, save the following to `eks.yaml`:
 
 ```
 useLb: true
@@ -175,9 +166,9 @@ prometheus:
     enabled: true
 ```
 
-Deploy `stratos-metrics` helm chart with the override:
+Deploy `stratos/metrics` helm chart with the override:
 ```
-$ helm install stratos-metrics -f eks.yaml --namespace eks-metrics
+$ helm install stratos/metrics -f eks.yaml --namespace eks-metrics
 ```
 
 After deployment, fetch the external endpoint for the Metrics service.
@@ -225,7 +216,7 @@ kube:
     email: <USER EMAIL or leave blank>
 ```
 
-To deploy `stratos-metrics` helm chart:
+To deploy `stratos/metrics` helm chart:
 ```
-$helm install stratos-metrics -f private_overrides.yaml --namespace stratos-metrics
+$helm install stratos/metrics -f private_overrides.yaml --namespace stratos-metrics
 ```
