@@ -2,7 +2,8 @@
 platform: linux
 inputs:
 - name: metrics
-- name: stratos-master
+- name: helm-repo
+- name: image-tag
 outputs:
 - name: helm-chart
 image_resource:
@@ -20,23 +21,26 @@ run:
       helm init || true
       ROOT_DIR=$PWD
       STRATOS_METRICS=${ROOT_DIR}/metrics
-      STRATOS_MASTER=${ROOT_DIR}/stratos-master
-      TAG=$(cat ${STRATOS_METRICS}/build/dev-release-tag)
+      IMAGE_TAG_DIR=${ROOT_DIR}/image-tag
+      HELM_REPO=${ROOT_DIR}/helm-repo
+      TAG=$(cat ${IMAGE_TAG_DIR}/release-tag)
       cd ${STRATOS_METRICS}
-      IMAGE_TAG=${TAG}-$(git rev-parse HEAD | head -c 8)
       CHART_PATH=$STRATOS_METRICS
       # Patch Helm chart
-      sed -i -e 's/imageTag: opensuse/imageTag: '"${IMAGE_TAG}"'/g' ${CHART_PATH}/values.yaml
+      sed -i -e 's/imageTag: opensuse/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
+      sed -i -e 's/tag: opensuse/tag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
+      sed -i -e 's@repository: splatform@repository: '"${DOCKER_REGISTRY}"'/'"${DOCKER_ORG}"'@g' ${CHART_PATH}/values.yaml
       sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
       sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' ${CHART_PATH}/values.yaml
-      sed -i -e 's/version: 0.1.0/version: '"${IMAGE_TAG}"'/g' ${CHART_PATH}/Chart.yaml  
+      sed -i -e 's/version: 0.1.0/version: '"${TAG}"'/g' ${CHART_PATH}/Chart.yaml  
 
       # Generate Helm package
+      helm dep update
       helm package ./
-      mv metrics-*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${IMAGE_TAG}.tgz
+      mv metrics-*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
       cd ${ROOT_DIR}/helm-chart/
-      INDEX_FILE=${STRATOS_MASTER}/index.yaml
-      CHART_FILE=${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${IMAGE_TAG}.tgz
+      INDEX_FILE=${HELM_REPO}/index.yaml
+      CHART_FILE=${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
       if [ -f ${INDEX_FILE} ]; then
             NIGHTLY_EXISTS=$(cat  ${INDEX_FILE} | grep ${TAG})
             NIGHTLY_EXISTS=$(echo $?)
@@ -53,11 +57,11 @@ run:
 
               # Patch Version
               INDEX_VERSION=$(sed -n 's/version: \(2.0.0-metrics-dev.*\)/\1/p' ${INDEX_FILE} | xargs)
-              if [ "${INDEX_VERSION}" = "${IMAGE_TAG}" ]; then
+              if [ "${INDEX_VERSION}" = "${TAG}" ]; then
                 echo 'version is equal, quitting'
               else
                 echo 'version not equal, patching index.yaml'
-                sed -i 's/'"${INDEX_VERSION}"'/'"${IMAGE_TAG}"'/g' ${INDEX_FILE}
+                sed -i 's/'"${INDEX_VERSION}"'/'"${TAG}"'/g' ${INDEX_FILE}
               fi
 
               # Patch Created Date
@@ -68,12 +72,12 @@ run:
               cp  ${INDEX_FILE} ${ROOT_DIR}/helm-chart/
               MERGE_INDEX="--merge index.yaml"
               helm repo index ./ ${MERGE_INDEX} --url https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/releases/download/${TAG}/
-              cp index.yaml ${STRATOS_MASTER}/
+              cp index.yaml ${HELM_REPO}/
             fi
       fi
 
       # Update Helm Repository
-      cd ${STRATOS_MASTER}
+      cd ${HELM_REPO}
       git config --global user.name ${GIT_USER}
       git config --global user.email ${GIT_EMAIL}
 
@@ -85,7 +89,7 @@ run:
       git stash pop
       echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
       git add index.yaml
-      git commit -m "Dev releases Helm repository updated for tag: ${IMAGE_TAG}"
+      git commit -m "Dev releases Helm repository updated for tag: ${TAG}"
       git config --global push.default simple
-      git push origin HEAD:master
+      git push origin HEAD:${HELM_REPO_BRANCH}
 

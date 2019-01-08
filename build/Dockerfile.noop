@@ -1,0 +1,15 @@
+FROM alpine as configmap-reload-builder
+RUN sh
+FROM alpine as configmap-reload
+RUN sh
+FROM alpine as kube-state-metrics-builder
+RUN sh
+FROM alpine as kube-state-metrics
+RUN sh
+FROM alpine as init-chown-data
+RUN sh
+FROM alpine as node-exporter-builder
+RUN sh
+FROM alpine as node-exporter
+RUN sh
+

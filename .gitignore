@@ -1,2 +1,4 @@
 build/ci/secrets.yml
+overrides/
+.envrc
 charts/

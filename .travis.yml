@@ -1,0 +1,14 @@
+language: generic
+sudo: required
+dist: trusty
+filter_secrets: false
+branches:
+  only:
+  - master
+stages:
+- Test
+jobs:
+  - stage: Test
+    name: Helm Chart Unit Tests
+    script:
+    - "./build/ci/travis/helm-chart-unit-tests.sh"

@@ -2,6 +2,7 @@
 cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
+dockerRegistrySecret: regsecret
 imageTag: opensuse
 useLb: false
 metrics:
@@ -10,6 +11,7 @@ kubernetes:
   authEndpoint: 
 firehoseExporter:
   enabled: true
+  instances: 1
   serviceName: f-exp-service
   servicePort: 9186
   externalPort: 9186
@@ -102,6 +104,7 @@ kube:
 
 # Values for the Promethues sub-chart
 prometheus:
+  imagePullSecrets:
   alertmanager:
     enabled: false
   pushgateway:
@@ -126,7 +129,6 @@ prometheus:
       tag: opensuse
   server:
     name: prometheus
-    fullnameOverride: prometheus-service
     configMapOverrideName: stratos-metrics-config
     image:
       repository: splatform/stratos-metrics-prometheus
@@ -143,6 +145,11 @@ prometheus:
   serverFiles:
     alerts: {}
     rules: {}
+kube:
+  registry:
+    password:
+    username:
+    
 grafana:
   # By default Grafana is disabled
   enabled: false

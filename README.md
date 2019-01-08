@@ -2,8 +2,6 @@
 
 Stratos Metrics provides a Helm chart for deploying Prometheus and the Cloud Foundry Firehose exporter to Kubernetes.
 
-> **Note: This is in-development and by no means ready for production.**
-
 It deploys both of these components and fronts the Prometheus server with an nginx server to provide authenticated access to Prometheus (currently basic authentication over https).
 
 It also contains an initialization script that will setup a user in the UAA that has correct scopes/permissions to be able to read data from the firehose.
@@ -116,7 +114,7 @@ nginx:
 ```
 
 ## To Use with PCF Dev
-To setup `stratos-metrics` instance against [PCF Dev](), save the following to a file called `pcf.yaml`
+To setup `stratos/metrics` instance against [PCF Dev](), save the following to a file called `pcf.yaml`
 ```
 env:
     CLUSTER_ADMIN_PASSWORD: admin
@@ -130,13 +128,13 @@ firehoseExporter:
     noIdentityZone: true
 ```
 
-To deploy `stratos-metrics` helm chart:
+To deploy `stratos/metrics` helm chart:
 ```
-$helm install stratos-metrics -f pcf.yaml --namespace stratos-metrics
+$helm install stratos/metrics -f pcf.yaml --namespace stratos-metrics
 ```
 
 ## Enabling Kubernetes Monitoring
-Stratos can display information about a registered Kubernetes endpoint. To see metrics (pod usage/node usage etc.) of the cluster, the `stratos-metrics` chart can be deployed to gather those metrics.
+Stratos can display information about a registered Kubernetes endpoint. To see metrics (pod usage/node usage etc.) of the cluster, the `stratos/metrics` chart can be deployed to gather those metrics.
 
 To enable kubernetes monitoring, the following configuration needs to be provided. In this example configuration, `$KUBE_SERVER_ADDRESS` should be the Kubernetes cluster server address. You can usually find this address from your `kubeconfig` under `cluster.server`.
 Please note, that this URL should be the same as the URL of the Kubernetes cluster registered in Stratos.
@@ -145,11 +143,79 @@ Please note, that this URL should be the same as the URL of the Kubernetes clust
 kubernetes:
   authEndpoint: $KUBE_SERVER_ADDRESS
 prometheus:
+  kubeStateMetrics:
+    enabled: true
+```
+
+To deploy `stratos/metrics` helm chart:
+```
+$helm install stratos/metrics -f kube.yaml --namespace stratos-metrics
+```
+
+## Deploying Metrics in EKS
+
+To deploy `stratos/metrics` in an EKS cluster, the following configuration overrides are required, save the following to `eks.yaml`:
+
+```
+useLb: true
+kubernetes:
+  authEndpoint: https://aaaaaa.sk1.us-east-1.eks.amazonaws.com // Your EKS endpoint address
+prometheus:
   kubeStateMetrics:    
     enabled: true
 ```
 
-To deploy `stratos-metrics` helm chart:
+Deploy `stratos/metrics` helm chart with the override:
 ```
-$helm install stratos-metrics -f kube.yaml --namespace stratos-metrics
+$ helm install stratos/metrics -f eks.yaml --namespace eks-metrics
+```
+
+After deployment, fetch the external endpoint for the Metrics service.
+```
+11:04 $ kubectl get services --namespace eks-metrics                                                  
+                                                                                                      
+
+NAME                                        TYPE           CLUSTER-IP       EXTERNAL-IP               
+                                              PORT(S)         AGE                                     
+eks-metrics-metrics-nginx                   LoadBalancer   10.100.196.146   aaaa-759563135.us-east-1.elb.amazonaws.com   443:30241/TCP   39s                                     
+eks-metrics-prometheus-kube-state-metrics   ClusterIP      None             <none>                    
+                                              80/TCP          40s                                     
+prometheus-service                          ClusterIP      10.100.135.21    <none>                    
+                                              9090/TCP        40s                    
+                                              ```
+```
+In this example, the metrics endpoint will be `https://aaaa-759563135.us-east-1.elb.amazonaws.com`
+
+> **Note: If the pods are stuck in `pending` state, then there probably was an issue with the storage volumes. Create the approriate storage class and bind it to a specific zone to address the problem.
+**
+
+## Scaling Firehose Nozzles
+
+You can scale the firehose nozzle in Stratos-Metrics by specifying the following override:
+```
+firehoseExporter:
+  instances: 1
+```
+
+Please note, the number of firehose nozzles should be proportional to the number of Traffic Controllers in your Cloud Foundry ([see docs](https://docs.cloudfoundry.org/loggregator/log-ops-guide.html)). Otherwise, Loggregator will not split the firehose between the nozzles.
+
+## Deploying Metrics from a Private Image Repository
+
+If the images used by the chart are hosted in a private repository, the following needs to be specified. Save the following to a file called `private_overrides.yaml`. Replace `REGISTRY USER PASSSWORD`, `REGISTRY USERNAME`, `REGISTRY URL` with the appropriate values. `USER EMAIL` can be left blank.
+
+```
+prometheus:
+  imagePullSecrets:
+  - name: regsecret
+kube:
+  registry:
+    password: <REGISTRY USER PASSWORD>
+    username: <REGISTRY USERNAME>
+    hostname: <REGISTRY URL>
+    email: <USER EMAIL or leave blank>
+```
+
+To deploy `stratos/metrics` helm chart:
+```
+$helm install stratos/metrics -f private_overrides.yaml --namespace stratos-metrics
 ```
