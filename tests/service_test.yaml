@@ -1,0 +1,12 @@
+suite: test stratos metrics external service
+templates:
+  - service.yaml
+
+tests:
+  - it: should be a Service
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: kind
+          value: Service
