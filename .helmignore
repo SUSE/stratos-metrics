@@ -3,3 +3,4 @@ values.yaml.tmpl
 .gitignore
 .helmignore
 build/
+tests/
