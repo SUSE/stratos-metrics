@@ -11,4 +11,4 @@ jobs:
   - stage: Test
     name: Helm Chart Unit Tests
     script:
-    - "./ci/travis/helm-chart-unit-tests.sh"
+    - "./build/ci/travis/helm-chart-unit-tests.sh"
