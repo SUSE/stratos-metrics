@@ -21,8 +21,16 @@ helm plugin install https://github.com/cf-stratos/helm-unittest
 # Fetch dependencies
 helm dependency build
 
+# Since the chart is in the root folder, we need to ensure its in a folder named 'metrics'
+mkdir -p ./tmp/metrics
+cp *.yaml ./tmp/metrics
+cp -R templates/ ./tmp/metrics
+cp -R tests/ ./tmp/metrics
+
 # Run unit tests
-helm unittest .
+helm unittest ./tmp/metrics
 
 # Run lint
-helm lint .
+helm lint ./tmp/metrics
+
+rm -rf ./tmp/metrics
