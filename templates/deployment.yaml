@@ -19,9 +19,9 @@ spec:
         name: nginx
         env:
         - name: USERNAME
-          value: "{{ .Values.nginx.username }}"
+          value: "{{ template "nginx.credentials-username" . }}"
         - name: PASSWORD
-          value: "{{ .Values.nginx.password }}"
+          value: "{{ template "nginx.credentials-password" . }}"
         ports:
         - containerPort: 443
           name: https

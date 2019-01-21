@@ -8,6 +8,9 @@ imageTag: opensuse
 # useLb is deprecated
 useLb: false
 metrics:
+  # Preferred way of setting username and password for the nginx server that fronts Prometheus
+  username:
+  password:
   # Metrics service
   service:
     annotations: []

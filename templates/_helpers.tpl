@@ -64,3 +64,25 @@ Service port:
 {{ .Values.metrics.service.servicePort }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Metrics Credentials - Username
+*/}}
+{{- define "nginx.credentials-username" -}}
+{{- if .Values.metrics.username -}}
+{{- .Values.metrics.username -}}
+{{- else -}}
+{{- .Values.nginx.username -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Metrics Credentials - Password
+*/}}
+{{- define "nginx.credentials-password" -}}
+{{- if .Values.metrics.username -}}
+{{- .Values.metrics.password -}}
+{{- else -}}
+{{- .Values.nginx.password -}}
+{{- end -}}
+{{- end -}}

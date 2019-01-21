@@ -284,12 +284,13 @@ if [ ${CONCOURSE_BUILD:-"not-set"} == "not-set" ]; then
   popd
 else
   # TODO
-  sed -i -e 's/consoleVersion: latest/consoleVersion: '"${TAG}"'/g' console/values.yaml
-  sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' console/values.yaml
-  sed -i -e 's/repository: splatform/repository: '"${DOCKER_ORG}"'/g' console/values.yaml
-  sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' console/values.yaml
+  sed -i -e 's/imageTag: latest/imageTag: '"${TAG}"'/g' values.yaml
+  sed -i -e 's/tag: latest/tag: '"${TAG}"'/g' values.yaml
+  sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' values.yaml
+  sed -i -e 's/repository: splatform/repository: '"${DOCKER_ORG}"'/g' values.yaml
+  sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' values.yaml
   
-  sed -i -e 's/version: 0.1.0/version: '"${RELEASE_TAG}"'/g' console/Chart.yaml
+  sed -i -e 's/version: 0.1.0/version: '"${RELEASE_TAG}"'/g' Chart.yaml
 fi
 
 echo
