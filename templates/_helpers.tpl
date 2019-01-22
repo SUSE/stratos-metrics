@@ -69,10 +69,10 @@ Service port:
 Metrics Credentials - Username
 */}}
 {{- define "nginx.credentials-username" -}}
-{{- if .Values.metrics.username -}}
-{{- .Values.metrics.username -}}
-{{- else -}}
+{{- if .Values.nginx.username -}}
 {{- .Values.nginx.username -}}
+{{- else -}}
+{{- .Values.metrics.username -}}
 {{- end -}}
 {{- end -}}
 
@@ -80,9 +80,9 @@ Metrics Credentials - Username
 Metrics Credentials - Password
 */}}
 {{- define "nginx.credentials-password" -}}
-{{- if .Values.metrics.username -}}
-{{- .Values.metrics.password -}}
-{{- else -}}
+{{- if .Values.nginx.username -}}
 {{- .Values.nginx.password -}}
+{{- else -}}
+{{- .Values.metrics.password -}}
 {{- end -}}
 {{- end -}}
