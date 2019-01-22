@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/instance: "{{ .Release.Name }}"
     app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-nginx-service"
+    app.kubernetes.io/component: "stratos-metrics-nginx-service"
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 {{- if .Values.metrics.service.annotations }}
   annotations:
@@ -43,7 +43,7 @@ spec:
     {{- end }}
   selector:
     app.kubernetes.io/name: "stratos-metrics"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-nginx"
+    app.kubernetes.io/component: "stratos-metrics-nginx"
   type: {{ template "service.serviceType" . }}
 
 {{- if .Values.firehoseExporter.enabled }}
@@ -51,7 +51,6 @@ spec:
 {{ $releaseName := .Release.Name }}
 {{ $firehoseExporter := .Values.firehoseExporter }}
 {{ $appVersion := .Chart.AppVersion }}
-{{ $cfName :=  .Values.cfName }}
 {{ $helmChartName :=  .Chart.Name }}
 {{ $helmChartVersion :=  .Chart.Version }}
   {{- range int .Values.firehoseExporter.instances | until }}
@@ -64,7 +63,7 @@ metadata:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/instance: "{{ $releaseName }}"
     app.kubernetes.io/version: "{{ $appVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ $cfName }}-firehose-exporter-service"
+    app.kubernetes.io/component: "stratos-metrics-firehose-exporter-service"
     helm.sh/chart: "{{ $helmChartName }}-{{ $helmChartVersion | replace "+" "_" }}"
 spec:
   type: {{ $firehoseExporter.serviceType }}
@@ -75,6 +74,6 @@ spec:
     name: {{ $firehoseExporter.serviceName }}
   selector:
     app.kubernetes.io/name: "stratos-metrics"
-    app.kubernetes.io/component: "stratos-metrics-{{ $cfName }}-firehose-exporters-{{ . }}"
+    app.kubernetes.io/component: "stratos-metrics-firehose-exporters-{{ . }}"
   {{- end }}
 {{- end }}

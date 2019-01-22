@@ -111,4 +111,10 @@ rm -r *.bak
 
 popd
 
+FILENAME_SUFFIX=""
+if [ "${ADD_OFFICIAL_TAG}" == "true" ]; then
+  FILENAME_SUFFIX = "-${OFFICIAL_TAG}"
+fi
+
 helm package ${TMP_DIR}
+mv metrics-${TAG}.tgz console-metrics-helm-chart-v${IMAGE_TAG}.tgz

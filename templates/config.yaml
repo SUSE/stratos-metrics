@@ -15,9 +15,7 @@ metadata:
   labels:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-config"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/component: "stratos-metrics-config"
 data:
   nginx-metadata: |
     [

@@ -1,13 +1,14 @@
 # Default values for stratos-metrics
-cfName: cfdevio
 dockerRepository: docker.io
 dockerOrganization: splatform
 dockerRegistrySecret: regsecret
 imageTag: latest
 
-# useLb is deprecated
-useLb: false
 metrics:
+  # Preferred way of setting username and password for the nginx server that fronts Prometheus
+  username: metrics
+  password: s3cr3t
+  
   # Metrics service
   service:
     annotations: []
@@ -50,8 +51,6 @@ firehoseExporter:
     clientSecret: prometheus-client-secret
 nginx:
   serviceName: metrics-nginx
-  username: metrics
-  password: s3cr3t
   image: stratos-metrics-nginx
   ssl:
     cert: |
@@ -163,6 +162,10 @@ prometheus:
   serverFiles:
     alerts: {}
     rules: {}
+
 services:
   loadbalanced: false
+    
+# useLb is deprecated
+useLb: false
     

@@ -2,16 +2,21 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: "stratos-metrics-{{ .Values.cfName }}"
+  name: "stratos-metrics"
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name:  "stratos-metrics"
+      app.kubernetes.io/component: "stratos-metrics-nginx"
+      app.kubernetes.io/instance: "{{ .Release.Name }}"
   template:
     metadata:
       labels:
         app.kubernetes.io/name: "stratos-metrics"
         app.kubernetes.io/instance: "{{ .Release.Name }}"
         app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-        app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-nginx"
+        app.kubernetes.io/component: "stratos-metrics-nginx"
         helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
       containers:
@@ -90,7 +95,6 @@ spec:
 {{ $releaseName := .Release.Name }}
 {{ $firehoseExporter := .Values.firehoseExporter }}
 {{ $appVersion := .Chart.AppVersion }}
-{{ $cfName :=  .Values.cfName }}
 {{ $helmChartName :=  .Chart.Name }}
 {{ $helmChartVersion :=  .Chart.Version }}
 {{ $values :=  .Values }}
@@ -100,16 +104,21 @@ spec:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: "stratos-metrics-{{ $cfName }}-firehose-exporters-{{ . }}"
+  name: "stratos-metrics-firehose-exporters-{{ . }}"
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name:  "stratos-metrics"
+      app.kubernetes.io/component: "stratos-metrics-firehose-exporters-{{ . }}"
+      app.kubernetes.io/instance: "{{ $releaseName }}"
   template:
     metadata:
       labels:
         app.kubernetes.io/name: "stratos-metrics"
         app.kubernetes.io/instance: "{{ $releaseName }}"
         app.kubernetes.io/version: "{{ $appVersion }}"
-        app.kubernetes.io/component: "stratos-metrics-{{ $cfName }}-firehose-exporters-{{ . }}"
+        app.kubernetes.io/component: "stratos-metrics-firehose-exporters-{{ . }}"
         helm.sh/chart: "{{ $helmChartName }}-{{ $helmChartVersion | replace "+" "_" }}"
     spec:
       containers:
