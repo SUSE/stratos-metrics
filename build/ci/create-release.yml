@@ -1,4 +1,5 @@
 ---
+resource_types:
 - name: docker-image
   type: docker-image
   privileged: true
@@ -11,7 +12,7 @@ resources:
 - name: metrics
   type: git
   source:
-    uri: git@github.com:((metrics-repository-organization))/((metrics-repositoryrepository))
+    uri: git@github.com:((metrics-repository-organization))/((metrics-repository))
     branch: ((metrics-repository-branch))
     private_key: ((github-private-key))
     # Match any Version 1 release (alpha, beta, rc) other than the actual release
