@@ -1,0 +1,250 @@
+---
+- name: docker-image
+  type: docker-image
+  privileged: true
+  source:
+    repository: ((docker-resource-image))
+    tag: ((docker-resource-image-tag))
+
+resources:
+# Metrics Git repository
+- name: metrics
+  type: git
+  source:
+    uri: git@github.com:((metrics-repository-organization))/((metrics-repositoryrepository))
+    branch: ((metrics-repository-branch))
+    private_key: ((github-private-key))
+    # Match any Version 1 release (alpha, beta, rc) other than the actual release
+    tag_filter: "1*-*"
+- name: helm-repo
+  type: git
+  source:
+    uri: git@github.com:((helm-repo-github-organization))/((helm-repo-github-repository))
+    branch: ((helm-repo-branch))
+    private_key: ((github-private-key))
+# Docker Images
+- name: stratos-metrics-configmap-reload
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-configmap-reload
+- name: stratos-metrics-kube-state-metrics
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-kube-state-metrics
+- name: stratos-metrics-init-chown-data
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-init-chown-data 
+- name: stratos-metrics-node-exporter
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-node-exporter
+- name: stratos-metrics-firehose-exporter
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-firehose-exporter
+- name: stratos-metrics-firehose-init
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-firehose-init
+- name: stratos-metrics-nginx
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-nginx
+- name: stratos-metrics-prometheus
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-registry))/((docker-organization))/stratos-metrics-prometheus
+
+- name: image-tag
+  type: s3
+  source:
+    bucket: {{minio-bucket}}
+    endpoint: {{minio-server-endpoint}}
+    regexp: temp-artifacts/release-tag-(.*).tar
+    access_key_id: {{minio-access-key}}
+    secret_access_key: {{minio-secret-access-key}}
+    region_name: eu-central-1
+- name: helm-chart-tarball
+  type: s3
+  source:
+    bucket: {{minio-bucket}}
+    endpoint: {{minio-server-endpoint}}
+    regexp: temp-artifacts/console-metrics-helm-chart-(?P<version>.*).tgz
+    access_key_id: {{minio-access-key}}
+    secret_access_key: {{minio-secret-access-key}}
+    region_name: eu-central-1
+jobs:
+- name: generate-tag-files
+  plan:
+  - get: metrics
+    trigger: true
+  - do:
+    - task: generate-tag
+      file: metrics/build/ci/tasks/generate-tag.yml
+      params:
+        TAG_SUFFIX: ((tag-suffix))
+    - put: image-tag
+      params:
+        file: image-tag/*.tar
+        acl: public-read
+- name: check-github
+  plan:
+  - get: metrics
+    passed: [generate-tag-files]
+    trigger: true
+  - get: image-tag
+    passed: [generate-tag-files] 
+    params:
+     unpack: true
+  - do:
+    - task: build
+      privileged: true
+      timeout: 30m
+      file: metrics/build/ci/tasks/check-gh-release.yml
+      params:
+        GITHUB_TOKEN: ((github-access-token))
+        GITHUB_USER: ((helm-repo-github-organization))
+        GITHUB_REPO: ((helm-repo-github-repository))
+        GIT_USER: ((concourse-user))
+        GIT_EMAIL: ((concourse-email))
+        GIT_PRIVATE_KEY: ((github-private-key))
+- name: build-images
+  plan:
+  - get: metrics
+    passed: [generate-tag-files]
+    trigger: true
+  - get: image-tag
+    passed: [generate-tag-files]
+    params:
+      unpack: true
+  - aggregate:
+    - do:
+      - put: stratos-metrics-configmap-reload
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: configmap-reload
+      - put: stratos-metrics-init-chown-data
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: init-chown-data
+      - put: stratos-metrics-node-exporter
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: node-exporter
+      - put: stratos-metrics-kube-state-metrics
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus-helm
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+          target_name: kube-state-metrics
+      - put: stratos-metrics-firehose-exporter
+        params:
+          dockerfile: metrics/build/Dockerfile.firehose-exporter
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+      - put: stratos-metrics-firehose-init
+        params:
+          dockerfile: metrics/build/Dockerfile.firehose-init
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+      - put: stratos-metrics-nginx
+        params:
+          dockerfile: metrics/build/Dockerfile.nginx
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+      - put: stratos-metrics-prometheus
+        params:
+          dockerfile: metrics/build/Dockerfile.prometheus
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+- name: create-chart
+  plan:
+  - get: metrics
+    passed: [build-images]
+    trigger: true
+  - get: helm-repo
+  - get: image-tag
+    passed: [build-images]
+    params:
+      unpack: true
+  - do:
+    - task: build
+      privileged: true
+      timeout: 30m
+      file: metrics/build/ci/tasks/create-chart.yml
+      params:
+        GIT_USER: ((concourse-user))
+        GIT_EMAIL: ((concourse-email))
+        GITHUB_ORG: ((helm-repo-github-organization))
+        GITHUB_REPO: ((helm-repo-github-repository))
+        GIT_PRIVATE_KEY: ((github-private-key))
+        DOCKER_ORG: ((docker-organization))
+        DOCKER_REGISTRY: ((docker-registry))
+        HELM_REPO_BRANCH: ((helm-repo-branch))
+    - put: helm-chart-tarball
+      params:
+       file: helm-chart/*.tgz
+       acl: public-read
+- name: update-github
+  plan:
+  - get: metrics
+    passed: [create-chart]
+    trigger: true
+  - get: helm-chart-tarball
+    passed: [create-chart]
+  - get: image-tag
+    passed: [create-chart] 
+    params:
+     unpack: true
+  - do:
+    - task: build
+      privileged: true
+      timeout: 30m
+      file: metrics/build/ci/tasks/update-gh-release.yml
+      params:
+        GITHUB_TOKEN: ((github-access-token))
+        GITHUB_USER: ((helm-repo-github-organization))
+        GITHUB_REPO: ((helm-repo-github-repository))
+        GIT_USER: ((concourse-user))
+        GIT_EMAIL: ((concourse-email))
+        GIT_PRIVATE_KEY: ((github-private-key))
+        
