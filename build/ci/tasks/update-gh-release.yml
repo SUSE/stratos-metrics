@@ -24,24 +24,17 @@ run:
       METRICS=${ROOT_DIR}/metrics
       source ${METRICS}/build/ci/tasks/github-helper.sh
 
-      # Check tagged release version is consistent
-      TAG_RELEASE_VERSION=$(echo ${FULL_VERSION} | cut -d"-" -f1)
-      if [ "${TAG_RELEASE_VERSION}" != "${VERSION}" ]; then
-        echo "Chart version is not consistent with tag release version! ${TAG_RELEASE_VERSION} != ${VERSION}"
-        exit 1
-      fi
       cd ${ROOT_DIR}/metrics
 
       # Check that the release exists
       set +e
       github-release info -t ${GIT_TAG}
       RETVAL=$?
-      set -e
-
-      # Delete the release if it already exists
-      if [ $RETVAL -eq 0 ]; then
-        github-release delete -t ${GIT_TAG}
+      if [ $RETVAL -ne 0 ]; then
+        echo "Release ${GIT_TAG} already exists - will NOT update"
+        exit 0
       fi
+      set -e
 
       # Generate title for the release, based on the tag
       # Sets RELEASE_TITLE and PRE_RELEASE_ARG
