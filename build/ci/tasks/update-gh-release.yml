@@ -30,7 +30,7 @@ run:
       set +e
       github-release info -t ${GIT_TAG}
       RETVAL=$?
-      if [ $RETVAL -ne 0 ]; then
+      if [ $RETVAL -eq 0 ]; then
         echo "Release ${GIT_TAG} already exists - will NOT update"
         exit 0
       fi
