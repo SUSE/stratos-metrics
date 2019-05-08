@@ -98,7 +98,7 @@ jobs:
     trigger: true
   - do:
     - task: generate-tag
-      file: metrics/build/ci/tasks/generate-tag.yml
+      file: metrics/build/ci/tasks/generate-tag-files.yml
       params:
         TAG_SUFFIX: ((tag-suffix))
     - put: image-tag
@@ -129,10 +129,10 @@ jobs:
 - name: build-images
   plan:
   - get: metrics
-    passed: [generate-tag-files]
+    passed: [check-github]
     trigger: true
   - get: image-tag
-    passed: [generate-tag-files]
+    passed: [check-github]
     params:
       unpack: true
   - aggregate:
