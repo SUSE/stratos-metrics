@@ -24,8 +24,8 @@ run:
     # RELEASE_TAG is the full tag that started the pipleinee, e.g. '1.0.0-rc.1'
     RELEASE_TAG=$(cat .git/ref)
 
-    echo "Version    : ${VERSION}"
-    echo "Release tag: ${RELEASE_TAG}"
+    echo "Version     : ${VERSION}"
+    echo "Release tag : ${RELEASE_TAG}"
 
     TAG=$VERSION-${COMMIT_HASH}
     if [ ! -z ${TAG_SUFFIX} ]; then
@@ -34,18 +34,18 @@ run:
       fi
     fi
 
+    cd ../image-tag
+
     echo "$VERSION" > version
     echo "$TAG" > release-tag
     echo "$COMMIT_HASH" > commit
-    echo "RELEASE_TAG" > tag
+    echo "$RELEASE_TAG" > tag
 
     cat > image-labels << EOF
       { "commit": "${COMMIT_HASH}" }
     EOF
 
     tar -cf release-tag-${COMMIT_HASH}.tar version commit tag release-tag image-labels
-
-    mv *.tar ../image-tag/
 
     echo "Created tag file tar as release-tag-${COMMIT_HASH}.tar"
     echo "Generate tag files complete!"

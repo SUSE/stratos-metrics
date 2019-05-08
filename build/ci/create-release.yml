@@ -17,6 +17,13 @@ resources:
     private_key: ((github-private-key))
     # Match any Version 1 release (alpha, beta, rc) other than the actual release
     tag_filter: "1*-*"
+- name: pipelines
+  type: git
+  source:
+    uri: git@github.com:((metrics-repository-organization))/((metrics-repository))
+    branch: master
+    private_key: ((github-private-key))
+
 - name: helm-repo
   type: git
   source:
@@ -96,9 +103,11 @@ jobs:
   plan:
   - get: metrics
     trigger: true
+  - get: pipelines
+    passed: [generate-tag-files]
   - do:
     - task: generate-tag
-      file: metrics/build/ci/tasks/generate-tag-files.yml
+      file: pipelines/build/ci/tasks/generate-tag-files.yml
       params:
         TAG_SUFFIX: ((tag-suffix))
     - put: image-tag
@@ -110,6 +119,8 @@ jobs:
   - get: metrics
     passed: [generate-tag-files]
     trigger: true
+  - get: pipelines
+    passed: [generate-tag-files]
   - get: image-tag
     passed: [generate-tag-files] 
     params:
@@ -118,7 +129,7 @@ jobs:
     - task: build
       privileged: true
       timeout: 30m
-      file: metrics/build/ci/tasks/check-gh-release.yml
+      file: pipelines/build/ci/tasks/check-gh-release.yml
       params:
         GITHUB_TOKEN: ((github-access-token))
         GITHUB_USER: ((helm-repo-github-organization))
