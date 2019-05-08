@@ -32,7 +32,7 @@ run:
       RETVAL=$?
       if [ $RETVAL -eq 0 ]; then
         echo "Release ${GIT_TAG} already exists - will NOT update"
-        exit 0
+        exit 1
       fi
       set -e
 

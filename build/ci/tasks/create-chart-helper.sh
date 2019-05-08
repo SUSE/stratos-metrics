@@ -41,7 +41,6 @@ setupAndPushChange() {
   git commit -m "Helm repository updated for tag: ${IMAGE_TAG}"
   git config --global push.default simple
   git push origin HEAD:${HELM_REPO_BRANCH}
-
 }
 
 setupGitConfig() {
@@ -55,7 +54,7 @@ setupGitConfig() {
 
 updateHelmDependency() {
   local START_CWD=$(pwd)
-  cd ${STRATOS}/deploy/kubernetes/console
+  cd ${STRATOS_METRICS}
   # Only do this if there is a requirements.yaml file
   if [ -f "./requirements.yaml" ]; then
     # Extract helm repo
