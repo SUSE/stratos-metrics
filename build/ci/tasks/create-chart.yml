@@ -24,8 +24,17 @@ run:
       IMAGE_TAG_DIR=${ROOT_DIR}/image-tag
       HELM_REPO=${ROOT_DIR}/helm-repo
       TAG=$(cat ${IMAGE_TAG_DIR}/release-tag)
-      GIT_TAG=$(cat image-tag/commit)
+      COMMIT=$(cat image-tag/commit)
       RELEASE_VERSION=$(cat image-tag/tag)
+      GIT_TAG=$(cat image-tag/tag)
+
+      if [ ! -z "${GIT_TAG_SUFFIX}" ]; then
+        GIT_TAG="${GIT_TAG}-${GIT_TAG_SUFFIX}"
+      fi
+
+      set +x
+      echo "Tag: $GIT_TAG"
+      set -x
 
       # Helper
       source ${STRATOS_METRICS}/build/ci/tasks/create-chart-helper.sh
