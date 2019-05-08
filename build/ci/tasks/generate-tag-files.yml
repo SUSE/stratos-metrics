@@ -50,4 +50,6 @@ run:
     echo "Created tag file tar as release-tag-${COMMIT_HASH}.tar"
     echo "Generate tag files complete!"
 
-    cat image-tag/version
+    cat version
+    ls -al
+    
