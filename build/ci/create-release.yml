@@ -85,7 +85,7 @@ resources:
   source:
     bucket: {{minio-bucket}}
     endpoint: {{minio-server-endpoint}}
-    regexp: temp-artifacts/release-tag-(.*).tar
+    regexp: temp-artifacts/metrics-tag-(.*).tar
     access_key_id: {{minio-access-key}}
     secret_access_key: {{minio-secret-access-key}}
     region_name: eu-central-1

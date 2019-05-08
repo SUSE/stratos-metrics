@@ -23,6 +23,11 @@ run:
       METRICS=${ROOT_DIR}/metrics
       source ${METRICS}/build/ci/tasks/github-helper.sh
 
+      set +x
+      echo "$VERSION"
+      echo "$FULL_VERSION"
+      set -x
+
       # Check tagged release version is consistent with package.json version
       TAG_RELEASE_VERSION=$(echo ${FULL_VERSION} | cut -d"-" -f1)
       if [ "${TAG_RELEASE_VERSION}" != "${VERSION}" ]; then
