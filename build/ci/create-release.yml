@@ -104,7 +104,6 @@ jobs:
   - get: metrics
     trigger: true
   - get: pipelines
-    passed: [generate-tag-files]
   - do:
     - task: generate-tag
       file: pipelines/build/ci/tasks/generate-tag-files.yml
@@ -112,7 +111,7 @@ jobs:
         TAG_SUFFIX: ((tag-suffix))
     - put: image-tag
       params:
-        file: image-tag/*.tar
+        file: image-tag/release-tag-*.tar
         acl: public-read
 - name: check-github
   plan:
