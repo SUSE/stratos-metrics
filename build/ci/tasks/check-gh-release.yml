@@ -23,6 +23,8 @@ run:
       METRICS=${ROOT_DIR}/metrics
       source ${METRICS}/build/ci/tasks/github-helper.sh
 
+      echo "Here"
+
       set +x
       echo "$VERSION"
       echo "$FULL_VERSION"
