@@ -45,11 +45,11 @@ run:
       { "commit": "${COMMIT_HASH}" }
     EOF
 
-    tar -cf release-tag-${COMMIT_HASH}.tar version commit tag release-tag image-labels
+    tar -cf metrics-tag-${COMMIT_HASH}.tar version commit tag release-tag image-labels
 
-    echo "Created tag file tar as release-tag-${COMMIT_HASH}.tar"
+    echo "Created tag file tar as metrics-tag-${COMMIT_HASH}.tar"
     echo "Generate tag files complete!"
 
     cat version
     ls -al
-    
+

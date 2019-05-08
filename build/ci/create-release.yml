@@ -111,7 +111,7 @@ jobs:
         TAG_SUFFIX: ((tag-suffix))
     - put: image-tag
       params:
-        file: image-tag/release-tag-*.tar
+        file: image-tag/metrics-tag-*.tar
         acl: public-read
 - name: check-github
   plan:
