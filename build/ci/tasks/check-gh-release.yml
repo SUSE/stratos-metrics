@@ -26,17 +26,8 @@ run:
       echo "Here"
 
       set +x
-      echo "$VERSION"
-      echo "$FULL_VERSION"
+      echo "Tag: $GIT_TAG"
       set -x
-
-      # Check tagged release version is consistent with package.json version
-      TAG_RELEASE_VERSION=$(echo ${FULL_VERSION} | cut -d"-" -f1)
-      if [ "${TAG_RELEASE_VERSION}" != "${VERSION}" ]; then
-        echo "Chart version is not consistent with tag release version! ${TAG_RELEASE_VERSION} != ${VERSION}"
-        exit 1
-      fi
-      cd ${ROOT_DIR}/metrics
 
       # Check that the release exists
       set +e

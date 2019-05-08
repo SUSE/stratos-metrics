@@ -21,7 +21,7 @@ resources:
   type: git
   source:
     uri: git@github.com:((metrics-repository-organization))/((metrics-repository))
-    branch: master
+    branch: "master"
     private_key: ((github-private-key))
 
 - name: helm-repo
