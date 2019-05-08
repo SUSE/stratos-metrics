@@ -27,7 +27,7 @@ run:
     echo "Version     : ${VERSION}"
     echo "Release tag : ${RELEASE_TAG}"
 
-    TAG=$VERSION-${COMMIT_HASH}-metrics
+    TAG=$VERSION-${COMMIT_HASH}
     if [ ! -z ${TAG_SUFFIX} ]; then
       if [ "${TAG_SUFFIX}" != "null" ]; then
           TAG=${TAG}-${TAG_SUFFIX}
