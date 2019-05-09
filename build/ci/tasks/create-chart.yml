@@ -61,7 +61,7 @@ run:
       patchHelmChart ${GIT_TAG} ${DOCKER_ORG} ${DOCKER_REGISTRY} . ${RELEASE_VERSION} ${VERSION}
 
       CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}.tgz"
-      if [ ! -z "${CHART_SUFFIX}" ]; then
+      if [ "${CHART_SUFFIX}" != "null" ]; then
         CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}-${CHART_SUFFIX}.tgz"
       fi
 

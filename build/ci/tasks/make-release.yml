@@ -94,7 +94,7 @@ run:
       github-release release -t stable --name "Stable" --description "Stable Release"
 
       HELM_CHART_FILENAME=metrics-helm-chart-${LAST_TAG}-${LAST_TAG_COMMIT}.tgz
-      if [ ! -z "${CHART_SUFFIX}" ]; then
+      if [ "${CHART_SUFFIX}" != "null" ]; then
         HELM_CHART_FILENAME=metrics-helm-chart-${LAST_TAG}-${LAST_TAG_COMMIT}-${CHART_SUFFIX}.tgz
       fi
 
@@ -230,7 +230,7 @@ run:
       echo "Helm Chart URL      : https://github.com/${HELM_REPOSITORY}/releases/download/${VERSION}/${HELM_FILE}"
       echo ""
       echo "=================================================================================================================="
-      
+
       # If we have a mirror URL for the Helm Chart then output that at the end
       if [ ! -z "${HELM_MIRROR_BASE_URL}" ]; then
         echo ""

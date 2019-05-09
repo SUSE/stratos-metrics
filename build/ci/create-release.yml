@@ -17,13 +17,6 @@ resources:
     private_key: ((github-private-key))
     # Match any Version 1 release (alpha, beta, rc) other than the actual release
     tag_filter: "1*-*"
-- name: pipelines
-  type: git
-  source:
-    uri: git@github.com:((metrics-repository-organization))/((metrics-repository))
-    branch: "master"
-    private_key: ((github-private-key))
-
 - name: helm-repo
   type: git
   source:
@@ -36,49 +29,49 @@ resources:
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-configmap-reload
+    repository: ((docker-repository))/stratos-metrics-configmap-reload
 - name: stratos-metrics-kube-state-metrics
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-kube-state-metrics
+    repository: ((docker-repository))/stratos-metrics-kube-state-metrics
 - name: stratos-metrics-init-chown-data
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-init-chown-data 
+    repository: ((docker-repository))/stratos-metrics-init-chown-data 
 - name: stratos-metrics-node-exporter
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-node-exporter
+    repository: ((docker-repository))/stratos-metrics-node-exporter
 - name: stratos-metrics-firehose-exporter
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-firehose-exporter
+    repository: ((docker-repository))/stratos-metrics-firehose-exporter
 - name: stratos-metrics-firehose-init
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-firehose-init
+    repository: ((docker-repository))/stratos-metrics-firehose-init
 - name: stratos-metrics-nginx
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-nginx
+    repository: ((docker-repository))/stratos-metrics-nginx
 - name: stratos-metrics-prometheus
   type: docker-image
   source:
     username: ((docker-username))
     password: ((docker-password))
-    repository: ((docker-registry))/((docker-organization))/stratos-metrics-prometheus
+    repository: ((docker-repository))/stratos-metrics-prometheus
 
 - name: image-tag
   type: s3
@@ -94,7 +87,7 @@ resources:
   source:
     bucket: {{minio-bucket}}
     endpoint: {{minio-server-endpoint}}
-    regexp: temp-artifacts/console-metrics-helm-chart-(?P<version>.*).tgz
+    regexp: temp-artifacts/metrics-helm-chart-(?P<version>.*).tgz
     access_key_id: {{minio-access-key}}
     secret_access_key: {{minio-secret-access-key}}
     region_name: eu-central-1
@@ -103,10 +96,9 @@ jobs:
   plan:
   - get: metrics
     trigger: true
-  - get: pipelines
   - do:
     - task: generate-tag
-      file: pipelines/build/ci/tasks/generate-tag-files.yml
+      file: metrics/build/ci/tasks/generate-tag-files.yml
       params:
         TAG_SUFFIX: ((tag-suffix))
     - put: image-tag
@@ -118,8 +110,6 @@ jobs:
   - get: metrics
     passed: [generate-tag-files]
     trigger: true
-  - get: pipelines
-    passed: [generate-tag-files]
   - get: image-tag
     passed: [generate-tag-files] 
     params:
@@ -128,7 +118,7 @@ jobs:
     - task: build
       privileged: true
       timeout: 30m
-      file: pipelines/build/ci/tasks/check-gh-release.yml
+      file: metrics/build/ci/tasks/check-gh-release.yml
       params:
         GITHUB_TOKEN: ((github-access-token))
         GITHUB_USER: ((helm-repo-github-organization))
@@ -136,6 +126,7 @@ jobs:
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
         GIT_PRIVATE_KEY: ((github-private-key))
+        GIT_TAG_SUFFIX: ((git-tag-suffix))
 - name: build-images
   plan:
   - get: metrics
@@ -179,6 +170,7 @@ jobs:
           patch_base_reg: ((patch-base-reg))
           patch_base_tag: ((patch-base-tag))
           target_name: kube-state-metrics
+    - do:          
       - put: stratos-metrics-firehose-exporter
         params:
           dockerfile: metrics/build/Dockerfile.firehose-exporter
@@ -231,6 +223,8 @@ jobs:
         DOCKER_ORG: ((docker-organization))
         DOCKER_REGISTRY: ((docker-registry))
         HELM_REPO_BRANCH: ((helm-repo-branch))
+        GIT_TAG_SUFFIX: ((git-tag-suffix))
+        CHART_SUFFIX: ((tag-suffix))
     - put: helm-chart-tarball
       params:
        file: helm-chart/*.tgz
@@ -258,4 +252,5 @@ jobs:
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
         GIT_PRIVATE_KEY: ((github-private-key))
-        
+        GIT_TAG_SUFFIX: ((git-tag-suffix))
+        CHART_SUFFIX: ((tag-suffix))
