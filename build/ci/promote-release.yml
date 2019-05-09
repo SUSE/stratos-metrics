@@ -7,7 +7,7 @@ resource_types:
     repository: splatform/stratos-git-tag-resource
     tag: "latest"
 resources:
-# Stratos Git Repository
+# Stratos Metrics Git Repository
 - name: metrics
   type: stratos-git-resource
   source:
@@ -35,11 +35,11 @@ resources:
 jobs:
 - name: generate-tag-files
   plan:
-  - get: stratos
+  - get: metrics
     trigger: true
   - do:
     - task: generate-tag
-      file: metrics/ci/tasks/generate-tag-files.yml
+      file: metrics/build/ci/tasks/generate-tag-files.yml
       params:
         TAG_SUFFIX: ((tag-suffix))
     - put: image-tag
@@ -48,7 +48,7 @@ jobs:
         acl: public-read
 - name: make-release
   plan:
-  - get: stratos
+  - get: metrics
     passed: [generate-tag-files]
     trigger: true
   - get: helm-repo
@@ -60,7 +60,7 @@ jobs:
     - task: build
       privileged: true
       timeout: 30m
-      file: metrics/ci/tasks/make-release.yml
+      file: metrics/build/ci/tasks/make-release.yml
       params:
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
