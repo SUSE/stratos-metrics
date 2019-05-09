@@ -28,7 +28,7 @@ run:
       RELEASE_VERSION=$(cat ${IMAGE_TAG_DIR}/tag)
       GIT_TAG=$(cat ${IMAGE_TAG_DIR}/tag)
 
-      if [ ! -z "${GIT_TAG_SUFFIX}" ]; then
+      if [ "${GIT_TAG_SUFFIX}" != "null" ]; then
         GIT_TAG="${GIT_TAG}-${GIT_TAG_SUFFIX}"
       fi
 

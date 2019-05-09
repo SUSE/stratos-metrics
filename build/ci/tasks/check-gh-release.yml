@@ -23,7 +23,7 @@ run:
       METRICS=${ROOT_DIR}/metrics
       source ${METRICS}/build/ci/tasks/github-helper.sh
 
-      if [ ! -z "${GIT_TAG_SUFFIX}" ]; then
+      if [ "${GIT_TAG_SUFFIX}" != "null" ]; then
         GIT_TAG="${GIT_TAG}-${GIT_TAG_SUFFIX}"
       fi
       
