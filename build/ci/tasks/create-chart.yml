@@ -60,10 +60,15 @@ run:
       IMAGE_TAG=${GIT_TAG}
       patchHelmChart ${GIT_TAG} ${DOCKER_ORG} ${DOCKER_REGISTRY} . ${RELEASE_VERSION} ${VERSION}
 
+      CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}.tgz"
+      if [ ! -z "${CHART_SUFFIX}" ]; then
+        CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}-${CHART_SUFFIX}.tgz"
+      fi
+
       # Generate Helm package
       updateHelmDependency
       helm package ./
-      mv metrics-*.tgz ${ROOT_DIR}/helm-chart/metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}.tgz
+      mv metrics-*.tgz ${ROOT_DIR}/helm-chart/${CHART_FILENAME}
       cd ${ROOT_DIR}/helm-chart/
       if [ -f ${HELM_REPO}/index.yaml ]; then
         cp ${HELM_REPO}/index.yaml ${ROOT_DIR}/helm-chart/

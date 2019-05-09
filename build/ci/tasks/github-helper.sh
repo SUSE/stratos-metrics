@@ -25,7 +25,7 @@ generateReleaseTitle() {
     elif [ "$REL_TYPE" == "rc" ]; then
       RELEASE_TITLE="Release Candidate ${REL_VER}"
     fi
-    RELEASE_TITLE="${REL_PARTS[0]} $RELEASE_TITLE"
+    RELEASE_TITLE="${REL_PARTS[0]} Metrics $RELEASE_TITLE"
     RELEASE_DESCRIPTION="$RELEASE_TITLE"
   fi
 }
