@@ -110,8 +110,6 @@ run:
 
       echo "Repo last tag: ${REPO_LAST_TAG}"
 
-      set +x
-
       # Need to create the Helm chart
       # Download the Helm chart from the last RC/Beta/Alpha - we'll modify it
       # Note: Use helper to ensure this works with a private GitHub repository
@@ -122,8 +120,6 @@ run:
       echo "Downloaded Metrics Helm Chart"
       ls -al ${HELM_CHART_FILENAME}
       
-      set -x
-
       # Unpack the Helm Chart from the release candidate
       tar -xvf ${HELM_CHART_FILENAME}
       echo "Unpacked Metrics Helm Chart for Release Candidate"
@@ -191,12 +187,13 @@ run:
       # Upload Helm chart to release
       github-release upload -t ${VERSION} --file ${ROOT_DIR}/helm-chart/${HELM_FILE} --name "${HELM_FILE}"
 
+      # Don;t need to do this
       # Create a release if the source repo is not the same as the helm repo
-      if [ "${SOURCE_REPO}" != "${ARTIFACT_REPO}" ]; then
-        echo "Creating Metrics release in GitHub Repository: ${SOURCE_REPO}"
-        # Create new release in the source repository
-        github-release release --user ${SOURCE_REPO_ORG} --repo ${SOURCE_REPO_REPO} -t ${VERSION} --name "${RELEASE_TITLE}" ${PRE_RELEASE_ARG} --description "${RELEASE_DESCRIPTION}"
-      fi
+      # if [ "${SOURCE_REPO}" != "${ARTIFACT_REPO}" ]; then
+      #   echo "Creating Metrics release in GitHub Repository: ${SOURCE_REPO}"
+      #   # Create new release in the source repository
+      #   github-release release --user ${SOURCE_REPO_ORG} --repo ${SOURCE_REPO_REPO} -t ${VERSION} --name "${RELEASE_TITLE}" ${PRE_RELEASE_ARG} --description "${RELEASE_DESCRIPTION}"
+      # fi
 
       # Create the PR for the Helm Chart changes if configured
       if [ "${HELM_RELEASE_GITCLONE}" != "null" ]; then
