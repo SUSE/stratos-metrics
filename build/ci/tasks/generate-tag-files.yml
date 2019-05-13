@@ -24,8 +24,9 @@ run:
     # RELEASE_TAG is the full tag that started the pipeline, e.g. '1.0.0-rc.1'
     RELEASE_TAG=$(cat .git/ref)
 
-    echo "Version     : ${VERSION}"
-    echo "Release tag : ${RELEASE_TAG}"
+    echo "Version          : ${VERSION}"
+    echo "Release tag      : ${RELEASE_TAG}"
+    echo "Image Tag Prefix : ${IMAGE_TAX_PREFIX}""
 
     TAG=$VERSION-${COMMIT_HASH}
     if [ ! -z ${TAG_SUFFIX} ]; then
@@ -45,7 +46,7 @@ run:
       { "commit": "${COMMIT_HASH}" }
     EOF
 
-    tar -cf ${IMAGE_TAG_PREFIX}-tag-${COMMIT_HASH}.tar version commit tag release-tag image-labels
+    tar -cf ${IMAGE_TAX_PREFIX}-tag-${COMMIT_HASH}.tar version commit tag release-tag image-labels
 
     echo "Created tag file tar as ${IMAGE_TAG_PREFIX}-tag-${COMMIT_HASH}.tar"
     echo "Generate tag files complete!"
