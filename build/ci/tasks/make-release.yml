@@ -121,7 +121,7 @@ run:
       cat metrics/Chart.yaml
       # Package modified Helm chart
       HELM_FILE=metrics-helm-chart-${VERSION}-${COMMIT}.tgz
-      if [ ! -z "${CHART_SUFFIX}" ]; then
+      if [ "${CHART_SUFFIX}" != "null" ]; then
         HELM_FILE=metrics-helm-chart-${VERSION}-${COMMIT}-${CHART_SUFFIX}.tgz
       fi
     
