@@ -39,7 +39,7 @@ jobs:
     - task: build
       privileged: true
       timeout: 30m
-      file: pipelines/build/ci/tasks/make-release.yml
+      file: pipelines/build/ci/tasks/((promote-release-task))
       params:
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
