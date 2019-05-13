@@ -55,3 +55,4 @@ jobs:
         HELM_RELEASE_REGISTRY_HOST: ((release-repository))
         HELM_RELEASE_REGISTRY_ORG: ((release-repository-organization))
         CHART_SUFFIX: ((tag-suffix))
+        GIT_TAG_SUFFIX: ((git-tag-suffix))

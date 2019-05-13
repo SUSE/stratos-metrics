@@ -35,10 +35,8 @@ run:
       # RELEASE_TAG is the full tag that started the pipeline, e.g. '1.0.0-rc.1'
       RELEASE_TAG=$(cat .git/ref)
       TAG=$VERSION-${COMMIT_HASH}
-      if [ ! -z ${TAG_SUFFIX} ]; then
-        if [ "${TAG_SUFFIX}" != "null" ]; then
-          TAG=${TAG}-${TAG_SUFFIX}
-        fi
+      if [ "${TAG_SUFFIX}" != "null" ]; then
+        TAG=${TAG}-${TAG_SUFFIX}
       fi
 
       # $VERSION is version number - e.g. 2.3.0
@@ -102,13 +100,19 @@ run:
         HELM_CHART_FILENAME=metrics-helm-chart-${LAST_TAG}-${LAST_TAG_COMMIT}-${CHART_SUFFIX}.tgz
       fi
 
+      if [ "${GIT_TAG_SUFFIX}" != "null" ]; then
+        REPO_LAST_TAG="${LAST_TAG}-${GIT_TAG_SUFFIX}"
+      else
+        REPO_LAST_TAG="${LAST_TAG}"
+      fi
+
       # Need to create the Helm chart
       # Download the Helm chart from the last RC/Beta/Alpha - we'll modify it
       # Note: Use helper to ensure this works with a private GitHub repository
       mkdir tmp
       cd tmp
       echo "Downloaing Metrics Helm Chart for Release Candidate"
-      downloadReleaseFile ${GITHUB_TOKEN} ${HELM_REPOSITORY} ${LAST_TAG} ${HELM_CHART_FILENAME}
+      downloadReleaseFile ${GITHUB_TOKEN} ${HELM_REPOSITORY} ${REPO_LAST_TAG} ${HELM_CHART_FILENAME}
       echo "Downloaded Metrics Helm Chart"
       ls -al ${HELM_CHART_FILENAME}
 
