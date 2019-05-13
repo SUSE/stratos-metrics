@@ -16,6 +16,12 @@ resources:
     private_key: ((github-private-key))
     # Match stable tag
     tag_filter: "stable"
+- name: pipelines
+  type: stratos-git-resource
+  source:
+    uri: git@github.com:((metrics-repository-organization))/((metrics-repository))
+    branch: master
+    private_key: ((github-private-key))
 - name: helm-repo
   type: git
   source:
@@ -28,11 +34,12 @@ jobs:
   - get: metrics
     trigger: true
   - get: helm-repo
+  - get: pipelines
   - do:
     - task: build
       privileged: true
       timeout: 30m
-      file: metrics/build/ci/tasks/make-release.yml
+      file: pipelines/build/ci/tasks/make-release.yml
       params:
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
@@ -56,3 +63,4 @@ jobs:
         HELM_RELEASE_REGISTRY_ORG: ((release-repository-organization))
         CHART_SUFFIX: ((tag-suffix))
         GIT_TAG_SUFFIX: ((git-tag-suffix))
+        TAG_SUFFIX: ((tag-suffix))

@@ -34,7 +34,7 @@ run:
       COMMIT=$(git log -1 --format="%h")
       # RELEASE_TAG is the full tag that started the pipeline, e.g. '1.0.0-rc.1'
       RELEASE_TAG=$(cat .git/ref)
-      TAG=$VERSION-${COMMIT_HASH}
+      TAG=$VERSION-${COMMIT}
       if [ "${TAG_SUFFIX}" != "null" ]; then
         TAG=${TAG}-${TAG_SUFFIX}
       fi
@@ -46,11 +46,11 @@ run:
       set +x
       echo "=================================================================================================================="
       echo "Tag             : $TAG"
-      echo "Git Tag         : $GIT_TAG"
       echo "Commit          : $COMMIT"
       echo "Release Version : $RELEASE_TAG"
       echo "Version         : $VERSION"
       echo "Last tag        : $LAST_TAG"
+      echo "Git Tag Suffix  : $GIT_TAG_SUFFIX"
       echo "=================================================================================================================="
       set -x
 
@@ -66,6 +66,8 @@ run:
         echo "The commit for the \"stable\" tag does not match that of the tag \"$LAST_TAG\""
         exit 1
       fi
+
+      echo "Last tag Commit       : $LAST_TAG_COMMIT"
 
       echo "Making Metrics release"
 
@@ -106,6 +108,10 @@ run:
         REPO_LAST_TAG="${LAST_TAG}"
       fi
 
+      echo "Repo last tag: ${REPO_LAST_TAG}"
+
+      set +x
+
       # Need to create the Helm chart
       # Download the Helm chart from the last RC/Beta/Alpha - we'll modify it
       # Note: Use helper to ensure this works with a private GitHub repository
@@ -115,6 +121,8 @@ run:
       downloadReleaseFile ${GITHUB_TOKEN} ${HELM_REPOSITORY} ${REPO_LAST_TAG} ${HELM_CHART_FILENAME}
       echo "Downloaded Metrics Helm Chart"
       ls -al ${HELM_CHART_FILENAME}
+      
+      set -x
 
       # Unpack the Helm Chart from the release candidate
       tar -xvf ${HELM_CHART_FILENAME}
