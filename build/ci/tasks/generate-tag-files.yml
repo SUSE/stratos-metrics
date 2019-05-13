@@ -26,7 +26,7 @@ run:
 
     echo "Version          : ${VERSION}"
     echo "Release tag      : ${RELEASE_TAG}"
-    echo "Image Tag Prefix : ${IMAGE_TAX_PREFIX}""
+    echo "Image Tag Prefix : ${IMAGE_TAX_PREFIX}"
 
     TAG=$VERSION-${COMMIT_HASH}
     if [ ! -z ${TAG_SUFFIX} ]; then
