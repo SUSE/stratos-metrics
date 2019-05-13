@@ -22,40 +22,12 @@ resources:
     uri: git@github.com:((helm-repo-github-organization))/((helm-repo-github-repository))
     branch: ((helm-repo-branch))
     private_key: ((github-private-key))
-# Artifacts
-- name: image-tag
-  type: s3
-  source:
-    bucket: {{minio-bucket}}
-    endpoint: {{minio-server-endpoint}}
-    regexp: temp-artifacts/metrics-tag-(.*).tar
-    access_key_id: {{minio-access-key}}
-    secret_access_key: {{minio-secret-access-key}}
-    region_name: eu-central-1
 jobs:
-- name: generate-tag-files
-  plan:
-  - get: metrics
-    trigger: true
-  - do:
-    - task: generate-tag
-      file: metrics/build/ci/tasks/generate-tag-files.yml
-      params:
-        TAG_SUFFIX: ((tag-suffix))
-    - put: image-tag
-      params:
-        file: image-tag/metrics-tag-*.tar
-        acl: public-read
 - name: make-release
   plan:
   - get: metrics
-    passed: [generate-tag-files]
     trigger: true
   - get: helm-repo
-  - get: image-tag
-    passed: [generate-tag-files]
-    params:
-      unpack: true
   - do:
     - task: build
       privileged: true

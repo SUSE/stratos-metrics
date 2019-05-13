@@ -2,7 +2,6 @@
 platform: linux
 inputs:
 - name: metrics
-- name: image-tag
 - name: helm-repo
 outputs:
 - name: helm-chart
@@ -26,36 +25,41 @@ run:
       SOURCE_REPO=${SOURCE_REPO_ORG}/${SOURCE_REPO_REPO}
       ARTIFACT_REPO=${GITHUB_ORG}/${GITHUB_REPO}
 
-      # Image tag
-      IMAGE_TAG_DIR=${ROOT_DIR}/image-tag
-      TAG=$(cat ${IMAGE_TAG_DIR}/release-tag)
-      COMMIT=$(cat ${IMAGE_TAG_DIR}/commit)
-      RELEASE_VERSION=$(cat ${IMAGE_TAG_DIR}/tag)
-      GIT_TAG=$(cat ${IMAGE_TAG_DIR}/tag)
- 
       HELM_REPO=${ROOT_DIR}/helm-repo/${HELM_REPO_PATH}
       HELM_REPOSITORY=${GITHUB_ORG}/${GITHUB_REPO}
-      
+
+      # Tags
       cd ${ROOT_DIR}/metrics
       VERSION=$(cat Chart.yaml | grep version | cut -d' ' -f2 | tr -d '\n')
+      COMMIT=$(git log -1 --format="%h")
+      # RELEASE_TAG is the full tag that started the pipeline, e.g. '1.0.0-rc.1'
+      RELEASE_TAG=$(cat .git/ref)
+      TAG=$VERSION-${COMMIT_HASH}
+      if [ ! -z ${TAG_SUFFIX} ]; then
+        if [ "${TAG_SUFFIX}" != "null" ]; then
+          TAG=${TAG}-${TAG_SUFFIX}
+        fi
+      fi
+
+      # $VERSION is version number - e.g. 2.3.0
+      # Find the last tag created for this release tag
+      LAST_TAG=$(git tag --sort=creatordate | grep "$VERSION-" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' | head -n 1)
 
       set +x
+      echo "=================================================================================================================="
       echo "Tag             : $TAG"
       echo "Git Tag         : $GIT_TAG"
       echo "Commit          : $COMMIT"
-      echo "Release Version : $RELEASE_VERSION"
+      echo "Release Version : $RELEASE_TAG"
       echo "Version         : $VERSION"
+      echo "Last tag        : $LAST_TAG"
+      echo "=================================================================================================================="
       set -x
 
       # Set git username and password so that we can push changes (Don't log)
       set +x
       setupGitConfig
       set -x
-
-      # $VERSION is version number - e.g. 2.3.0
-      # Find the last tag created for this release tag
-      LAST_TAG=$(git tag --sort=creatordate | grep "$VERSION-" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' | head -n 1)
-      echo "Last tag: $LAST_TAG"
 
       # Get the commit hash for this tag
       LAST_TAG_COMMIT=$(git rev-list --abbrev-commit -n 1 ${LAST_TAG})

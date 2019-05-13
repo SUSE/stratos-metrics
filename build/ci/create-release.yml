@@ -78,7 +78,7 @@ resources:
   source:
     bucket: {{minio-bucket}}
     endpoint: {{minio-server-endpoint}}
-    regexp: temp-artifacts/metrics-tag-(.*).tar
+    regexp: temp-artifacts/((image-tag-prefix))-tag-(.*).tar
     access_key_id: {{minio-access-key}}
     secret_access_key: {{minio-secret-access-key}}
     region_name: eu-central-1
@@ -101,9 +101,10 @@ jobs:
       file: metrics/build/ci/tasks/generate-tag-files.yml
       params:
         TAG_SUFFIX: ((tag-suffix))
+        IMAGE_TAX_PREFIX: ((image-tag-prefix))
     - put: image-tag
       params:
-        file: image-tag/metrics-tag-*.tar
+        file: image-tag/((image-tag-prefix))-tag-*.tar
         acl: public-read
 - name: check-github
   plan:

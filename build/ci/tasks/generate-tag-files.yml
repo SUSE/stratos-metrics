@@ -21,7 +21,7 @@ run:
     COMMIT_HASH=$(git log -1 --format="%h")
     VERSION=$(cat Chart.yaml | grep version | cut -d' ' -f2 | tr -d '\n')
 
-    # RELEASE_TAG is the full tag that started the pipleinee, e.g. '1.0.0-rc.1'
+    # RELEASE_TAG is the full tag that started the pipeline, e.g. '1.0.0-rc.1'
     RELEASE_TAG=$(cat .git/ref)
 
     echo "Version     : ${VERSION}"
@@ -45,9 +45,9 @@ run:
       { "commit": "${COMMIT_HASH}" }
     EOF
 
-    tar -cf metrics-tag-${COMMIT_HASH}.tar version commit tag release-tag image-labels
+    tar -cf ${IMAGE_TAG_PREFIX}-tag-${COMMIT_HASH}.tar version commit tag release-tag image-labels
 
-    echo "Created tag file tar as metrics-tag-${COMMIT_HASH}.tar"
+    echo "Created tag file tar as ${IMAGE_TAG_PREFIX}-tag-${COMMIT_HASH}.tar"
     echo "Generate tag files complete!"
 
     cat version
