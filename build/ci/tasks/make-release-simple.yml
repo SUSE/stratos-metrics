@@ -60,6 +60,8 @@ run:
       echo "=================================================================================================================="
       set -x
 
+      IMAGE_TAG=$VERSION_TAG
+
       # Set git username and password so that we can push changes (Don't log)
       set +x
       setupGitConfig
@@ -123,12 +125,22 @@ run:
       cat metrics/Chart.yaml
       # Package modified Helm chart
       HELM_FILE=metrics-helm-chart-${VERSION}-${COMMIT}.tgz
+      HELM_ALL_ENABLED_FILE=metrics-helm-chart-${VERSION}-${COMMIT}-release-package.tgz
       if [ "${CHART_SUFFIX}" != "null" ]; then
         HELM_FILE=metrics-helm-chart-${VERSION}-${COMMIT}-${CHART_SUFFIX}.tgz
+        HELM_ALL_ENABLED_FILE=metrics-helm-chart-${VERSION}-${COMMIT}-${CHART_SUFFIX}-release-package.tgz
       fi
     
       helm package metrics
       cp metrics-${VERSION}.tgz ${ROOT_DIR}/helm-chart/${HELM_FILE}
+
+      # Create chart with all features enabled
+      rm metrics-${VERSION}.tgz
+
+      # This will enable all features
+      sed -i -e 's/enabled: false/enabled: true/g' metrics/values.yaml
+      helm package metrics
+      cp metrics-${VERSION}.tgz ${ROOT_DIR}/helm-chart/${HELM_ALL_ENABLED_FILE}
       
       # Temp folder for helm-chart
       mkdir -p ${ROOT_DIR}/helm-chart
@@ -175,8 +187,12 @@ run:
 
       # Create new release
       github-release release -t ${VERSION_TAG} --name "${RELEASE_TITLE}" ${PRE_RELEASE_ARG} --description "${RELEASE_DESCRIPTION}"
+
       # Upload Helm chart to release
       github-release upload -t ${VERSION_TAG} --file ${ROOT_DIR}/helm-chart/${HELM_FILE} --name "${HELM_FILE}"
+
+      # Upload Helm chart to release that has all features enabled
+      github-release upload -t ${VERSION_TAG} --file ${ROOT_DIR}/helm-chart/${HELM_FILE} --name "${HELM_ALL_ENABLED_FILE}"
 
       # Create the PR for the Helm Chart changes if configured
       if [ "${HELM_RELEASE_GITCLONE}" != "null" ]; then
@@ -196,8 +212,8 @@ run:
         if [ ! -z "${HELM_RELEASE_REGISTRY_HOST}" ]; then
           echo "Patching Metrics Helm Chart Docker Registry and Organisation"
           cat ./metrics/values.yaml
-          sed -i -e 's/hostname: '"${DOCKER_REGISTRY}"'/hostname: '"${HELM_RELEASE_REGISTRY_HOST}"'/g' ./metrics/values.yaml
-          sed -i -e 's/organization: '"${DOCKER_ORG}"'/organization: '"${HELM_RELEASE_REGISTRY_ORG}"'/g' ./metrics/values.yaml
+          sed -i -e 's/dockerRepository: '"${DOCKER_REGISTRY}"'/dockerRepository: '"${HELM_RELEASE_REGISTRY_HOST}"'/g' ./metrics/values.yaml
+          sed -i -e 's/dockerOrganization: '"${DOCKER_ORG}"'/dockerOrganization: '"${HELM_RELEASE_REGISTRY_ORG}"'/g' ./metrics/values.yaml
           echo "Updated Metrics Chart..."
           cat ./metrics/values.yaml
         fi

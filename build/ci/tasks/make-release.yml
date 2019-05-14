@@ -54,6 +54,8 @@ run:
       echo "=================================================================================================================="
       set -x
 
+      IMAGE_TAG=$VERSION
+
       # Set git username and password so that we can push changes (Don't log)
       set +x
       setupGitConfig
