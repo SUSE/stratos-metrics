@@ -1,14 +1,29 @@
-# Default values for stratos-metrics.
-cfName: cfdevio
+# Default values for stratos-metrics
 dockerRepository: docker.io
 dockerOrganization: splatform
 dockerRegistrySecret: regsecret
 imageTag: opensuse
-useLb: false
+
 metrics:
-  externalIP: 
+  # Preferred way of setting username and password for the nginx server that fronts Prometheus
+  username: metrics
+  password: s3cr3t
+  # Metrics service
+  service:
+    annotations: []
+    externalIPs: []
+    loadBalancerIP:
+    loadBalancerSourceRanges: []
+    servicePort: 443
+    #nodePort: 30000
+    type: ClusterIP
+    externalName:
+  # Deprectated - use metrics.service.externalIPs
+  externalIP:
 kubernetes:
-  authEndpoint: 
+  apiEndpoint:
+  # authEndpoint is deprectaed (misnamed) - use apiEndpoint
+  authEndpoint:
 firehoseExporter:
   enabled: true
   instances: 1
@@ -34,11 +49,7 @@ firehoseExporter:
     clientSecret: prometheus-client-secret
 nginx:
   serviceName: metrics-nginx
-  username: metrics
-  password: s3cr3t
   image: stratos-metrics-nginx
-  serviceType: NodePort
-  externalPort: 443
   ssl:
     cert: |
       -----BEGIN CERTIFICATE-----
@@ -91,6 +102,7 @@ nginx:
       42qv5Z0qoLTOch+GVuj0ZF1UgJh+RJWom7lPhTS0UP+VZFBc++nGl7PGTRflm3Zd
       mEVvEQxyBz3V1fZ0Yz246W60
       -----END PRIVATE KEY-----
+      
  # SCF values compatability 
 env:
   UAA_HOST: 
@@ -101,8 +113,13 @@ env:
   DOPPLER_PORT: 4443
 kube:
   external_metrics_port: 7443
+  registry:
+    password:
+    username:
+secrets:
+  UAA_ADMIN_CLIENT_SECRET:
 
-# Values for the Promethues sub-chart
+# Values for the Prometheus sub-chart
 prometheus:
   imagePullSecrets:
   alertmanager:
@@ -145,7 +162,9 @@ prometheus:
   serverFiles:
     alerts: {}
     rules: {}
-kube:
-  registry:
-    password:
-    username:
+
+services:
+  loadbalanced: false
+
+# useLb is deprecated
+useLb: false
