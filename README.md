@@ -1,7 +1,5 @@
 # Stratos Metrics
 
-<a href="https://travis-ci.org/SUSE/stratos-metrics/branches"><img src="https://travis-ci.org/SUSE/stratos-metrics.svg?branch=master"></a>
-
 Stratos Metrics provides a Helm chart for deploying Prometheus and the Cloud Foundry Firehose exporter to Kubernetes.
 
 It deploys both of these components and fronts the Prometheus server with an nginx server to provide authenticated access to Prometheus (currently basic authentication over https).
