@@ -18,25 +18,26 @@ metrics:
     #nodePort: 30000
     type: ClusterIP
     externalName:
-  # Deprectated - use metrics.service.externalIPs
+  # Deprecated - use metrics.service.externalIPs
   externalIP:
 kubernetes:
   apiEndpoint:
   # authEndpoint is deprectaed (misnamed) - use apiEndpoint
   authEndpoint:
+
+# Configuration for the Cloud Foundry Firehose Exporter
+# The firehose exporter collects data from Cloud Foundry and sends it to Prometheus
 firehoseExporter:
   enabled: true
   instances: 1
   serviceName: f-exp-service
-  servicePort: 9186
-  externalPort: 9186
-  serviceType: ClusterIP
   image: stratos-metrics-firehose-exporter
   initContainerImage: stratos-metrics-firehose-init
-  dopplerUrl: wss://doppler.cf-dev.io:4443
+  # URL of the Doppler Endpoint - takes precendence if set
+  dopplerUrl:
   noIdentityZone: false
   uaa:
-    endpoint: uaa.cf-dev.io:2793
+    endpoint:
     skipSslVerification: "true"
     cfIdentityZone: cf
     admin:
@@ -110,7 +111,7 @@ env:
   UAA_CF_IDENTITY_ZONE: scf
   UAA_PORT: 2793
   DOMAIN:
-  DOPPLER_PORT: 4443
+  DOPPLER_PORT: 443
 kube:
   external_metrics_port: 7443
   registry:

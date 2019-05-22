@@ -48,12 +48,14 @@ spec:
         - name: IGNORE_IDENTITY_ZONE
           value: "true"
         {{- end }}
+        {{- if .Values.firehoseExporter.uaa.endpoint }}  
+        - name: UAA_ENDPOINT
+          value: "{{ .Values.firehoseExporter.uaa.endpoint }}"
+        {{- else }}
         {{- if .Values.env.UAA_HOST }}  
         - name: UAA_ENDPOINT
           value: "{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"
-        {{- else }}
-        - name: UAA_ENDPOINT
-          value: "{{ .Values.firehoseExporter.uaa.endpoint }}"
+        {{- end }}
         {{- end }}
         - name: UAA_ADMIN
           value: "{{ .Values.firehoseExporter.uaa.admin.client }}"
@@ -141,22 +143,21 @@ spec:
           value: "{{ $values.firehoseExporter.uaa.clientSecret }}"
         - name: FIREHOSE_EXPORTER_DOPPLER_SUBSCRIPTION_ID
           value: "{{ $releaseName }}-prometheus"
+        {{- if $values.firehoseExporter.dopplerUrl }}  
+        - name: FIREHOSE_EXPORTER_DOPPLER_URL
+          value: "{{ $values.firehoseExporter.dopplerUrl }}"
+        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
+          value: "{{ $values.firehoseExporter.dopplerUrl }}"
+        {{- else }}
         {{- if $values.env.DOMAIN }}  
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
           value: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
-        {{- else }}
-        - name: FIREHOSE_EXPORTER_DOPPLER_URL
-          value: "{{ $values.firehoseExporter.dopplerUrl }}"
+        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
+          value: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
+        {{- end }}
         {{- end }}
         - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
           value: "{{ $values.firehoseExporter.uaa.skipSslVerification}}"
-        {{- if $values.env.DOMAIN }}  
-        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
-          value: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
-        {{- else }}
-        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
-          value: "{{ $values.firehoseExporter.dopplerUrl }}"
-        {{- end }}
         ports:
         - containerPort: 9186
           name: fh-exp

@@ -18,7 +18,7 @@ TAG_LATEST="false"
 PUSH="false"
 NO_PATCH="false"
 
-while getopts ":ho:r:t:Tcb:C:i:" opt; do
+while getopts ":ho:r:t:Tcb:C:i:-" opt; do
   case $opt in
     h)
       echo
@@ -42,7 +42,6 @@ while getopts ":ho:r:t:Tcb:C:i:" opt; do
       ;;
     T)
       TAG="$(git describe $(git rev-list --tags --max-count=1))"
-      RELEASE_TAG="$(git describe $(git rev-list --tags --max-count=1))"
       ;;
     C)
       ADD_OFFICIAL_TAG="true"
@@ -84,14 +83,15 @@ echo "Starting build of Stratos Metrics Helm Chart"
 # Copy values template
 __DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 STRATOS_METRICS_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
-TMP_DIR=${STRATOS_METRICS_PATH}/tmp/metrics
+TMP_DIR=${STRATOS_METRICS_PATH}/tmp
+CHART_DIR=${STRATOS_METRICS_PATH}/tmp/metrics
 rm -rf ${TMP_DIR}
-mkdir -p ${TMP_DIR}
+mkdir -p ${CHART_DIR}
 
-cp ${STRATOS_METRICS_PATH}/*.yaml ${TMP_DIR}
-cp -R ${STRATOS_METRICS_PATH}/templates ${TMP_DIR}
+cp ${STRATOS_METRICS_PATH}/*.yaml ${CHART_DIR}
+cp -R ${STRATOS_METRICS_PATH}/templates ${CHART_DIR}
 
-pushd ${TMP_DIR} > /dev/null 2>&1
+pushd ${CHART_DIR} > /dev/null 2>&1
 helm dependency build
 
 # Patch chart file
@@ -105,12 +105,15 @@ sed -i.bak -e 's/tag: .*/tag: '"${IMAGE_TAG}"'/g' values.yaml
 
 rm -r *.bak
 
-popd
+popd > /dev/null 2>&1
 
 FILENAME_SUFFIX=""
 if [ "${ADD_OFFICIAL_TAG}" == "true" ]; then
   FILENAME_SUFFIX = "-${OFFICIAL_TAG}"
 fi
 
-helm package ${TMP_DIR}
-mv metrics-${TAG}.tgz metrics-helm-chart-v${IMAGE_TAG}.tgz
+pushd ${TMP_DIR} > /dev/null 2>&1
+helm package ${CHART_DIR}
+CHART=$(ls metrics*.tgz)
+popd > /dev/null 2>&1
+mv ${TMP_DIR}/${CHART} ./metrics-helm-chart-v${IMAGE_TAG}.tgz

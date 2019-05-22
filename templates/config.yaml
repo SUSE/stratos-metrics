@@ -112,13 +112,15 @@ data:
         static_configs:
           - targets:
       {{- range int .Values.firehoseExporter.instances | until }}
-            - "{{  $releaseName }}-{{$values.firehoseExporter.serviceName}}-{{.}}:{{$values.firehoseExporter.servicePort}}"
+            - "{{  $releaseName }}-{{$values.firehoseExporter.serviceName}}-{{.}}:{{default 9186 $values.firehoseExporter.servicePort}}"
       {{- end}}
             labels:
+            {{- if $values.firehoseExporter.dopplerUrl }}  
+              doppler_endpoint: "{{ $values.firehoseExporter.dopplerUrl }}"
+            {{- else }}
             {{- if $values.env.DOMAIN }}  
               doppler_endpoint: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
-            {{- else }}
-              doppler_endpoint: "{{ $values.firehoseExporter.dopplerUrl }}"
+            {{- end }}
             {{- end }}
     {{- end }}
 

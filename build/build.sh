@@ -8,6 +8,7 @@ set -eu
 # Set defaults
 PROD_RELEASE=false
 DOCKER_REGISTRY=docker.io
+DOCKER_DEST_REGISTRY=${DOCKER_REGISTRY}
 DOCKER_ORG=splatform
 BASE_IMAGE_TAG=opensuse
 OFFICIAL_TAG=cap
@@ -17,7 +18,7 @@ TAG_LATEST="false"
 PUSH="false"
 NO_PATCH="false"
 
-while getopts ":ho:r:t:Tcplub:Cu:" opt; do
+while getopts ":ho:r:t:Tcplub:Cu:-d:" opt; do
   case $opt in
     h)
       echo
@@ -32,6 +33,9 @@ while getopts ":ho:r:t:Tcplub:Cu:" opt; do
       ;;
     r)
       DOCKER_REGISTRY="${OPTARG}"
+      ;;
+    d)
+      DOCKER_DEST_REGISTRY="${OPTARG}"
       ;;
     o)
       DOCKER_ORG="${OPTARG}"
@@ -130,7 +134,7 @@ function buildAndPublishImage {
   if [ "${NO_PATCH}" = "false" ]; then
     patchDockerfile ${DOCKER_FILE} ${FOLDER}
   fi
-  IMAGE_URL=${DOCKER_REGISTRY}/${DOCKER_ORG}/${NAME}:${TAG}
+  IMAGE_URL=${DOCKER_DEST_REGISTRY}/${DOCKER_ORG}/${NAME}:${TAG}
   echo Building Docker Image for ${NAME}
 
   pushd ${FOLDER} > /dev/null 2>&1
@@ -156,14 +160,14 @@ function buildAndPublishImage {
 
   if [ "${PUSH}" = "true" ]; then
     echo Pushing Docker Image ${IMAGE_URL}
-    docker push  ${IMAGE_URL}
+    docker push ${IMAGE_URL}
   fi
 
   if [ "${TAG_LATEST}" = "true" ]; then
-    docker tag ${IMAGE_URL} ${DOCKER_REGISTRY}/${DOCKER_ORG}/${NAME}:latest
+    docker tag ${IMAGE_URL} ${DOCKER_DEST_REGISTRY}/${DOCKER_ORG}/${NAME}:latest
     if [ "${PUSH}" = "true" ]; then
       echo Pushing Docker Image ${IMAGE_URL}
-      docker push ${DOCKER_REGISTRY}/${DOCKER_ORG}/${NAME}:latest
+      docker push ${DOCKER_DEST_REGISTRY}/${DOCKER_ORG}/${NAME}:latest
     fi
   fi
   unPatchDockerfile ${DOCKER_FILE} ${FOLDER}
@@ -267,8 +271,9 @@ buildAndPublishImage stratos-metrics-prometheus Dockerfile.prometheus .
 docker images --filter "reference=${DOCKER_ORG}/stratos-metrics*" --format  "{{.ID | printf \"%-12s\" }}\t{{.Repository | printf \"%-48s\"}}\t{{.Tag | printf \"%-30s\" }}\t{{.CreatedSince | printf \"%-20s\"}}\t{{.Size}}" | head -20
 
 # Build the helm chart using another script
+popd
 
-./build-helm.sh $@
+${__DIRNAME}/build-helm.sh -i ${TAG} -o ${DOCKER_ORG} -r ${DOCKER_DEST_REGISTRY}
 
 echo
 echo "Stratos Metrics Build complete...."
@@ -280,4 +285,3 @@ if [ ${CONCOURSE_BUILD:-"not-set"} == "not-set" ]; then
   echo "helm install stratos-metrics -f values.yaml --namespace console --name my-console"
 fi
 
-popd

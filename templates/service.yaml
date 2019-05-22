@@ -73,9 +73,9 @@ metadata:
     app.kubernetes.io/component: "stratos-metrics-firehose-exporter-service"
     helm.sh/chart: "{{ $helmChartName }}-{{ $helmChartVersion | replace "+" "_" }}"
 spec:
-  type: {{ $firehoseExporter.serviceType }}
+  type: {{ default "ClusterIP" $firehoseExporter.serviceType }}
   ports:
-  - port: {{ $firehoseExporter.externalPort }}
+  - port: {{ default 9186 $firehoseExporter.externalPort }}
     targetPort: {{ $firehoseExporter.internalPort }}
     protocol: TCP
     name: {{ $firehoseExporter.serviceName }}
