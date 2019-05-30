@@ -3,6 +3,7 @@ dockerRepository: docker.io
 dockerOrganization: splatform
 dockerRegistrySecret: regsecret
 imageTag: opensuse
+imagePullPolicy: IfNotPresent
 
 metrics:
   # Preferred way of setting username and password for the nginx server that fronts Prometheus
@@ -24,6 +25,10 @@ kubernetes:
   apiEndpoint:
   # authEndpoint is deprectaed (misnamed) - use apiEndpoint
   authEndpoint:
+
+# Image for the config job
+configJob:
+  image: stratos-metrics-firehose-exporter
 
 # Configuration for the Cloud Foundry Firehose Exporter
 # The firehose exporter collects data from Cloud Foundry and sends it to Prometheus

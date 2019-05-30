@@ -1,6 +1,8 @@
 #!/bin/bash
 set -x
 
+# This script creates a client in the UAA that has the authority to read from the CF Firehose
+
 # SKIP_SSL_VALIDATION="true"
 # UAA_ENDPOINT="uaa.cf-dev.io:2793"
 # UAA_ADMIN_SECRET="admin_secret"
@@ -12,6 +14,7 @@ set -x
 # PROMETHEUS_CLIENT="prometheus-firehose"
 # PROMETHEUS_CLIENT_SECRET="prometheus-client-secret"
 ARGS=""
+CURL_ARGS=""
 
 get_post_data(){
   cat << EOF
@@ -24,9 +27,12 @@ get_post_data(){
   }
 EOF
 }
+
 if [ ! -z "${SKIP_SSL_VALIDATION}" ]; then
  ARGS="--skip-ssl-validation"
+ CURL_ARGS="-k"
 fi
+
 uaac.ruby2.1 target ${ARGS} https://${UAA_ENDPOINT}
 uaac.ruby2.1 token client get ${UAA_ADMIN} -s ${UAA_ADMIN_SECRET}
 # Check if client already exists
@@ -55,7 +61,7 @@ uaac.ruby2.1 client get ${PROMETHEUS_CLIENT}
 EXIT_CODE=$?
 if [ $EXIT_CODE -eq 1 ]; then
 uaac.ruby2.1 client add ${PROMETHEUS_CLIENT} \
-  --name prometheus-firehose \
+  --name ${PROMETHEUS_CLIENT} \
   --secret ${PROMETHEUS_CLIENT_SECRET} \
   --authorized_grant_types client_credentials,refresh_token \
   --authorities doppler.firehose

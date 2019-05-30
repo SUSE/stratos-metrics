@@ -1,6 +1,6 @@
 #!/bin/bash
 
-zypper in -y ruby ruby-devel gcc-c++
+zypper in -y ruby ruby-devel gcc-c++ jq curl
 
 SLES=$(cat /etc/os-release | grep SLES)
 IS_SLES=$?
