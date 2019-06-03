@@ -6,8 +6,8 @@ USER root
 ADD install-uaac.sh /install-uaac.sh
 RUN /install-uaac.sh
 
-ADD create-secrets.sh /create-secrets.sh
-RUN chmod +x /create-secrets.sh
+ADD create-configmaps.sh /create-configmaps.sh
+RUN chmod +x /create-configmaps.sh
 
 ADD setup-uaa.sh /setup-uaa.sh
 RUN chmod +x /setup-uaa.sh
