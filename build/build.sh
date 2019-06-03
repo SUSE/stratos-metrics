@@ -5,6 +5,12 @@
 # 
 set -eu
 
+# Colours
+CYAN="\033[96m"
+YELLOW="\033[93m"
+RESET="\033[0m"
+BOLD="\033[1m"
+
 # Set defaults
 PROD_RELEASE=false
 DOCKER_REGISTRY=docker.io
@@ -107,9 +113,16 @@ if [ -n "${https_proxy:-}" -o -n "${HTTPS_PROXY:-}" ]; then
   RUN_ARGS="${RUN_ARGS} -e https_proxy=${https_proxy:-${HTTPS_PROXY}}"
 fi
 
+# Use correct sed command for Mac
+SED="sed -r"
+unamestr=`uname`
+if [[ "$unamestr" == 'Darwin' ]]; then
+   SED="sed -E"
+fi   
+
 # Trim leading/trailing whitespace
-BUILD_ARGS="$(echo -e "${BUILD_ARGS}" | sed -r -e 's@^[[:space:]]*@@' -e 's@[[:space:]]*$@@')"
-RUN_ARGS="$(echo -e "${RUN_ARGS}" | sed -r -e 's@^[[:space:]]*@@' -e 's@[[:space:]]*$@@')"
+BUILD_ARGS="$(echo -e "${BUILD_ARGS}" | $SED -e 's@^[[:space:]]*@@' -e 's@[[:space:]]*$@@')"
+RUN_ARGS="$(echo -e "${RUN_ARGS}" | $SED -e 's@^[[:space:]]*@@' -e 's@[[:space:]]*$@@')"
 
 if [ -n "${BUILD_ARGS}" ]; then
   echo "Web Proxy detected from environment. Running Docker with:"
@@ -123,16 +136,25 @@ function buildAndPublishImage {
   FOLDER=${3}
   TARGET=${4:-none}
 
+  PATCHED_DOCKER_FILE="${DOCKER_FILE}.patched"
+
   if [ ! -d "${FOLDER}" ]; then
     echo "Project ${FOLDER} hasn't been checked out";
     exit 1
   fi
 
-  echo "-- Build & publish: ${NAME} using Docker file ${DOCKER_FILE}"
+  printf "${CYAN}"
+  echo ""
+  echo "=="
+  printf "== Build & publish: ${YELLOW}${NAME}${CYAN} using Docker file ${YELLOW}${DOCKER_FILE}${CYAN}\n"
+  echo "=="
+  printf "${RESET}"
+
+  echo ""
 
   # Patch Dockerfile
   if [ "${NO_PATCH}" = "false" ]; then
-    patchDockerfile ${DOCKER_FILE} ${FOLDER}
+    patchDockerfile ${PATCHED_DOCKER_FILE} ${DOCKER_FILE} ${FOLDER}
   fi
   IMAGE_URL=${DOCKER_DEST_REGISTRY}/${DOCKER_ORG}/${NAME}:${TAG}
   echo Building Docker Image for ${NAME}
@@ -147,10 +169,11 @@ function buildAndPublishImage {
 
   set +e
 
-  docker build ${BUILD_ARGS} ${SET_TARGET} -t ${IMAGE_URL} -f $DOCKER_FILE .
+  docker build ${BUILD_ARGS} ${SET_TARGET} -t ${IMAGE_URL} -f $PATCHED_DOCKER_FILE .
   RETVAL=$?
-  if [ $RETVAL -eq 1 ]; then
-    unPatchDockerfile ${DOCKER_FILE} ${FOLDER}
+  rm -rf ${PATCHED_DOCKER_FILE}
+  rm -rf ${PATCHED_DOCKER_FILE}.bak
+  if [ $RETVAL -ne 0 ]; then
     echo "-- Build ${NAME} failed with exit code $RETVAL"
     exit $RETVAL
   fi
@@ -170,7 +193,6 @@ function buildAndPublishImage {
       docker push ${DOCKER_DEST_REGISTRY}/${DOCKER_ORG}/${NAME}:latest
     fi
   fi
-  unPatchDockerfile ${DOCKER_FILE} ${FOLDER}
 
   popd > /dev/null 2>&1
 }
@@ -225,26 +247,18 @@ function pushGitTag {
 
 
 function patchDockerfile {
-  DOCKER_FILE=${1}
-  FOLDER=${2}
+  PATCHED_DOCKER_FILE=${1}
+  DOCKER_FILE=${2}
+  FOLDER=${3}
+
+  rm -rf ${FOLDER}/${PATCHED_DOCKER_FILE}
+  cp ${FOLDER}/${DOCKER_FILE} ${FOLDER}/${PATCHED_DOCKER_FILE}
 
   # Replace registry/organization
   pushd ${FOLDER} > /dev/null 2>&1
   pwd
-  sed -i "s@splatform@${DOCKER_REGISTRY}/${DOCKER_ORG}@g" ${FOLDER}/${DOCKER_FILE}
-  sed -i "s/opensuse/${BASE_IMAGE_TAG}/g" ${FOLDER}/${DOCKER_FILE}
-  popd > /dev/null 2>&1
-}
-
-function unPatchDockerfile {
-  DOCKER_FILE=${1}
-  FOLDER=${2}
-
-  # Replace registry/organization
-  pushd ${FOLDER} > /dev/null 2>&1
-  pwd
-  sed -i "s@${DOCKER_REGISTRY}/${DOCKER_ORG}@splatform@g" ${FOLDER}/${DOCKER_FILE}
-  sed -i "s/${BASE_IMAGE_TAG}/opensuse/g" ${FOLDER}/${DOCKER_FILE}
+  sed -i.bak "s@splatform@${DOCKER_REGISTRY}/${DOCKER_ORG}@g" ${PATCHED_DOCKER_FILE}
+  sed -i.bak "s/opensuse/${BASE_IMAGE_TAG}/g" ${PATCHED_DOCKER_FILE}
   popd > /dev/null 2>&1
 }
 
@@ -282,6 +296,6 @@ echo "Org: ${DOCKER_ORG}"
 echo "Tag: ${TAG}"
 if [ ${CONCOURSE_BUILD:-"not-set"} == "not-set" ]; then
   echo "To deploy using Helm, execute the following: "
-  echo "helm install stratos-metrics -f values.yaml --namespace console --name my-console"
+  echo "helm install stratos-metrics -f values.yaml --namespace metrics --name my-metrics"
 fi
 
