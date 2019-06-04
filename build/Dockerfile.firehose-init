@@ -1,10 +1,19 @@
-FROM splatform/stratos-bk-build-base:opensuse
+FROM splatform/stratos-ruby-build-base:opensuse as ruby-base
+
+ADD install-uaac.sh /install-uaac.sh
+RUN /install-uaac.sh
+
+# Use plain OS image without anything extra (e.g. no git)
+FROM splatform/stratos-base:opensuse
 
 WORKDIR /
 USER root
 
-ADD install-uaac.sh /install-uaac.sh
-RUN /install-uaac.sh
+RUN mkdir -p /usr/local/lib/ruby
+COPY --from=ruby-base /usr/local/lib/ruby /usr/local/lib/ruby
+COPY --from=ruby-base /usr/local/bin/* /usr/local/bin/
+
+RUN zypper in -y jq curl
 
 ADD create-configmaps.sh /create-configmaps.sh
 RUN chmod +x /create-configmaps.sh
