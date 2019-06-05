@@ -36,6 +36,8 @@ run:
 
       # Generate Helm package
       helm dep update
+      # Generate imagelist.txt
+      ${STRATOS_METRICS}/build/imagelist-gen.sh .
       helm package ./
       mv metrics-*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
       cd ${ROOT_DIR}/helm-chart/
