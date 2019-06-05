@@ -15,30 +15,37 @@ metadata:
   labels:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-{{ .Values.cfName }}-config"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/component: "stratos-metrics-config"
 data:
   nginx-metadata: |
     [
       {{- if .Values.firehoseExporter.enabled }}
       {
         "type": "cf",
+      {{- if .Values.firehoseExporter.dopplerUrl }}
+        "url": "{{ .Values.firehoseExporter.dopplerUrl }}",
+      {{- else }}
       {{- if .Values.env.DOMAIN }}  
         "url": "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}",
-      {{- else }}
-        "url": "{{ .Values.firehoseExporter.dopplerUrl }}",
+      {{- end }}
+      {{- end }}
+      {{- if .Values.firehoseExporter.cfEndpoint }}
+        "cfEndpoint": "{{ .Values.firehoseExporter.cfEndpoint }}",
       {{- end }}
         "job": "cf-firehose"
       }
       {{- end }}
-      {{- if .Values.kubernetes.authEndpoint }}
+      {{- if or .Values.kubernetes.authEndpoint .Values.kubernetes.apiEndpoint }}
         {{- if .Values.firehoseExporter.enabled }}
             ,
         {{- end }}
       {
         "type": "k8s",
+        {{- if .Values.kubernetes.authEndpoint }}
         "url": "{{ .Values.kubernetes.authEndpoint }}",
+        {{- else }}
+        "url": "{{ .Values.kubernetes.apiEndpoint }}",
+        {{- end }}
         "job": "k8s-metrics"
       }
       {{- end }}
@@ -105,13 +112,15 @@ data:
         static_configs:
           - targets:
       {{- range int .Values.firehoseExporter.instances | until }}
-            - "{{  $releaseName }}-{{$values.firehoseExporter.serviceName}}-{{.}}:{{$values.firehoseExporter.servicePort}}"
+            - "{{  $releaseName }}-{{$values.firehoseExporter.serviceName}}-{{.}}:{{default 9186 $values.firehoseExporter.servicePort}}"
       {{- end}}
             labels:
+            {{- if $values.firehoseExporter.dopplerUrl }}  
+              doppler_endpoint: "{{ $values.firehoseExporter.dopplerUrl }}"
+            {{- else }}
             {{- if $values.env.DOMAIN }}  
               doppler_endpoint: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
-            {{- else }}
-              doppler_endpoint: "{{ $values.firehoseExporter.dopplerUrl }}"
+            {{- end }}
             {{- end }}
     {{- end }}
 

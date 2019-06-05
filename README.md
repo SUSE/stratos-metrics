@@ -1,4 +1,4 @@
-# stratos-metrics
+# Stratos Metrics
 
 Stratos Metrics provides a Helm chart for deploying Prometheus and the Cloud Foundry Firehose exporter to Kubernetes.
 

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	width="114" height="114" viewBox="0 0 777.851 697.826" xml:space="preserve">
+<g id="stratos-metrics">
+	<g>
+		<rect x="621.642" y="641.242" style="fill:#00C081;" width="156.209" height="56.584"/>
+		<rect x="621.642" y="549.629" style="fill:#00C081;" width="156.209" height="56.617"/>
+		<rect x="621.642" y="458.016" style="fill:#00C081;" width="156.209" height="56.583"/>
+		<rect x="621.642" y="366.436" style="fill:#00C081;" width="156.209" height="56.582"/>
+		<rect x="621.642" y="274.823" style="fill:#00C081;" width="156.209" height="56.566"/>
+		<rect x="621.642" y="183.227" style="fill:#00C081;" width="156.209" height="56.583"/>
+		<rect x="621.642" y="91.596" style="fill:#D1D3D4;" width="156.209" height="56.618"/>
+		<rect x="621.642" y="0" style="fill:#D1D3D4;" width="156.209" height="56.584"/>
+	</g>
+	<g>
+		<rect x="414.437" y="641.242" style="fill:#00AA64;" width="156.139" height="56.584"/>
+		<rect x="414.437" y="549.629" style="fill:#00AA64;" width="156.139" height="56.617"/>
+		<rect x="414.437" y="458.016" style="fill:#00AA64;" width="156.139" height="56.583"/>
+		<rect x="414.437" y="366.436" style="fill:#00AA64;" width="156.139" height="56.582"/>
+		<rect x="414.437" y="274.823" style="fill:#00AA64;" width="156.139" height="56.566"/>
+		<rect x="414.437" y="183.227" style="fill:#D1D3D4;" width="156.139" height="56.583"/>
+		<rect x="414.437" y="91.596" style="fill:#D1D3D4;" width="156.139" height="56.618"/>
+		<rect x="414.437" y="0" style="fill:#D1D3D4;" width="156.139" height="56.584"/>
+	</g>
+	<g>
+		<rect x="207.223" y="641.242" style="fill:#4DD3A7;" width="156.139" height="56.584"/>
+		<rect x="207.223" y="549.629" style="fill:#4DD3A7;" width="156.139" height="56.617"/>
+		<rect x="207.223" y="458.016" style="fill:#4DD3A7;" width="156.139" height="56.583"/>
+		<rect x="207.223" y="366.436" style="fill:#4DD3A7;" width="156.139" height="56.582"/>
+		<rect x="207.223" y="274.823" style="fill:#D1D3D4;" width="156.139" height="56.566"/>
+		<rect x="207.223" y="183.227" style="fill:#D1D3D4;" width="156.139" height="56.583"/>
+		<rect x="207.223" y="91.596" style="fill:#D1D3D4;" width="156.139" height="56.618"/>
+		<rect x="207.223" y="0" style="fill:#D1D3D4;" width="156.139" height="56.584"/>
+	</g>
+	<g>
+		<rect y="641.242" style="fill:#B3ECD9;" width="156.139" height="56.584"/>
+		<rect y="549.629" style="fill:#B3ECD9;" width="156.139" height="56.617"/>
+		<rect y="458.016" style="fill:#B3ECD9;" width="156.139" height="56.583"/>
+		<rect y="366.436" style="fill:#D1D3D4;" width="156.139" height="56.582"/>
+		<rect y="274.823" style="fill:#D1D3D4;" width="156.139" height="56.566"/>
+		<rect y="183.227" style="fill:#D1D3D4;" width="156.139" height="56.583"/>
+		<rect y="91.596" style="fill:#D1D3D4;" width="156.139" height="56.618"/>
+		<rect y="0" style="fill:#D1D3D4;" width="156.139" height="56.584"/>
+	</g>
+</g>
+</svg>
