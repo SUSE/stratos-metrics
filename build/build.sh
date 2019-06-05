@@ -280,6 +280,7 @@ buildAndPublishImage stratos-metrics-firehose-init Dockerfile.firehose-init .
 buildAndPublishImage stratos-metrics-firehose-exporter Dockerfile.firehose-exporter .
 buildAndPublishImage stratos-metrics-nginx Dockerfile.nginx .
 buildAndPublishImage stratos-metrics-prometheus Dockerfile.prometheus .
+buildAndPublishImage stratos-metrics-grafana Dockerfile.grafana .
 
 # Show the last 20 images
 docker images --filter "reference=${DOCKER_ORG}/stratos-metrics*" --format  "{{.ID | printf \"%-12s\" }}\t{{.Repository | printf \"%-48s\"}}\t{{.Tag | printf \"%-30s\" }}\t{{.CreatedSince | printf \"%-20s\"}}\t{{.Size}}" | head -20
