@@ -55,6 +55,12 @@ data:
           auth_basic_user_file /etc/nginx/.htpasswd;
       }
 
+      location /stratos-grafana { 
+          alias /etc/nginx/conf.d/grafana.json;
+          auth_basic "metrics-auth";
+          auth_basic_user_file /etc/nginx/.htpasswd;
+      }
+
       {{- if .Values.grafana.enabled }}
       location /grafana {
           proxy_pass            http://grafana/;
@@ -88,6 +94,12 @@ data:
           auth_basic "metrics-auth";
           auth_basic_user_file /etc/nginx/.htpasswd;
       }
+    }
+
+  nginx-grafana-metadata: |
+    {
+      "enabled": {{- .Values.grafana.enabled }},
+      "path": "/grafana"
     }
 
   prometheus.yml: |

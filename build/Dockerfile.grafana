@@ -10,7 +10,7 @@ ADD apply-grafana-mods.sh /apply-grafana-mods.sh
 RUN /apply-grafana-mods.sh
 
 # Copy dashboards
-MKDIR -p /var/lib/grafana/dashboards
-COPY --from=cf-dashboards /src/prometheus-boshrelease/jobs/cloudfoundry_dashboards/templates/* /var/lib/grafana/dashboards/
+RUN mkdir -p /var/lib/grafana/dashboards
+COPY --from=cf-dashboards /srv/prometheus-boshrelease/jobs/cloudfoundry_dashboards/templates/* /var/lib/grafana/dashboards/
 
 USER grafana

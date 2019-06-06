@@ -92,6 +92,8 @@ spec:
             path: nginx.conf
           - key: nginx-metadata
             path: metadata.json
+          - key: nginx-grafana-metadata
+            path: grafana.json
 
 {{- if .Values.firehoseExporter.enabled }}
 {{ $releaseName := .Release.Name }}
