@@ -262,39 +262,36 @@ echo "  + ${CONFIGMAP_NAME} in namespace ${NAMESPACE}"
 
 # Now update the nginx config map to have the endpoint metadata
 
-cat << EOF > patch-nginx-configMap.yaml
-[{
-  "op": "replace",
-  "path": "/data/nginx-metadata",
-  "value": "[
-EOF
+printf "{\"data\": {" > patch-nginx-configMap.json
+printf "\"nginx-metadata\": \"[" >> patch-nginx-configMap.json
 
 FIRST="true"
 
-echo "Latest script"
 # Add Cloud Foundry metadata if the exporter is enabled
 if [ "${FIREHOSE_EXPORTER_ENABLED}" == "true" ]; then
-  echo "{\\\"type\\\": \\\"cf\\\"," >> patch-nginx-configMap.yaml
-  echo "\\\"url\\\": \\\"${DOPPLER_ENDPOINT}\\\"," >> patch-nginx-configMap.yaml
-  echo "\\\"cfEndpoint\\\": \\\"${CF_URL}\\\"," >> patch-nginx-configMap.yaml
-  echo "\\\"job\\\": \\\"cf-firehose\\\"" >> patch-nginx-configMap.yaml
-  echo "}" >> patch-nginx-configMap.yaml
+  printf '%s' "{\\\"type\\\": \\\"cf\\\"," >> patch-nginx-configMap.json
+  printf '%s' "\\\"url\\\": \\\"${DOPPLER_ENDPOINT}\\\"," >> patch-nginx-configMap.json
+  printf '%s' "\\\"cfEndpoint\\\": \\\"${CF_URL}\\\"," >> patch-nginx-configMap.json
+  printf '%s' "\\\"job\\\": \\\"cf-firehose\\\"" >> patch-nginx-configMap.json
+  printf "}" >> patch-nginx-configMap.json
   FIRST="false"
 fi
 
 if [ "${KUBE_STATE_EXPORTER_ENABLED}" == "true" ]; then
   if [ "${FIRST}" == "true" ]; then
-    echo "," >> patch-nginx-configMap.yaml
+    printf "," >> patch-nginx-configMap.json
   fi
-  echo "\\\"type\\\": \\\"k8s\\\"," >> patch-nginx-configMap.yaml
-  echo "\\\"url\\\": \\\"${KUBE_API_URL}\\\"," >> patch-nginx-configMap.yaml
-  echo "\\\"job\\\": \\\"k8s-metrics\\\"" >> patch-nginx-configMap.yaml
-  echo "}" >> patch-nginx-configMap.yaml
+  printf '%s' "\\\"type\\\": \\\"k8s\\\"," >> patch-nginx-configMap.json
+  printf '%s' "\\\"url\\\": \\\"${KUBE_API_URL}\\\"," >> patch-nginx-configMap.json
+  printf '%s' "\\\"job\\\": \\\"k8s-metrics\\\"" >> patch-nginx-configMap.json
+  printf '%s' "}" >> patch-nginx-configMap.json
 fi
 
-echo "]\"}]" >> patch-nginx-configMap.yaml
+printf "]\" } }" >> patch-nginx-configMap.json
 
-cat patch-nginx-configMap.yaml
+echo "Ready to patch nginx configuration"
+cat patch-nginx-configMap.json | jq . >  patch-nginx-configMap2.json
+cat patch-nginx-configMap2.json
 echo ""
 
 echo "Patching nginx configuration"
@@ -302,17 +299,16 @@ echo "Patching nginx configuration"
 curl -k \
     --fail \
     -X PATCH \
-    -d @patch-nginx-configMap.yaml \
+    -d @patch-nginx-configMap2.json \
     -H "Authorization: Bearer $KUBE_TOKEN" \
     -H 'Accept: application/json' \
-    -H 'Content-Type: application/json-patch+json' \
-    ${KUBE_API_SERVER}/api/v1/namespaces/${NAMESPACE}/configmaps/${NGINX_CONFIG_MAP}
-    
-    # > /dev/null
+    -H 'Content-Type: application/merge-patch+json' \
+    ${KUBE_API_SERVER}/api/v1/namespaces/${NAMESPACE}/configmaps/${NGINX_CONFIG_MAP} > /dev/null
 
 RET_PATCH=$?
 echo "Patch Metrics nginx ConfigMap exit code: $RET_PATCH"
-rm -rf patch-nginx-configMap.yaml
+rm -rf patch-nginx-configMap.json
+rm -rf patch-nginx-configMap2.json
 if [ $RET_PATCH -ne 0 ]; then
   echo "Error patching Metrics nginx ConfigMap"
   exit $RET_PATCH
