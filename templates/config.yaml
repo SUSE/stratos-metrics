@@ -98,7 +98,7 @@ data:
 
   nginx-grafana-metadata: |
     {
-      "enabled": {{- .Values.grafana.enabled }},
+      "enabled": {{ .Values.grafana.enabled }},
       "path": "/grafana"
     }
 
