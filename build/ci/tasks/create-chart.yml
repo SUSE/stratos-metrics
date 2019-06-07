@@ -59,6 +59,9 @@ run:
       # Required for setupAndPushChange commit message
       IMAGE_TAG=${GIT_TAG}
       patchHelmChart ${GIT_TAG} ${DOCKER_ORG} ${DOCKER_REGISTRY} . ${RELEASE_VERSION} ${VERSION}
+      
+      # Generate imagelist.txt
+      ${STRATOS_METRICS}/build/imagelist-gen.sh .
 
       CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}.tgz"
       if [ "${CHART_SUFFIX}" != "null" ]; then
