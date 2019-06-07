@@ -116,6 +116,7 @@ env:
   DOMAIN:
   DOPPLER_PORT: 443
 kube:
+  auth: "rbac"
   external_metrics_port: 7443
   registry:
     password:
