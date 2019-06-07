@@ -3,6 +3,7 @@ dockerRepository: docker.io
 dockerOrganization: splatform
 dockerRegistrySecret: regsecret
 imageTag: opensuse
+imagePullPolicy: IfNotPresent
 
 metrics:
   # Preferred way of setting username and password for the nginx server that fronts Prometheus
@@ -25,29 +26,31 @@ kubernetes:
   # authEndpoint is deprectaed (misnamed) - use apiEndpoint
   authEndpoint:
 
+# Image for the config job
+configJob:
+  image: stratos-metrics-firehose-init
+
 # Configuration for the Cloud Foundry Firehose Exporter
 # The firehose exporter collects data from Cloud Foundry and sends it to Prometheus
 firehoseExporter:
   enabled: true
   instances: 1
   serviceName: f-exp-service
-  image: stratos-metrics-firehose-exporter
-  initContainerImage: stratos-metrics-firehose-init
+  # URL of the Cloud Foundry API
+  cfUrl:
   # URL of the Doppler Endpoint - takes precendence if set
   dopplerUrl:
-  noIdentityZone: false
   uaa:
-    endpoint:
     skipSslVerification: "true"
-    cfIdentityZone: cf
     admin:
       client: admin
       clientSecret: admin_secret
-    prometheusAdmin:
-      client: prom_admin
-      clientSecret: prom_admin_secret
     client: prometheus-firehose
-    clientSecret: prometheus-client-secret
+    # Leave blank to generate a random secret
+    clientSecret:
+  # Do not change these
+  image: stratos-metrics-firehose-exporter
+  initContainerImage: stratos-metrics-firehose-init
 nginx:
   serviceName: metrics-nginx
   image: stratos-metrics-nginx
@@ -113,6 +116,7 @@ env:
   DOMAIN:
   DOPPLER_PORT: 443
 kube:
+  auth: "rbac"
   external_metrics_port: 7443
   registry:
     password:
@@ -135,7 +139,7 @@ prometheus:
     image:
       repository: splatform/stratos-metrics-init-chown-data
       tag: opensuse
-  kubeStateMetrics:    
+  kubeStateMetrics:
     enabled: false
     image:
       repository: splatform/stratos-metrics-kube-state-metrics

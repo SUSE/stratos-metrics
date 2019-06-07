@@ -1,3 +1,4 @@
+{{ $firehoseClientSecet :=  default (randAlphaNum 64) .Values.firehoseExporter.uaa.clientSecret }}
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -44,37 +45,36 @@ spec:
         env:
         - name: SKIP_SSL_VALIDATION
           value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
-        {{- if .Values.firehoseExporter.noIdentityZone }}  
-        - name: IGNORE_IDENTITY_ZONE
-          value: "true"
-        {{- end }}
-        {{- if .Values.firehoseExporter.uaa.endpoint }}  
-        - name: UAA_ENDPOINT
-          value: "{{ .Values.firehoseExporter.uaa.endpoint }}"
-        {{- else }}
-        {{- if .Values.env.UAA_HOST }}  
-        - name: UAA_ENDPOINT
-          value: "{{ .Values.env.UAA_HOST }}:{{ .Values.env.UAA_PORT }}"
-        {{- end }}
-        {{- end }}
         - name: UAA_ADMIN
           value: "{{ .Values.firehoseExporter.uaa.admin.client }}"
         - name: UAA_ADMIN_SECRET
           value: "{{ template "uaaClientSecret" . }}"
-        - name: CF_IDENTITY_ZONE
-        {{- if .Values.env.UAA_CF_IDENTITY_ZONE }}  
-          value: "{{ .Values.env.UAA_CF_IDENTITY_ZONE }}"
-        {{- else }}
-          value: "{{ .Values.firehoseExporter.uaa.cfIdentityZone }}"
-        {{- end }}
-        - name: PROMETHEUS_ADMIN_CLIENT
-          value: "{{ .Values.firehoseExporter.uaa.prometheusAdmin.client }}"
-        - name: PROMETHEUS_ADMIN_CLIENT_SECRET
-          value: "{{ .Values.firehoseExporter.uaa.prometheusAdmin.clientSecret }}"
         - name: PROMETHEUS_CLIENT
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
-          value: "{{ .Values.firehoseExporter.uaa.clientSecret }}"
+          value: "{{ $firehoseClientSecet }}"
+        - name: ZONE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: zone
+        - name: ROOT_UAA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: root_uaa_endpont
+        - name: DOPPLER_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: doppler_endpoint
+        - name: UAA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: uaa_endpoint
+
+
   {{- end }}
       {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
       imagePullSecrets:
@@ -127,35 +127,27 @@ spec:
       - image: {{$values.dockerRepository}}/{{$values.dockerOrganization}}/{{$values.firehoseExporter.image}}:{{$values.imageTag}}
         name: firehose-exporter
         env:
-        {{- if $values.firehoseExporter.noIdentityZone }}  
         - name: FIREHOSE_EXPORTER_UAA_URL
-          value: "https://{{ $values.env.UAA_HOST }}:{{ $values.env.UAA_PORT }}"
-        {{- else if $values.env.UAA_HOST }}  
-        - name: FIREHOSE_EXPORTER_UAA_URL
-          value: "https://{{ $values.env.UAA_CF_IDENTITY_ZONE }}.{{ $values.env.UAA_HOST }}:{{ $values.env.UAA_PORT }}"
-        {{- else }}
-        - name: FIREHOSE_EXPORTER_UAA_URL
-          value: "https://{{ $values.firehoseExporter.uaa.cfIdentityZone }}.{{ $values.firehoseExporter.uaa.endpoint }}"
-        {{- end }}
+          valueFrom:
+            configMapKeyRef:
+              name: {{$releaseName}}-endpoint-config
+              key: uaa_endpoint
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
           value: "{{ $values.firehoseExporter.uaa.client }}"
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
-          value: "{{ $values.firehoseExporter.uaa.clientSecret }}"
+          value: "{{ $firehoseClientSecet }}"
         - name: FIREHOSE_EXPORTER_DOPPLER_SUBSCRIPTION_ID
           value: "{{ $releaseName }}-prometheus"
-        {{- if $values.firehoseExporter.dopplerUrl }}  
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
-          value: "{{ $values.firehoseExporter.dopplerUrl }}"
-        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
-          value: "{{ $values.firehoseExporter.dopplerUrl }}"
-        {{- else }}
-        {{- if $values.env.DOMAIN }}  
-        - name: FIREHOSE_EXPORTER_DOPPLER_URL
-          value: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
-        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT	
-          value: "wss://doppler.{{ $values.env.DOMAIN }}:{{$values.env.DOPPLER_PORT}}"
-        {{- end }}
-        {{- end }}
+          valueFrom:
+            configMapKeyRef:
+              name: {{$releaseName}}-endpoint-config
+              key: doppler_endpoint
+        - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: {{$releaseName}}-endpoint-config
+              key: doppler_endpoint
         - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
           value: "{{ $values.firehoseExporter.uaa.skipSslVerification}}"
         ports:

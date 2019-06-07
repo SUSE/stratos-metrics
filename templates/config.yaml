@@ -17,39 +17,6 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"
     app.kubernetes.io/component: "stratos-metrics-config"
 data:
-  nginx-metadata: |
-    [
-      {{- if .Values.firehoseExporter.enabled }}
-      {
-        "type": "cf",
-      {{- if .Values.firehoseExporter.dopplerUrl }}
-        "url": "{{ .Values.firehoseExporter.dopplerUrl }}",
-      {{- else }}
-      {{- if .Values.env.DOMAIN }}  
-        "url": "wss://doppler.{{ .Values.env.DOMAIN }}:{{.Values.env.DOPPLER_PORT}}",
-      {{- end }}
-      {{- end }}
-      {{- if .Values.firehoseExporter.cfEndpoint }}
-        "cfEndpoint": "{{ .Values.firehoseExporter.cfEndpoint }}",
-      {{- end }}
-        "job": "cf-firehose"
-      }
-      {{- end }}
-      {{- if or .Values.kubernetes.authEndpoint .Values.kubernetes.apiEndpoint }}
-        {{- if .Values.firehoseExporter.enabled }}
-            ,
-        {{- end }}
-      {
-        "type": "k8s",
-        {{- if .Values.kubernetes.authEndpoint }}
-        "url": "{{ .Values.kubernetes.authEndpoint }}",
-        {{- else }}
-        "url": "{{ .Values.kubernetes.apiEndpoint }}",
-        {{- end }}
-        "job": "k8s-metrics"
-      }
-      {{- end }}
-    ]
   nginx-config: |
     upstream prometheus {
         least_conn;

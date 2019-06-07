@@ -1,18 +1,20 @@
 #!/bin/bash
 
-zypper in -y ruby ruby-devel gcc-c++
-
-SLES=$(cat /etc/os-release | grep SLES)
-IS_SLES=$?
-
-if [ $IS_SLES = 1 ]; then
-    zypper in -y --type pattern devel_basis
-else
-    zypper in -y ruby-devel
+SLES=$(cat /etc/os-release | grep "SLES" -c)
+IS_SLES="false"
+if [ $SLES -eq 1 ]; then
+  IS_SLES="true"
 fi
 
+cat /etc/os-release
+echo ""
+echo "SLES? : ${IS_SLES}"
+
+# Fail if anything fails to install
+set -e
+
+ruby --version
+
+set -x
+echo "Installing UAA Client ..."
 gem install cf-uaac
-
-if [ $IS_SLES = 1 ]; then
-    zypper remove -y --type pattern devel_basis
-fi

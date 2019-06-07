@@ -1,0 +1,150 @@
+---
+# Service account "metrics-config"
+{{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: "metrics-config"
+  labels:
+    app.kubernetes.io/component: "stratos-metrics-config"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    helm.sh/chart:  "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+{{- end }}
+---
+# Role "metrics-config-role" only used by account "[- metrics-config]"
+{{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "Role"
+metadata:
+  name: "metrics-config-role"
+  labels:
+    app.kubernetes.io/component: "metrics-config-role"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    helm.sh/chart:  "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "configmaps"
+  - "secrets"
+  verbs:
+  - "create"
+  - "post"
+  - "get"
+  - "list"
+  - "patch"
+  - "update"
+  - "delete"
+{{- end }}
+---
+# Role binding for service account "metrics-config" and role "metrics-config-role"
+{{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata:
+  name: "metrics-config-role-binding"
+  labels:
+    app.kubernetes.io/component: "metrics-config-role-binding"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    helm.sh/chart:  "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+subjects:
+- kind: "ServiceAccount"
+  name: "metrics-config"
+roleRef:
+  apiGroup: "rbac.authorization.k8s.io"
+  kind: "Role"
+  name: "metrics-config-role"
+{{- end }}
+---
+# Metrics Config job will create config maps for the Metrics Configuration
+apiVersion: "batch/v1"
+kind: "Job"
+metadata:
+  name: "metrics-config-{{ .Release.Revision }}"
+  labels:
+    app.kubernetes.io/component: "metrics-config-{{ .Release.Revision }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    helm.sh/chart:  "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  template:
+    metadata:
+      name: "metrics-config"
+      labels:
+        app.kubernetes.io/component: "metrics-config"
+        app.kubernetes.io/instance: "{{ .Release.Name }}"
+        app.kubernetes.io/name: "stratos"
+        app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+        helm.sh/chart:  "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    spec:
+      containers:
+      - env:
+        - name: "FIREHOSE_EXPORTER_ENABLED"
+          value: "{{ .Values.firehoseExporter.enabled }}"
+        - name: "KUBE_STATE_EXPORTER_ENABLED"
+          value: "{{ .Values.prometheus.kubeStateMetrics.enabled }}"
+        - name: "KUBE_NODE_EXPORTER_ENABLED"
+          value: "{{ .Values.prometheus.nodeExporter.enabled }}"
+          # Support legacy authEndpoint value
+        - name: "KUBE_API_URL"
+        {{- if .Values.kubernetes.authEndpoint }}
+          value: "{{ .Values.kubernetes.authEndpoint }}"
+        {{- else }}
+          value: "{{ .Values.kubernetes.apiEndpoint }}"
+        {{- end }}
+        - name: "DOPPLER_URL"
+          value: "{{ default "" .Values.firehoseExporter.dopplerUrl }}"
+        - name: "CF_URL"
+        {{- if .Values.firehoseExporter.cfUrl }}
+          value: "{{ .Values.firehoseExporter.cfUrl }}"
+        {{- else }}
+          value: "https://api.{{.Values.env.DOMAIN}}"
+        {{- end }}
+        - name: "IS_UPGRADE"
+          value: "{{ .Release.IsUpgrade }}"
+        - name: "NAMESPACE"
+          value: "{{ .Release.Namespace }}"
+        - name: "RELEASE_NAME"
+          value: "{{ .Release.Name }}"
+        - name: "RELEASE_REVISION"
+          value: "{{ .Release.Revision }}"
+        - name: "RELEASE_VERSION"
+          value: "{{ .Chart.AppVersion }}"
+        - name: "HELM_CHART"
+          value:  "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        - name: "CONFIGMAP_NAME"
+          value:  "{{ .Release.Name }}-endpoint-config"
+        image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.configJob.image}}:{{.Values.imageTag}}
+        command: ["/create-configmaps.sh"]
+        imagePullPolicy: {{.Values.imagePullPolicy}}
+        livenessProbe: ~
+        name: "metrics-config"
+        readinessProbe: ~
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/
+      {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
+      imagePullSecrets:
+      - name: {{.Values.dockerRegistrySecret}}
+      {{- end }}
+      restartPolicy: "OnFailure"
+      {{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+      serviceAccountName: "metrics-config"
+      {{- end }}
+      terminationGracePeriodSeconds: 600
+      # Fail the job if after 10 tries it is still failing
+      backoffLimit: 10
+      # Job should not take longer than 5 minutes
+      activeDeadlineSeconds: 300
+      # Depend on the config ConfigMap, so we know its created before we patch it with latest config
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: "{{ .Release.Name }}-stratos-metrics-config"
