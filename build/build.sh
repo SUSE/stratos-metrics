@@ -278,6 +278,7 @@ buildAndPublishImage stratos-metrics-init-chown-data Dockerfile.prometheus-helm 
 buildAndPublishImage stratos-metrics-node-exporter Dockerfile.prometheus-helm . node-exporter
 buildAndPublishImage stratos-metrics-firehose-init Dockerfile.firehose-init .
 buildAndPublishImage stratos-metrics-firehose-exporter Dockerfile.firehose-exporter .
+buildAndPublishImage stratos-metrics-cf-exporter Dockerfile.cf-exporter .
 buildAndPublishImage stratos-metrics-nginx Dockerfile.nginx .
 buildAndPublishImage stratos-metrics-prometheus Dockerfile.prometheus .
 buildAndPublishImage stratos-metrics-grafana Dockerfile.grafana .

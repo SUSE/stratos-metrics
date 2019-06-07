@@ -196,6 +196,19 @@ grafana:
   #   - grafana-piechart-panel
   #   - grafana-status-panel
   #   - grafana-worldmap-panel
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'cloud-foundry'
+        orgId: 1
+        folder: 'CloudFoundry'
+        type: file
+        disableDeletion: true
+        editable: true
+        options:
+          path: /var/local/grafana/dashboards  
   
   image:
     repository: splatform/stratos-metrics-grafana

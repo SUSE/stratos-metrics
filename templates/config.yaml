@@ -61,26 +61,13 @@ data:
           auth_basic_user_file /etc/nginx/.htpasswd;
       }
 
-      {{- if .Values.grafana.enabled }}
-      location /grafana {
-          proxy_pass            http://grafana/;
-          proxy_redirect        http:// https://;
-          proxy_connect_timeout 300;
-          proxy_read_timeout    120;
-          proxy_send_timeout    120;
-
-          proxy_http_version    1.1;
-          proxy_set_header      Host              $host:$server_port;
-          proxy_set_header      X-Real-IP         $remote_addr;
-          proxy_set_header      X-Forwarded-For   $proxy_add_x_forwarded_for;
-          proxy_set_header      X-Forwarded-Proto $scheme;
-          proxy_set_header      Upgrade           $http_upgrade;
-          proxy_set_header      Connection        "upgrade";
-          
-          auth_basic            "metrics-auth";
-          auth_basic_user_file  /etc/nginx/.htpasswd;            
+    {{- if .Values.grafana.enabled }}
+      location /grafana/ {
+          proxy_pass_header       Server;
+          proxy_set_header        Host $http_host;
+          proxy_pass              http://grafana/;
       }
-      {{- end }}      
+    {{- end }}
 
       location / {
           proxy_pass_header       Server;
