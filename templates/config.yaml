@@ -47,7 +47,9 @@ data:
       ssl_protocols               TLSv1 TLSv1.1 TLSv1.2;
       ssl_ciphers                 HIGH:!aNULL:!MD5;
 
-      client_max_body_size        50M;
+      # client_max_body_size        50M;
+      
+      # large_client_header_buffers 6 16k;
 
       location /stratos { 
           alias /etc/nginx/conf.d/metadata.json;
@@ -61,13 +63,32 @@ data:
           auth_basic_user_file /etc/nginx/.htpasswd;
       }
 
-    {{- if .Values.grafana.enabled }}
+      {{- if .Values.grafana.enabled }}
       location /grafana/ {
-          proxy_pass_header       Server;
-          proxy_set_header        Host $http_host;
           proxy_pass              http://grafana/;
+          # proxy_hide_header       Upgrade;
+          # proxy_set_header        Connection "Keep-Alive";
+          # proxy_set_header        Host $host;
+          # proxy_set_header        Proxy-Connection "Keep-Alive";          
+          # proxy_set_header        X-Real-IP $remote_addr;
+          # proxy_set_header        X-Forwarded-for $remote_addr;
+          # proxy_set_header        X-Scheme $scheme;
+          # proxy_set_header X-Real-IP $remote_addr;
+          # proxy_set_header X-Forwarded-Host $host;
+          # proxy_set_header X-Forwarded-Server $host;
+          # proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;          
+          # proxy_set_header        Authorization "";
+          # proxy_http_version      1.1;
+          # auth_basic "metrics-auth";
+          # auth_basic_user_file /etc/nginx/.htpasswd;
+          proxy_set_header        X-WEBAUTH-USER $remote_user;
+          # proxy_buffering off;
+
+          # client_max_body_size 256M;
+          # client_body_timeout 5m;
+          # send_timeout 5m;
       }
-    {{- end }}
+      {{- end }}
 
       location / {
           proxy_pass_header       Server;

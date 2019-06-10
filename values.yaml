@@ -51,6 +51,23 @@ firehoseExporter:
   # Do not change these
   image: stratos-metrics-firehose-exporter
   initContainerImage: stratos-metrics-firehose-init
+
+cfExporter:
+  enabled: true
+  # URL of the Cloud Foundry API
+  cfUrl:
+  uaa:
+    skipSslVerification: "true"
+    admin:
+      client: admin
+      clientSecret: admin_secret
+    client: prometheus-cf-exporter
+    # Leave blank to generate a random secret
+    clientSecret:
+  # Do not change these
+  image: stratos-metrics-cf-exporter
+  initContainerImage: stratos-metrics-firehose-init
+
 nginx:
   serviceName: metrics-nginx
   image: stratos-metrics-nginx
@@ -228,9 +245,9 @@ grafana:
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
     paths:
       data: /var/lib/grafana/data
-      logs: /var/log/grafana
-      plugins: /var/lib/grafana/plugins
-      provisioning: /etc/grafana/provisioning
+      # logs: /var/log/grafana
+      # plugins: /var/lib/grafana/plugins
+      # provisioning: /etc/grafana/provisioning
     analytics:
       check_for_updates: true
     log:
@@ -246,4 +263,9 @@ grafana:
       header_name: X-WEBAUTH-USER
       header_property: username
       auto_sign_up: true
-      
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClassName:
+      accessModes: ["ReadWriteOnce"]
+        

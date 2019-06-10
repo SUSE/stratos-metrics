@@ -1,0 +1,92 @@
+{{- if .Values.cfExporter.enabled }}
+{{ $cfExporterClientSecret :=  default (randAlphaNum 64) .Values.cfExporter.uaa.clientSecret }}
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: "stratos-metrics-cf-exporter"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "stratos-metrics"
+      app.kubernetes.io/component: "stratos-metrics-cf-exporter"
+      app.kubernetes.io/instance: "{{ .Release.Name }}"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "stratos-metrics"
+        app.kubernetes.io/instance: "{{ .Release.Name }}"
+        app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+        app.kubernetes.io/component: "stratos-metrics-firehose-exporter"
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    spec:
+      containers:
+      - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.cfExporter.image}}:{{.Values.imageTag}}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        name: cf-exporter
+        env:
+        - name: CF_EXPORTER_UAA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: uaa_endpoint
+        - name: CF_EXPORTER_UAA_CLIENT_ID
+          value: "{{ .Values.cfExporter.uaa.client }}"
+        - name: CF_EXPORTER_UAA_CLIENT_SECRET
+          value: "{{ $cfExporterClientSecret }}"
+        - name: CF_EXPORTER_DOPPLER_SUBSCRIPTION_ID
+          value: "{{ .Release.Name }}-prometheus"
+        - name: CF_EXPORTER_DOPPLER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: doppler_endpoint
+        - name: CF_EXPORTER_METRICS_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: doppler_endpoint
+        - name: CF_EXPORTER_SKIP_SSL_VERIFY
+          value: "{{ .Values.cfExporter.uaa.skipSslVerification}}"
+        ports:
+        - containerPort: 9186
+          name: cf-exp
+          protocol: TCP
+     {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
+      imagePullSecrets:
+      - name: {{ .Values.dockerRegistrySecret}}
+     {{- end }}
+      initContainers:
+      - name: setup-uaa
+        image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.cfExporter.initContainerImage}}:{{.Values.imageTag}} 
+        imagePullPolicy: {{.Values.imagePullPolicy}}
+        env:
+        - name: SKIP_SSL_VALIDATION
+          value: "{{ .Values.cfExporter.uaa.skipSslVerification}}"
+        - name: UAA_ADMIN
+          value: "{{ .Values.cfExporter.uaa.admin.client }}"
+        - name: UAA_ADMIN_SECRET
+          value: "{{ template "uaaClientSecret" . }}"
+        - name: PROMETHEUS_CLIENT
+          value: "{{ .Values.cfExporter.uaa.client }}"
+        - name: PROMETHEUS_CLIENT_SECRET
+          value: "{{ $cfExporterClientSecret }}"
+        - name : UAA_AUTHORITY
+          vcalue: "cloud_controller.admin"
+        - name: ZONE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: zone
+        - name: ROOT_UAA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: root_uaa_endpont
+        - name: UAA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: uaa_endpoint
+{{- end }}

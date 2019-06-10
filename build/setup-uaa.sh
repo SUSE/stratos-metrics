@@ -16,6 +16,9 @@ if [ ! -z "${ZONE}" ]; then
   ZONE_NAME=${ZONE}
 fi
 
+# Authority
+# UAA_AUTHORITY
+
 set +x
 
 echo
@@ -23,6 +26,8 @@ echo "Cloud Foundry Doppler URL         : ${DOPPLER_ENDPOINT}"
 echo "UAA Endpoint                      : ${UAA_ENDPOINT}"
 echo "Root UAA Endpoint                 : ${ROOT_UAA_ENDPOINT}"
 echo "Zone                              : ${ZONE}"
+echo "UAA Authority                     : ${PROMETHEUS_CLIENT}"
+echo "UAA Client to create              : ${UAA_AUTHORITY}"
 echo ""
 
 uaac target ${ARGS} ${ROOT_UAA_ENDPOINT}

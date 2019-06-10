@@ -55,6 +55,8 @@ spec:
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ $firehoseClientSecet }}"
+        - name : UAA_AUTHORITY
+          vcalue: "doppler.firehose"
         - name: ZONE
           valueFrom:
             configMapKeyRef:
@@ -96,6 +98,7 @@ spec:
             path: metadata.json
           - key: nginx-grafana-metadata
             path: grafana.json
+
 
 {{- if .Values.firehoseExporter.enabled }}
 {{ $releaseName := .Release.Name }}
