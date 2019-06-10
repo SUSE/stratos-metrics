@@ -46,7 +46,7 @@ if [ $EXIT_CODE -ne 0 ]; then
     --name ${PROMETHEUS_CLIENT} \
     --secret ${PROMETHEUS_CLIENT_SECRET} \
     --authorized_grant_types client_credentials,refresh_token \
-    --authorities doppler.firehose
+    --authorities ${UAA_AUTHORITY}
   echo "UAA Client: ${PROMETHEUS_CLIENT} created in zone ${ZONE_NAME}"
 else
   # Update the client secret, in case it has changed

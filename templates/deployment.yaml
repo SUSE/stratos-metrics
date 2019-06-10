@@ -56,7 +56,7 @@ spec:
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ $firehoseClientSecet }}"
         - name : UAA_AUTHORITY
-          vcalue: "doppler.firehose"
+          value: "doppler.firehose"
         - name: ZONE
           valueFrom:
             configMapKeyRef:
@@ -147,6 +147,11 @@ spec:
         - name: FIREHOSE_EXPORTER_DOPPLER_SUBSCRIPTION_ID
           value: "{{ $releaseName }}-prometheus"
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{$releaseName}}-endpoint-config
+              key: doppler_endpoint
+        - name: FIREHOSE_EXPORTER_LOGGING_URL
           valueFrom:
             configMapKeyRef:
               name: {{$releaseName}}-endpoint-config

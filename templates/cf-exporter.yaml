@@ -18,7 +18,7 @@ spec:
         app.kubernetes.io/name: "stratos-metrics"
         app.kubernetes.io/instance: "{{ .Release.Name }}"
         app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-        app.kubernetes.io/component: "stratos-metrics-firehose-exporter"
+        app.kubernetes.io/component: "stratos-metrics-cf-exporter"
         helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
       containers:
@@ -26,22 +26,14 @@ spec:
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         name: cf-exporter
         env:
-        - name: CF_EXPORTER_UAA_URL
-          valueFrom:
-            configMapKeyRef:
-              name: {{ .Release.Name }}-endpoint-config
-              key: uaa_endpoint
-        - name: CF_EXPORTER_UAA_CLIENT_ID
+        - name: CF_EXPORTER_CF_API_URL
+          value: "{{ .Values.cfExporter.cfUrl }}"
+        - name: CF_EXPORTER_CF_CLIENT_ID
           value: "{{ .Values.cfExporter.uaa.client }}"
-        - name: CF_EXPORTER_UAA_CLIENT_SECRET
+        - name: CF_EXPORTER_CF_CLIENT_SECRET
           value: "{{ $cfExporterClientSecret }}"
-        - name: CF_EXPORTER_DOPPLER_SUBSCRIPTION_ID
-          value: "{{ .Release.Name }}-prometheus"
-        - name: CF_EXPORTER_DOPPLER_URL
-          valueFrom:
-            configMapKeyRef:
-              name: {{ .Release.Name }}-endpoint-config
-              key: doppler_endpoint
+        - name: CF_EXPORTER_CF_DEPLOYMENT_NAME
+          value: "cf"
         - name: CF_EXPORTER_METRICS_ENVIRONMENT
           valueFrom:
             configMapKeyRef:
@@ -73,7 +65,7 @@ spec:
         - name: PROMETHEUS_CLIENT_SECRET
           value: "{{ $cfExporterClientSecret }}"
         - name : UAA_AUTHORITY
-          vcalue: "cloud_controller.admin"
+          value: "cloud_controller.admin"
         - name: ZONE
           valueFrom:
             configMapKeyRef:

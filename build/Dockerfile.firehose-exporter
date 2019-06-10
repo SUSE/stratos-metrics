@@ -2,9 +2,10 @@ FROM splatform/stratos-base:opensuse as firehose-builder
 
 ENV FIREHOSE_EXPORTER_VERSION 5.0.3
 ENV ARCH linux-amd64
-ADD https://github.com/bosh-prometheus/firehose_exporter/releases/download/v${FIREHOSE_EXPORTER_VERSION}/firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz  
+
 WORKDIR /
-RUN zypper in -y tar && \
+RUN zypper in -y tar wget
+RUN wget https://github.com/bosh-prometheus/firehose_exporter/releases/download/v${FIREHOSE_EXPORTER_VERSION}/firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz -O /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     tar -xzf /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     cp /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}/firehose_exporter /bin/firehose_exporter
     
