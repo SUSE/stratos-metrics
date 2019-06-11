@@ -65,20 +65,20 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $releaseName }}-{{ $firehoseExporter.serviceName }}-{{ . }}
+  name: {{ $releaseName }}-f-exp-service-{{ . }}
   labels:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/instance: "{{ $releaseName }}"
     app.kubernetes.io/version: "{{ $appVersion }}"
-    app.kubernetes.io/component: "stratos-metrics-firehose-exporter-service"
+    app.kubernetes.io/component: "stratos-metrics-firehose-exporter-service-{{ . }}"
     helm.sh/chart: "{{ $helmChartName }}-{{ $helmChartVersion | replace "+" "_" }}"
 spec:
-  type: {{ default "ClusterIP" $firehoseExporter.serviceType }}
+  type: ClusterIP
   ports:
-  - port: {{ default 9186 $firehoseExporter.externalPort }}
-    targetPort: {{ $firehoseExporter.internalPort }}
+  - port: 9186
+    targetPort: 9186
     protocol: TCP
-    name: {{ $firehoseExporter.serviceName }}
+    name: f-exp-service
   selector:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/component: "stratos-metrics-firehose-exporters-{{ . }}"

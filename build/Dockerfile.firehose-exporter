@@ -1,3 +1,8 @@
+FROM splatform/stratos-ruby-build-base:opensuse as ruby-base
+
+ADD install-uaac.sh /install-uaac.sh
+RUN /install-uaac.sh
+
 FROM splatform/stratos-base:opensuse as firehose-builder
 
 ENV FIREHOSE_EXPORTER_VERSION 5.0.3
@@ -12,6 +17,14 @@ RUN wget https://github.com/bosh-prometheus/firehose_exporter/releases/download/
 # Final container - no need for tar etc
 FROM splatform/stratos-base:opensuse
 
+RUN mkdir -p /usr/local/lib/ruby
+COPY --from=ruby-base /usr/local/lib/ruby /usr/local/lib/ruby
+COPY --from=ruby-base /usr/local/bin/* /usr/local/bin/
+
 COPY --from=firehose-builder /bin/firehose_exporter /bin/firehose_exporter
-ENTRYPOINT ["/bin/firehose_exporter"]
-EXPOSE 9186    
+
+ADD run-firehose.sh /run-firehose.sh
+
+#ENTRYPOINT ["/bin/firehose_exporter"]
+ENTRYPOINT ["/run-firehose.sh"]
+EXPOSE 9186

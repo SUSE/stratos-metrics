@@ -7,7 +7,7 @@ ENV PROMETHEUS_VERSION 2.2.1
 ENV ARCH linux-amd64
 RUN zypper in -y tar wget
 
-RUN wget https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz -O prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz && /
+RUN wget https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz -O prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz
 RUN mkdir  /usr/share/prometheus && \                               
     mkdir  /etc/prometheus  && \
     tar -xzf /prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz && \

@@ -14,4 +14,4 @@ FROM splatform/stratos-base:opensuse
 
 COPY --from=cf-builder /bin/cf_exporter /bin/cf_exporter
 ENTRYPOINT ["/bin/cf_exporter"]
-EXPOSE 9186    
+EXPOSE 9193

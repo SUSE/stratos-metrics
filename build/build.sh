@@ -270,6 +270,9 @@ pushd ${__DIRNAME}
 # cleanup output, intermediate artifacts
 cleanup
 
+rm -rf Dockerfile.*.patched
+rm -rf Dockerfile.*.patched.bak
+
 updateTagForRelease
 # Build the images for Stratos Metrics
 buildAndPublishImage stratos-metrics-configmap-reload Dockerfile.prometheus-helm . configmap-reload

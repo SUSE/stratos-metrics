@@ -42,7 +42,7 @@ spec:
         - name: CF_EXPORTER_SKIP_SSL_VERIFY
           value: "{{ .Values.cfExporter.uaa.skipSslVerification}}"
         ports:
-        - containerPort: 9186
+        - containerPort: 9193
           name: cf-exp
           protocol: TCP
      {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
@@ -81,4 +81,25 @@ spec:
             configMapKeyRef:
               name: {{ .Release.Name }}-endpoint-config
               key: uaa_endpoint
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-cf-exp-service
+  labels:
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    app.kubernetes.io/component: "stratos-metrics-cf-exporter"
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9193
+    targetPort: 9193
+    protocol: TCP
+    name: {{ .Release.Name }}-cf-exp-service
+  selector:
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/component: "stratos-metrics-cf-exporter"
 {{- end }}
