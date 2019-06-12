@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo "Starting firehose exporter ...."
-env | grep "FIREHOSE"
+echo "Firehose exporter"
 
 # Wait for the client
 
@@ -18,13 +17,12 @@ while [ "$READY" == "false" ]; do
   uaac token client get ${FIREHOSE_EXPORTER_UAA_CLIENT_ID} -s ${FIREHOSE_EXPORTER_UAA_CLIENT_SECRET}
   if [ $? -ne 0 ]; then
     echo "Can't login to UAAC .. client not ready"
+    echo "Waiting..."
+    sleep 15
   else
     echo "Logged in to UAAC OK"
     READY="true"
   fi
-
-  echo "Waiting..."
-  sleep 30
 
 done
 

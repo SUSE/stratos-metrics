@@ -8,7 +8,7 @@ metadata:
 {{ toYaml .Values.metrics.service.annotations | indent 4 }}
 {{- end }}
 {{- end }}  
-  name: {{ .Release.Name }}-{{ .Values.nginx.serviceName }}
+  name: {{ .Release.Name }}-metrics-nginx
   labels:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/instance: "{{ .Release.Name }}"

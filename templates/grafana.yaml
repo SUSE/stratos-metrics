@@ -1,3 +1,5 @@
+{{- if .Values.grafana }}
+{{- if .Values.grafana.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -21,7 +23,7 @@ data:
       type: prometheus
       access: proxy
       orgId: 1
-      url: https://{{ .Release.Name }}-{{ .Values.nginx.serviceName }}
+      url: http://{{ .Release.Name }}-prometheus-prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090
       basicAuth: true 
       basicAuthUser: {{ .Values.metrics.username }}
       basicAuthPassword: {{ .Values.metrics.password }}
@@ -29,4 +31,6 @@ data:
       jsonData:
         tlsSkipVerify: true
       version: 1
-      editable: false
+      editable: true
+{{- end }}
+{{- end }}

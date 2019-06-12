@@ -23,29 +23,32 @@ metrics:
   externalIP:
 kubernetes:
   apiEndpoint:
-  # authEndpoint is deprectaed (misnamed) - use apiEndpoint
+  # authEndpoint is deprecated - use apiEndpoint
   authEndpoint:
 
 # Image for the config job
 configJob:
   image: stratos-metrics-firehose-init
 
+# Use by both the Firehose Exporter and the CF Exporter
+cloudFoundry:
+  # URL of the Cloud Foundry API endpoint
+  apiEndpoint:
+  # Admin Client for the UAA
+  uaaAdminClient: admin
+  # Admin Client Secret for the UAA
+  uaaAdminClientSecret: admin_client_secret
+  # Skip SSL verification when communicating with CF and UAA
+  skipSslVerification: "true"
+
 # Configuration for the Cloud Foundry Firehose Exporter
 # The firehose exporter collects data from Cloud Foundry and sends it to Prometheus
 firehoseExporter:
   enabled: true
   instances: 1
-  serviceName: f-exp-service
-  # URL of the Cloud Foundry API
-  cfUrl:
-  # URL of the Doppler Endpoint - takes precendence if set
+  # URL of the Doppler Endpoint - takes precendence if set over the API Endpoint
   dopplerUrl:
   uaa:
-    skipSslVerification: "true"
-    admin:
-      client: admin
-      clientSecret: admin_secret
-    client: prometheus-firehose
     # Leave blank to generate a random secret
     clientSecret:
   # Do not change these
@@ -53,14 +56,8 @@ firehoseExporter:
   initContainerImage: stratos-metrics-firehose-init
 
 cfExporter:
-  enabled: true
-  # URL of the Cloud Foundry API
-  cfUrl:
+  enabled: false
   uaa:
-    skipSslVerification: "true"
-    admin:
-      client: admin
-      clientSecret: admin_secret
     client: prometheus-cf-exporter
     # Leave blank to generate a random secret
     clientSecret:
@@ -69,7 +66,6 @@ cfExporter:
   initContainerImage: stratos-metrics-firehose-init
 
 nginx:
-  serviceName: metrics-nginx
   image: stratos-metrics-nginx
   ssl:
     cert: |
@@ -126,12 +122,8 @@ nginx:
       
  # SCF values compatability 
 env:
-  UAA_HOST: 
-  UAA_ADMIN_CLIENT_SECRET: 
-  UAA_CF_IDENTITY_ZONE: scf
-  UAA_PORT: 2793
+  # If DOMAIN is set, the CF API Endpoint will fallback to https://api.DOMAIN if not set
   DOMAIN:
-  DOPPLER_PORT: 443
 kube:
   auth: "rbac"
   external_metrics_port: 7443
@@ -243,13 +235,13 @@ grafana:
   grafana.ini:
     server:
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
-    paths:
-      data: /var/lib/grafana/data
-      # logs: /var/log/grafana
-      # plugins: /var/lib/grafana/plugins
-      # provisioning: /etc/grafana/provisioning
-    analytics:
-      check_for_updates: true
+    # paths:
+    #   data: /var/lib/grafana/data
+    #   logs: /var/log/grafana
+    #   plugins: /var/lib/grafana/plugins
+    #   provisioning: /etc/grafana/provisioning
+    # analytics:
+    #   check_for_updates: true
     log:
       mode: console
     grafana_net:

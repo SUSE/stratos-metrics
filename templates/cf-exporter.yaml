@@ -1,3 +1,4 @@
+{{- if .Values.cfExporter }}
 {{- if .Values.cfExporter.enabled }}
 {{ $cfExporterClientSecret :=  default (randAlphaNum 64) .Values.cfExporter.uaa.clientSecret }}
 ---
@@ -27,7 +28,7 @@ spec:
         name: cf-exporter
         env:
         - name: CF_EXPORTER_CF_API_URL
-          value: "{{ .Values.cfExporter.cfUrl }}"
+          value: "{{ template "cloudFoundryApiEndpoint" . }}"
         - name: CF_EXPORTER_CF_CLIENT_ID
           value: "{{ .Values.cfExporter.uaa.client }}"
         - name: CF_EXPORTER_CF_CLIENT_SECRET
@@ -40,7 +41,7 @@ spec:
               name: {{ .Release.Name }}-endpoint-config
               key: doppler_endpoint
         - name: CF_EXPORTER_SKIP_SSL_VERIFY
-          value: "{{ .Values.cfExporter.uaa.skipSslVerification}}"
+          value: "{{ template "uaaSkipSslVerification" . }}"
         ports:
         - containerPort: 9193
           name: cf-exp
@@ -55,11 +56,11 @@ spec:
         imagePullPolicy: {{.Values.imagePullPolicy}}
         env:
         - name: SKIP_SSL_VALIDATION
-          value: "{{ .Values.cfExporter.uaa.skipSslVerification}}"
+          value: "{{ template "uaaSkipSslVerification" . }}"
         - name: UAA_ADMIN
-          value: "{{ .Values.cfExporter.uaa.admin.client }}"
+          value: "{{ template "uaaAdminClient" . }}"
         - name: UAA_ADMIN_SECRET
-          value: "{{ template "uaaClientSecret" . }}"
+          value: "{{ template "uaaAdminClientSecret" . }}"
         - name: PROMETHEUS_CLIENT
           value: "{{ .Values.cfExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
@@ -102,4 +103,5 @@ spec:
   selector:
     app.kubernetes.io/name: "stratos-metrics"
     app.kubernetes.io/component: "stratos-metrics-cf-exporter"
+{{- end }}
 {{- end }}

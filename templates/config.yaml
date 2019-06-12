@@ -29,14 +29,12 @@ data:
   nginx-config: |
     upstream prometheus {
         least_conn;
-        server                      {{ .Release.Name }}-prometheus-prometheus:9090;
+        server                      {{ .Release.Name }}-prometheus-prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090;
         keepalive                   32;
     }
     {{- if .Values.grafana.enabled }}
     upstream grafana {
-      least_conn;
-      server                      {{ .Release.Name }}-grafana:9091;
-      keepalive                   32;
+      server                      {{ .Release.Name }}-grafana.{{ .Release.Namespace }}.svc.cluster.local:9091;
     }
     {{- end }}    
     server {

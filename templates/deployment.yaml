@@ -46,11 +46,11 @@ spec:
         imagePullPolicy: {{.Values.imagePullPolicy}}
         env:
         - name: SKIP_SSL_VALIDATION
-          value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
+          value: "{{ template "uaaSkipSslVerification" . }}"
         - name: UAA_ADMIN
-          value: "{{ .Values.firehoseExporter.uaa.admin.client }}"
+          value: "{{ template "uaaAdminClient" . }}"
         - name: UAA_ADMIN_SECRET
-          value: "{{ template "uaaClientSecret" . }}"
+          value: "{{ template "uaaAdminClientSecret" . }}"
         - name: PROMETHEUS_CLIENT
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
@@ -162,7 +162,7 @@ spec:
               name: {{$releaseName}}-endpoint-config
               key: doppler_endpoint
         - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
-          value: "{{ $values.firehoseExporter.uaa.skipSslVerification}}"
+          value: "{{ template "uaaSkipSslVerification" . }}"
         ports:
         - containerPort: 9186
           name: fh-exp
