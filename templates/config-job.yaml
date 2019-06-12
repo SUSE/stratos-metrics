@@ -102,11 +102,7 @@ spec:
         - name: "DOPPLER_URL"
           value: "{{ default "" .Values.firehoseExporter.dopplerUrl }}"
         - name: "CF_URL"
-        {{- if .Values.firehoseExporter.cfUrl }}
-          value: "{{ .Values.firehoseExporter.cfUrl }}"
-        {{- else }}
-          value: "https://api.{{.Values.env.DOMAIN}}"
-        {{- end }}
+          value: "{{ template "cloudFoundryApiEndpoint" . }}"
         - name: "IS_UPGRADE"
           value: "{{ .Release.IsUpgrade }}"
         - name: "NAMESPACE"

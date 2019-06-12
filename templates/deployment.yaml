@@ -1,4 +1,4 @@
-{{ $firehoseClientSecet :=  default (randAlphaNum 64) .Values.firehoseExporter.uaa.clientSecret }}
+{{ $firehoseClientSecret :=  default (randAlphaNum 64) .Values.firehoseExporter.uaa.clientSecret }}
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -54,7 +54,7 @@ spec:
         - name: PROMETHEUS_CLIENT
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
-          value: "{{ $firehoseClientSecet }}"
+          value: "{{ $firehoseClientSecret }}"
         - name : UAA_AUTHORITY
           value: "doppler.firehose"
         - name: ZONE
@@ -107,7 +107,7 @@ spec:
 {{ $helmChartName :=  .Chart.Name }}
 {{ $helmChartVersion :=  .Chart.Version }}
 {{ $values :=  .Values }}
-{{ $dot :=  . }}
+{{ $dot := . }}
   {{- range int .Values.firehoseExporter.instances | until }}
 
 ---
@@ -144,7 +144,7 @@ spec:
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
           value: "{{ $values.firehoseExporter.uaa.client }}"
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
-          value: "{{ $firehoseClientSecet }}"
+          value: "{{ $firehoseClientSecret }}"
         - name: FIREHOSE_EXPORTER_DOPPLER_SUBSCRIPTION_ID
           value: "{{ $releaseName }}-prometheus"
         - name: FIREHOSE_EXPORTER_DOPPLER_URL

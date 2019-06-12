@@ -37,7 +37,7 @@ cloudFoundry:
   # Admin Client for the UAA
   uaaAdminClient: admin
   # Admin Client Secret for the UAA
-  uaaAdminClientSecret: admin_client_secret
+  uaaAdminClientSecret:
   # Skip SSL verification when communicating with CF and UAA
   skipSslVerification: "true"
 
@@ -49,6 +49,7 @@ firehoseExporter:
   # URL of the Doppler Endpoint - takes precendence if set over the API Endpoint
   dopplerUrl:
   uaa:
+    client: prometheus-firehose-exporter
     # Leave blank to generate a random secret
     clientSecret:
   # Do not change these
@@ -200,11 +201,12 @@ grafana:
 
   plugins: 
   - grafana-clock-panel
-  #   - grafana-diagram
-  #   - grafana-histogram-panel
-  #   - grafana-piechart-panel
-  #   - grafana-status-panel
-  #   - grafana-worldmap-panel
+  - jdbranham-diagram-panel #grafana-diagram
+  - mtanda-histogram-panel #grafana-histogram-panel
+  - grafana-piechart-panel
+  - vonage-status-panel #grafana-status-panel
+
+#  - grafana-worldmap-panel
 
   dashboardProviders:
     dashboardproviders.yaml:
