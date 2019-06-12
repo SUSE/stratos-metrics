@@ -107,6 +107,7 @@ spec:
 {{ $helmChartName :=  .Chart.Name }}
 {{ $helmChartVersion :=  .Chart.Version }}
 {{ $values :=  .Values }}
+{{ $dot :=  . }}
   {{- range int .Values.firehoseExporter.instances | until }}
 
 ---
@@ -162,7 +163,7 @@ spec:
               name: {{$releaseName}}-endpoint-config
               key: doppler_endpoint
         - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
-          value: "{{ template "uaaSkipSslVerification" . }}"
+          value: "{{ template "uaaSkipSslVerification" $dot }}"
         ports:
         - containerPort: 9186
           name: fh-exp
