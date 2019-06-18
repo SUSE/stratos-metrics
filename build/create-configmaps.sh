@@ -279,9 +279,10 @@ if [ "${FIREHOSE_EXPORTER_ENABLED}" == "true" ]; then
 fi
 
 if [ "${KUBE_STATE_EXPORTER_ENABLED}" == "true" ]; then
-  if [ "${FIRST}" == "true" ]; then
+  if [ "${FIRST}" == "false" ]; then
     printf "," >> patch-nginx-configMap.json
   fi
+  printf "{" >> patch-nginx-configMap.json
   printf '%s' "\\\"type\\\": \\\"k8s\\\"," >> patch-nginx-configMap.json
   printf '%s' "\\\"url\\\": \\\"${KUBE_API_URL}\\\"," >> patch-nginx-configMap.json
   printf '%s' "\\\"job\\\": \\\"k8s-metrics\\\"" >> patch-nginx-configMap.json
