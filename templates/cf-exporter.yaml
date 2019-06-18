@@ -5,7 +5,7 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: "stratos-metrics-cf-exporter"
+  name: "{{ .Release.Name }}-cf-exporter"
 spec:
   replicas: 1
   selector:
