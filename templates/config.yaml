@@ -1,23 +1,5 @@
 ---
 apiVersion: v1
-kind: Secret
-metadata:
-  name: "stratos-grafana-creds"
-type: Opaque
-data:
-  admin-user: {{ .Values.metrics.username | b64enc }}
-  admin-password: {{ .Values.metrics.password | b64enc }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ .Release.Name }}-nginx-tls"
-type: Opaque
-data:
-  cert.crt: {{ .Values.nginx.ssl.cert | b64enc }}
-  cert.key: {{ .Values.nginx.ssl.certKey | b64enc }}
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: "{{ .Release.Name }}-stratos-metrics-config"
@@ -32,11 +14,6 @@ data:
         server                      {{ .Release.Name }}-prometheus-prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090;
         keepalive                   32;
     }
-    {{- if .Values.grafana.enabled }}
-    upstream grafana {
-      server                      {{ .Release.Name }}-grafana.{{ .Release.Namespace }}.svc.cluster.local:9091;
-    }
-    {{- end }}    
     server {
       listen                      443 ssl;
 
@@ -55,39 +32,6 @@ data:
           auth_basic_user_file /etc/nginx/.htpasswd;
       }
 
-      location /stratos-grafana { 
-          alias /etc/nginx/conf.d/grafana.json;
-          auth_basic "metrics-auth";
-          auth_basic_user_file /etc/nginx/.htpasswd;
-      }
-
-      {{- if .Values.grafana.enabled }}
-      location /grafana/ {
-          proxy_pass              http://grafana/;
-          # proxy_hide_header       Upgrade;
-          # proxy_set_header        Connection "Keep-Alive";
-          # proxy_set_header        Host $host;
-          # proxy_set_header        Proxy-Connection "Keep-Alive";          
-          # proxy_set_header        X-Real-IP $remote_addr;
-          # proxy_set_header        X-Forwarded-for $remote_addr;
-          # proxy_set_header        X-Scheme $scheme;
-          # proxy_set_header X-Real-IP $remote_addr;
-          # proxy_set_header X-Forwarded-Host $host;
-          # proxy_set_header X-Forwarded-Server $host;
-          # proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;          
-          # proxy_set_header        Authorization "";
-          # proxy_http_version      1.1;
-          # auth_basic "metrics-auth";
-          # auth_basic_user_file /etc/nginx/.htpasswd;
-          proxy_set_header        X-WEBAUTH-USER $remote_user;
-          # proxy_buffering off;
-
-          # client_max_body_size 256M;
-          # client_body_timeout 5m;
-          # send_timeout 5m;
-      }
-      {{- end }}
-
       location / {
           proxy_pass_header       Server;
           proxy_set_header        Host $http_host;
@@ -100,12 +44,6 @@ data:
           auth_basic "metrics-auth";
           auth_basic_user_file /etc/nginx/.htpasswd;
       }
-    }
-
-  nginx-grafana-metadata: |
-    {
-      "enabled": {{ .Values.grafana.enabled }},
-      "path": "/grafana"
     }
 
   prometheus.yml: |
