@@ -22,10 +22,8 @@ data:
       ssl_protocols               TLSv1 TLSv1.1 TLSv1.2;
       ssl_ciphers                 HIGH:!aNULL:!MD5;
 
-      # client_max_body_size        50M;
+      client_max_body_size        50M;
       
-      # large_client_header_buffers 6 16k;
-
       location /stratos { 
           alias /etc/nginx/conf.d/metadata.json;
           auth_basic "metrics-auth";
