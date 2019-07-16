@@ -73,7 +73,7 @@ data:
             - "{{ $releaseName }}-f-exp-service-{{.}}.{{ $namespace }}.svc.cluster.local:9186"
       {{- end}}
             labels:
-              cloud_foundry: "{{ $values.firehoseExporter.cfUrl }}"
+              cloud_foundry: "{{ template "cloudFoundryApiEndpoint" . }}"
     {{- end }}
 
     {{- if .Values.cfExporter.enabled }}
@@ -83,7 +83,7 @@ data:
           - targets:
             - "{{ .Release.Name }}-cf-exp-service.{{ .Release.Namespace }}.svc.cluster.local:9193"
             labels:
-              cloud_foundry: "{{ .Values.cfExporter.cfUrl }}"
+              cloud_foundry: "{{ template "cloudFoundryApiEndpoint" . }}"
     {{- end }}
 
       # A scrape configuration for running Prometheus on a Kubernetes cluster.
