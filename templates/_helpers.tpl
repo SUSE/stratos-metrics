@@ -91,7 +91,10 @@ UAA Admin Client Secret
 {{- else if and .Values.secrets .Values.secrets.UAA_ADMIN_CLIENT_SECRET -}}
 {{- .Values.secrets.UAA_ADMIN_CLIENT_SECRET }}
 {{- else -}}
+{{- if .Values.firehoseExporter.uaa.admin -}}
 {{- .Values.firehoseExporter.uaa.admin.clientSecret }}
+{{- else -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
