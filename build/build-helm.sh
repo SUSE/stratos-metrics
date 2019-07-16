@@ -113,6 +113,10 @@ if [ "${ADD_OFFICIAL_TAG}" == "true" ]; then
 fi
 
 pushd ${TMP_DIR} > /dev/null 2>&1
+
+# Generate the imagelist
+${__DIRNAME}/imagelist-gen.sh ${CHART_DIR}
+
 helm package ${CHART_DIR}
 CHART=$(ls metrics*.tgz)
 popd > /dev/null 2>&1

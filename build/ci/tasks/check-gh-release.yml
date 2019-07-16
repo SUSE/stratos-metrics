@@ -1,0 +1,45 @@
+---
+platform: linux
+inputs:
+- name: metrics
+- name: image-tag
+image_resource:
+  type: docker-image
+  source:
+   # Generated using scripts/Dockerfile.stratos-ci
+   repository: splatform/stratos-ci-concourse
+   tag: "latest"
+
+run:
+  path: sh
+  args:
+    - -exc
+    - |
+      # Check that the Github release DOES NOT exist
+      ROOT_DIR=${PWD}
+      VERSION=$(cat image-tag/version)
+      FULL_VERSION=$(cat image-tag/release-tag) 
+      GIT_TAG=$(cat image-tag/tag) 
+      METRICS=${ROOT_DIR}/metrics
+      source ${METRICS}/build/ci/tasks/github-helper.sh
+
+      if [ "${GIT_TAG_SUFFIX}" != "null" ]; then
+        GIT_TAG="${GIT_TAG}-${GIT_TAG_SUFFIX}"
+      fi
+      
+      set +x
+      echo "Tag: $GIT_TAG"
+      set -x
+
+      # Check that the release exists
+      set +e
+      github-release info -t ${GIT_TAG}
+      RETVAL=$?
+      set -e
+
+      if [ $RETVAL -eq 0 ]; then
+        echo "Aborting... release already exists"
+        exit 1
+      fi
+
+      echo "Release does not exist.. OK"

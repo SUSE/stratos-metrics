@@ -9,7 +9,7 @@ outputs:
 image_resource:
   type: docker-image
   source:
-   repository:  splatform/ci-stratos-helm
+   repository: splatform/ci-stratos-helm
    tag: "latest"
 
 run:
@@ -18,14 +18,36 @@ run:
     - -xc
     - |
 
-      helm init || true
+      helm init --client-only
       ROOT_DIR=$PWD
       STRATOS_METRICS=${ROOT_DIR}/metrics
       IMAGE_TAG_DIR=${ROOT_DIR}/image-tag
       HELM_REPO=${ROOT_DIR}/helm-repo
       TAG=$(cat ${IMAGE_TAG_DIR}/release-tag)
+      COMMIT=$(cat ${IMAGE_TAG_DIR}/commit)
+      RELEASE_VERSION=$(cat ${IMAGE_TAG_DIR}/tag)
+      GIT_TAG=$(cat ${IMAGE_TAG_DIR}/tag)
+
+      if [ "${GIT_TAG_SUFFIX}" != "null" ]; then
+        GIT_TAG="${GIT_TAG}-${GIT_TAG_SUFFIX}"
+      fi
+
+      set +x
+      echo "Tag             : $GIT_TAG"
+      echo "Commit          : $COMMIT"
+      echo "Release Version : $RELEASE_VERSION"
+      set -x
+
+      # Helper
+      source ${STRATOS_METRICS}/build/ci/tasks/create-chart-helper.sh
+
       cd ${STRATOS_METRICS}
-      CHART_PATH=$STRATOS_METRICS
+      CHART_PATH=${STRATOS_METRICS}
+      echo "$CHART_PATH"
+      
+      VERSION=$(cat Chart.yaml | grep version | cut -d' ' -f2 | tr -d '\n')
+      echo "${VERSION}"
+
       # Patch Helm chart
       sed -i -e 's/imageTag: opensuse/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
       sed -i -e 's/tag: opensuse/tag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
@@ -34,62 +56,30 @@ run:
       sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' ${CHART_PATH}/values.yaml
       sed -i -e 's/version: 0.1.0/version: '"${TAG}"'/g' ${CHART_PATH}/Chart.yaml  
 
-      # Generate Helm package
-      helm dep update
-      helm package ./
-      mv metrics-*.tgz ${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
-      cd ${ROOT_DIR}/helm-chart/
-      INDEX_FILE=${HELM_REPO}/index.yaml
-      CHART_FILE=${ROOT_DIR}/helm-chart/console-metrics-helm-chart-v${TAG}.tgz
-      if [ -f ${INDEX_FILE} ]; then
-            NIGHTLY_EXISTS=$(cat  ${INDEX_FILE} | grep ${TAG})
-            NIGHTLY_EXISTS=$(echo $?)
-            if [ $NIGHTLY_EXISTS -eq 0 ]; then
-              # Patch Digest
-              INDEX_SHA256SUM=$(grep -B5 -A0 ${TAG} ${INDEX_FILE} | sed -n 's/digest: \([a-zA-Z0-9]*\)/\1/p' | xargs)
-              CURR_SHA256SUM=$(sha256sum  ${CHART_FILE}| cut -d' ' -f1)
-              if [ "${INDEX_SHA256SUM}" = "${CURR_SHA256SUM}" ]; then
-                echo 'Checksum is equal, quitting'
-              else
-                echo 'Checksum not equal, patching index.yaml'
-                sed -i 's/'"${INDEX_SHA256SUM}"'/'"${CURR_SHA256SUM}"'/g' ${INDEX_FILE}
-              fi
+      # Required for setupAndPushChange commit message
+      IMAGE_TAG=${GIT_TAG}
+      patchHelmChart ${GIT_TAG} ${DOCKER_ORG} ${DOCKER_REGISTRY} . ${RELEASE_VERSION} ${VERSION}
+      
+      # Generate imagelist.txt
+      ${STRATOS_METRICS}/build/imagelist-gen.sh .
 
-              # Patch Version
-              INDEX_VERSION=$(sed -n 's/version: \(2.0.0-metrics-dev.*\)/\1/p' ${INDEX_FILE} | xargs)
-              if [ "${INDEX_VERSION}" = "${TAG}" ]; then
-                echo 'version is equal, quitting'
-              else
-                echo 'version not equal, patching index.yaml'
-                sed -i 's/'"${INDEX_VERSION}"'/'"${TAG}"'/g' ${INDEX_FILE}
-              fi
-
-              # Patch Created Date
-              CREATED_DATE=$(grep -B5 -A0 ${TAG} ${INDEX_FILE} | sed -n 's/created: \(.*\)/\1/p' | xargs)
-              sed -i 's/'"${CREATED_DATE}"'/'"$(date +%Y-%m-%dT%H:%M:%S.%NZ)"'/g' ${INDEX_FILE}
-            else
-              # Index file exists, but no 2.0.0-dev release has ever been published 
-              cp  ${INDEX_FILE} ${ROOT_DIR}/helm-chart/
-              MERGE_INDEX="--merge index.yaml"
-              helm repo index ./ ${MERGE_INDEX} --url https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/releases/download/${TAG}/
-              cp index.yaml ${HELM_REPO}/
-            fi
+      CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}.tgz"
+      if [ "${CHART_SUFFIX}" != "null" ]; then
+        CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}-${CHART_SUFFIX}.tgz"
       fi
 
+      # Generate Helm package
+      updateHelmDependency
+      helm package ./
+      mv metrics-*.tgz ${ROOT_DIR}/helm-chart/${CHART_FILENAME}
+      cd ${ROOT_DIR}/helm-chart/
+      if [ -f ${HELM_REPO}/index.yaml ]; then
+        cp ${HELM_REPO}/index.yaml ${ROOT_DIR}/helm-chart/
+        MERGE_INDEX="--merge index.yaml"
+      fi
+      
       # Update Helm Repository
+      helm repo index ./ ${MERGE_INDEX} --url https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/releases/download/${RELEASE_VERSION}/
+      cp index.yaml ${HELM_REPO}
       cd ${HELM_REPO}
-      git config --global user.name ${GIT_USER}
-      git config --global user.email ${GIT_EMAIL}
-
-      mkdir -p /root/.ssh/
-      echo "${GIT_PRIVATE_KEY}" > /root/.ssh/id_rsa
-      chmod 600 /root/.ssh/id_rsa
-      git stash
-      git pull --rebase
-      git stash pop
-      echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-      git add index.yaml
-      git commit -m "Dev releases Helm repository updated for tag: ${TAG}"
-      git config --global push.default simple
-      git push origin HEAD:${HELM_REPO_BRANCH}
-
+      setupAndPushChange
