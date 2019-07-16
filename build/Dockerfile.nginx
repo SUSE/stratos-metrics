@@ -3,8 +3,4 @@ FROM splatform/stratos-nginx-base:opensuse
 RUN zypper in -y apache2-utils
 ADD run-nginx.sh /run-nginx.sh
 
-# Patch the main nginx config file
-
-ADD nginx.conf /etc/nginx
-
 ENTRYPOINT ["/run-nginx.sh"]
