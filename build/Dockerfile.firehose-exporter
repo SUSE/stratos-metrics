@@ -25,6 +25,5 @@ COPY --from=firehose-builder /bin/firehose_exporter /bin/firehose_exporter
 
 ADD run-firehose.sh /run-firehose.sh
 
-#ENTRYPOINT ["/bin/firehose_exporter"]
 ENTRYPOINT ["/run-firehose.sh"]
 EXPOSE 9186
