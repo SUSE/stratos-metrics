@@ -1,0 +1,12 @@
+firehoseExporter:
+  enabled: true
+  cfUrl:
+  uaa:
+    admin:
+      clientSecret:
+
+
+metrics:
+  service:
+    nodePort: 31123
+    type: NodePort

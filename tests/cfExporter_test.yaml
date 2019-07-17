@@ -1,0 +1,167 @@
+suite: test stratos metrics CF Exporter configuration
+templates:
+  - cf-exporter.yaml
+tests:
+  - it: should allow client secret to be set
+    set:
+      cfExporter:
+        enabled: true
+        uaa:
+          client: testExporterClient
+          clientSecret: testExporterClientSecret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CF_EXPORTER_CF_CLIENT_ID
+            value: "testExporterClient"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CF_EXPORTER_CF_CLIENT_SECRET
+            value: "testExporterClientSecret"
+  - it: should get UAA configuration from firehose exporter if configured
+    set:
+      cloudFoundry: ~
+      cfExporter:
+        enabled: true
+      firehoseExporter:
+        uaa:
+          admin:
+            client: testAdminClient
+            clientSecret: testAdminClientSecret
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: UAA_ADMIN
+            value: "testAdminClient"
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: UAA_ADMIN_SECRET
+            value: "testAdminClientSecret"
+  - it: should get UAA configuration from top-level cloudFoundry values
+    set:
+      cloudFoundry:
+        uaaAdminClient: test_UAA_AdminClient
+        uaaAdminClientSecret: test_UAA_AdminClientSecret
+      cfExporter:
+        enabled: true
+      firehoseExporter:
+        uaa:
+          admin:
+            client: testAdminClient
+            clientSecret: testAdminClientSecret
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: UAA_ADMIN
+            value: "test_UAA_AdminClient"
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: UAA_ADMIN_SECRET
+            value: "test_UAA_AdminClientSecret"
+  - it: should get UAA configuration from env.DOMAIN appropriately
+    set:
+      cloudFoundry: ~
+      cfExporter:
+        enabled: true
+      env:
+        UAA_ADMIN_CLIENT_SECRET: "TEST_UAA_ADMIN_CLIENT_SECRET"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: UAA_ADMIN
+            value: "admin"
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: UAA_ADMIN_SECRET
+            value: "TEST_UAA_ADMIN_CLIENT_SECRET"
+  - it: should get UAA SSL configurarion appropriately
+    set:
+      cfExporter:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: SKIP_SSL_VALIDATION
+            value: "true"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CF_EXPORTER_SKIP_SSL_VERIFY
+            value: "true"
+
+  - it: should get UAA SSL configurarion from cloudFoundry.skipSslVerification
+    set:
+      cfExporter:
+        enabled: true
+      cloudFoundry:
+        skipSslVerification: "false"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: SKIP_SSL_VALIDATION
+            value: "false"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CF_EXPORTER_SKIP_SSL_VERIFY
+            value: "false"
+
+  - it: should get UAA SSL configurarion from firehoseExporter.uaa.skipSslVerification
+    set:
+      cfExporter:
+        enabled: true
+      cloudFoundry:
+        skipSslVerification: ~
+      firehoseExporter:
+        uaa:
+          skipSslVerification: "false"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: SKIP_SSL_VALIDATION
+            value: "false"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CF_EXPORTER_SKIP_SSL_VERIFY
+            value: "false"
+
+
+  - it: should get CF_EXPORTER_CF_API_URL from cloudFoundry.apiEndpoint
+    set:
+      cfExporter:
+        enabled: true
+      cloudFoundry:
+        apiEndpoint: https://api.test.com
+      env:
+        DOMAIN: test-domain.com
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CF_EXPORTER_CF_API_URL
+            value: "https://api.test.com"
+
+  - it: should get CF_EXPORTER_CF_API_URL from env.DOMAIN
+    set:
+      cfExporter:
+        enabled: true
+      env:
+        DOMAIN: test-domain.com
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CF_EXPORTER_CF_API_URL
+            value: "https://api.test-domain.com"

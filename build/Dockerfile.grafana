@@ -1,0 +1,20 @@
+FROM splatform/stratos-bk-base:opensuse as cf-dashboards 
+
+RUN git clone https://github.com/bosh-prometheus/prometheus-boshrelease.git
+RUN pwd & ls -al
+
+FROM grafana/grafana:6.2.0
+
+USER root
+ADD apply-grafana-mods.sh /apply-grafana-mods.sh
+RUN /apply-grafana-mods.sh
+
+# Copy dashboards
+RUN mkdir -p /var/local/grafana/dashboards
+COPY --from=cf-dashboards /srv/prometheus-boshrelease/jobs/cloudfoundry_dashboards/templates/*.json /var/local/grafana/dashboards/
+RUN sed -i "s/\${DS_PROMETHEUS}/Prometheus/g" /var/local/grafana/dashboards/*.json
+
+RUN ls -al /var/local/grafana/dashboards
+RUN echo "1.2.3" > /var/version.helm
+
+USER grafana

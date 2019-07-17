@@ -1,0 +1,107 @@
+{{- if .Values.cfExporter }}
+{{- if .Values.cfExporter.enabled }}
+{{ $cfExporterClientSecret :=  default (randAlphaNum 64) .Values.cfExporter.uaa.clientSecret }}
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: "{{ .Release.Name }}-cf-exporter"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "stratos-metrics"
+      app.kubernetes.io/component: "stratos-metrics-cf-exporter"
+      app.kubernetes.io/instance: "{{ .Release.Name }}"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "stratos-metrics"
+        app.kubernetes.io/instance: "{{ .Release.Name }}"
+        app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+        app.kubernetes.io/component: "stratos-metrics-cf-exporter"
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    spec:
+      containers:
+      - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.cfExporter.image}}:{{.Values.imageTag}}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        name: cf-exporter
+        env:
+        - name: CF_EXPORTER_CF_API_URL
+          value: "{{ template "cloudFoundryApiEndpoint" . }}"
+        - name: CF_EXPORTER_CF_CLIENT_ID
+          value: "{{ .Values.cfExporter.uaa.client }}"
+        - name: CF_EXPORTER_CF_CLIENT_SECRET
+          value: "{{ $cfExporterClientSecret }}"
+        - name: CF_EXPORTER_CF_DEPLOYMENT_NAME
+          value: "cf"
+        - name: CF_EXPORTER_METRICS_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: doppler_endpoint
+        - name: CF_EXPORTER_SKIP_SSL_VERIFY
+          value: "{{ template "uaaSkipSslVerification" . }}"
+        ports:
+        - containerPort: 9193
+          name: cf-exp
+          protocol: TCP
+     {{- if and .Values.kube.registry.username .Values.kube.registry.password }}
+      imagePullSecrets:
+      - name: {{ .Values.dockerRegistrySecret}}
+     {{- end }}
+      initContainers:
+      - name: setup-uaa
+        image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.cfExporter.initContainerImage}}:{{.Values.imageTag}} 
+        imagePullPolicy: {{.Values.imagePullPolicy}}
+        env:
+        - name: SKIP_SSL_VALIDATION
+          value: "{{ template "uaaSkipSslVerification" . }}"
+        - name: UAA_ADMIN
+          value: "{{ template "uaaAdminClient" . }}"
+        - name: UAA_ADMIN_SECRET
+          value: "{{ template "uaaAdminClientSecret" . }}"
+        - name: PROMETHEUS_CLIENT
+          value: "{{ .Values.cfExporter.uaa.client }}"
+        - name: PROMETHEUS_CLIENT_SECRET
+          value: "{{ $cfExporterClientSecret }}"
+        - name : UAA_AUTHORITY
+          value: "cloud_controller.admin"
+        - name: ZONE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: zone
+        - name: ROOT_UAA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: root_uaa_endpont
+        - name: UAA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-endpoint-config
+              key: uaa_endpoint
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-cf-exp-service
+  labels:
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+    app.kubernetes.io/component: "stratos-metrics-cf-exporter"
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9193
+    targetPort: 9193
+    protocol: TCP
+    name: {{ .Release.Name }}-cf-exp-service
+  selector:
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/component: "stratos-metrics-cf-exporter"
+{{- end }}
+{{- end }}

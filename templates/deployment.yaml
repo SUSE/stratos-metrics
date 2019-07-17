@@ -1,9 +1,9 @@
-{{ $firehoseClientSecet :=  default (randAlphaNum 64) .Values.firehoseExporter.uaa.clientSecret }}
+{{ $firehoseClientSecret :=  default (randAlphaNum 64) .Values.firehoseExporter.uaa.clientSecret }}
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: "stratos-metrics"
+  name: "{{ .Release.Name }}-nginx"
 spec:
   replicas: 1
   selector:
@@ -22,6 +22,7 @@ spec:
     spec:
       containers:
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.nginx.image}}:{{.Values.imageTag}}
+        imagePullPolicy: {{.Values.imagePullPolicy}}
         name: nginx
         env:
         - name: USERNAME
@@ -42,17 +43,20 @@ spec:
       initContainers:
       - name: setup-uaa
         image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.firehoseExporter.initContainerImage}}:{{.Values.imageTag}} 
+        imagePullPolicy: {{.Values.imagePullPolicy}}
         env:
         - name: SKIP_SSL_VALIDATION
-          value: "{{ .Values.firehoseExporter.uaa.skipSslVerification}}"
+          value: "{{ template "uaaSkipSslVerification" . }}"
         - name: UAA_ADMIN
-          value: "{{ .Values.firehoseExporter.uaa.admin.client }}"
+          value: "{{ template "uaaAdminClient" . }}"
         - name: UAA_ADMIN_SECRET
-          value: "{{ template "uaaClientSecret" . }}"
+          value: "{{ template "uaaAdminClientSecret" . }}"
         - name: PROMETHEUS_CLIENT
           value: "{{ .Values.firehoseExporter.uaa.client }}"
         - name: PROMETHEUS_CLIENT_SECRET
-          value: "{{ $firehoseClientSecet }}"
+          value: "{{ $firehoseClientSecret }}"
+        - name : UAA_AUTHORITY
+          value: "doppler.firehose"
         - name: ZONE
           valueFrom:
             configMapKeyRef:
@@ -100,13 +104,14 @@ spec:
 {{ $helmChartName :=  .Chart.Name }}
 {{ $helmChartVersion :=  .Chart.Version }}
 {{ $values :=  .Values }}
+{{ $dot := . }}
   {{- range int .Values.firehoseExporter.instances | until }}
 
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: "stratos-metrics-firehose-exporters-{{ . }}"
+  name: "{{ $releaseName }}-firehose-exporters-{{ . }}"
 spec:
   replicas: 1
   selector:
@@ -125,6 +130,7 @@ spec:
     spec:
       containers:
       - image: {{$values.dockerRepository}}/{{$values.dockerOrganization}}/{{$values.firehoseExporter.image}}:{{$values.imageTag}}
+        imagePullPolicy: {{ $values.imagePullPolicy }}
         name: firehose-exporter
         env:
         - name: FIREHOSE_EXPORTER_UAA_URL
@@ -135,10 +141,15 @@ spec:
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
           value: "{{ $values.firehoseExporter.uaa.client }}"
         - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
-          value: "{{ $firehoseClientSecet }}"
+          value: "{{ $firehoseClientSecret }}"
         - name: FIREHOSE_EXPORTER_DOPPLER_SUBSCRIPTION_ID
           value: "{{ $releaseName }}-prometheus"
         - name: FIREHOSE_EXPORTER_DOPPLER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{$releaseName}}-endpoint-config
+              key: doppler_endpoint
+        - name: FIREHOSE_EXPORTER_LOGGING_URL
           valueFrom:
             configMapKeyRef:
               name: {{$releaseName}}-endpoint-config
@@ -149,7 +160,7 @@ spec:
               name: {{$releaseName}}-endpoint-config
               key: doppler_endpoint
         - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
-          value: "{{ $values.firehoseExporter.uaa.skipSslVerification}}"
+          value: "{{ template "uaaSkipSslVerification" $dot }}"
         ports:
         - containerPort: 9186
           name: fh-exp

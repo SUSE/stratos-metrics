@@ -35,15 +35,110 @@ This will do the following:
 {{ end }}
 
 {{/*
-UAA Client Secret
+UAA Admin Client
 */}}
-{{- define "uaaClientSecret" -}}
+{{- define "uaaAdminClient" -}}
+{{- if .Values.cloudFoundry -}}
+{{- if .Values.cloudFoundry.uaaAdminClient -}}
+{{- .Values.cloudFoundry.uaaAdminClient }}
+{{- else -}}
+{{- template "defaultUaaAdminClient" . }}
+{{- end -}}
+{{- else -}}
+{{- template "defaultUaaAdminClient" . }}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+UAA Admin Client
+*/}}
+{{- define "defaultUaaAdminClient" -}}
+{{- if .Values.firehoseExporter.uaa -}}
+{{- if .Values.firehoseExporter.uaa.admin -}}
+{{- .Values.firehoseExporter.uaa.admin.client }}
+{{- else -}}
+admin
+{{- end -}}
+{{- else -}}
+admin
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+UAA Admin Client Secret
+*/}}
+{{- define "uaaAdminClientSecret" -}}
+{{- if .Values.cloudFoundry -}}
+{{- if .Values.cloudFoundry.uaaAdminClientSecret -}}
+{{- .Values.cloudFoundry.uaaAdminClientSecret }}
+{{- else -}}
+{{- template "defaultUaaAdminClientSecret" . }}
+{{- end -}}
+{{- else -}}
+{{- template "defaultUaaAdminClientSecret" . }}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+UAA Admin Client Secret
+*/}}
+{{- define "defaultUaaAdminClientSecret" -}}
 {{- if .Values.env.UAA_ADMIN_CLIENT_SECRET -}}
 {{- .Values.env.UAA_ADMIN_CLIENT_SECRET }}
 {{- else if and .Values.secrets .Values.secrets.UAA_ADMIN_CLIENT_SECRET -}}
 {{- .Values.secrets.UAA_ADMIN_CLIENT_SECRET }}
 {{- else -}}
+{{- if .Values.firehoseExporter.uaa.admin -}}
 {{- .Values.firehoseExporter.uaa.admin.clientSecret }}
+{{- else -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+UAA Admin / CF Skip SSL Validation
+*/}}
+{{- define "uaaSkipSslVerification" -}}
+
+{{- if .Values.cloudFoundry -}}
+{{- if .Values.cloudFoundry.skipSslVerification -}}
+{{- .Values.cloudFoundry.skipSslVerification }}
+{{- else -}}
+{{- .Values.firehoseExporter.uaa.skipSslVerification }}
+{{- end -}}
+{{- else -}}
+{{- .Values.firehoseExporter.uaa.skipSslVerification }}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Cloud Foundry API Endpoint
+
+*/}}
+{{- define "cloudFoundryApiEndpoint" -}}
+
+{{- if .Values.cloudFoundry -}}
+{{- if .Values.cloudFoundry.apiEndpoint -}}
+{{- .Values.cloudFoundry.apiEndpoint }}
+{{- else -}}
+{{- template "defaultCloudFoundryApiEndpoint" . }}
+{{- end -}}
+{{- else -}}
+{{- template "defaultCloudFoundryApiEndpoint" . }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+UAA Admin Client Secret
+*/}}
+{{- define "defaultCloudFoundryApiEndpoint" -}}
+{{- if .Values.env.DOMAIN -}}
+https://api.{{- .Values.env.DOMAIN }}
 {{- end -}}
 {{- end -}}
 
