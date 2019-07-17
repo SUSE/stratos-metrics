@@ -270,6 +270,9 @@ pushd ${__DIRNAME}
 # cleanup output, intermediate artifacts
 cleanup
 
+rm -rf Dockerfile.*.patched
+rm -rf Dockerfile.*.patched.bak
+
 updateTagForRelease
 # Build the images for Stratos Metrics
 buildAndPublishImage stratos-metrics-configmap-reload Dockerfile.prometheus-helm . configmap-reload
@@ -278,8 +281,10 @@ buildAndPublishImage stratos-metrics-init-chown-data Dockerfile.prometheus-helm 
 buildAndPublishImage stratos-metrics-node-exporter Dockerfile.prometheus-helm . node-exporter
 buildAndPublishImage stratos-metrics-firehose-init Dockerfile.firehose-init .
 buildAndPublishImage stratos-metrics-firehose-exporter Dockerfile.firehose-exporter .
+buildAndPublishImage stratos-metrics-cf-exporter Dockerfile.cf-exporter .
 buildAndPublishImage stratos-metrics-nginx Dockerfile.nginx .
 buildAndPublishImage stratos-metrics-prometheus Dockerfile.prometheus .
+buildAndPublishImage stratos-metrics-grafana Dockerfile.grafana .
 
 # Show the last 20 images
 docker images --filter "reference=${DOCKER_ORG}/stratos-metrics*" --format  "{{.ID | printf \"%-12s\" }}\t{{.Repository | printf \"%-48s\"}}\t{{.Tag | printf \"%-30s\" }}\t{{.CreatedSince | printf \"%-20s\"}}\t{{.Size}}" | head -20

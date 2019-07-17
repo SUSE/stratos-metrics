@@ -16,6 +16,9 @@ if [ ! -z "${ZONE}" ]; then
   ZONE_NAME=${ZONE}
 fi
 
+# Authority
+# UAA_AUTHORITY
+
 set +x
 
 echo
@@ -23,6 +26,8 @@ echo "Cloud Foundry Doppler URL         : ${DOPPLER_ENDPOINT}"
 echo "UAA Endpoint                      : ${UAA_ENDPOINT}"
 echo "Root UAA Endpoint                 : ${ROOT_UAA_ENDPOINT}"
 echo "Zone                              : ${ZONE}"
+echo "UAA Authority                     : ${PROMETHEUS_CLIENT}"
+echo "UAA Client to create              : ${UAA_AUTHORITY}"
 echo ""
 
 uaac target ${ARGS} ${ROOT_UAA_ENDPOINT}
@@ -41,7 +46,7 @@ if [ $EXIT_CODE -ne 0 ]; then
     --name ${PROMETHEUS_CLIENT} \
     --secret ${PROMETHEUS_CLIENT_SECRET} \
     --authorized_grant_types client_credentials,refresh_token \
-    --authorities doppler.firehose
+    --authorities ${UAA_AUTHORITY}
   echo "UAA Client: ${PROMETHEUS_CLIENT} created in zone ${ZONE_NAME}"
 else
   # Update the client secret, in case it has changed

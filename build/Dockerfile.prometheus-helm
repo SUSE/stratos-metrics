@@ -24,7 +24,7 @@ RUN cd /tmp && \
     make build
 
 # use --target=kube-state-metrics to build an image for Kubernetes
-FROM  splatform/stratos-bk-build-base:opensuse as kube-state-metrics
+FROM  splatform/stratos-base:opensuse as kube-state-metrics
 WORKDIR /
 USER root
 COPY --from=kube-state-metrics-builder /tmp/src/k8s.io/kube-state-metrics/kube-state-metrics /kube-state-metrics

@@ -54,6 +54,12 @@ resources:
     username: ((docker-username))
     password: ((docker-password))
     repository: ((docker-repository))/stratos-metrics-firehose-exporter
+- name: stratos-metrics-cf-exporter
+  type: docker-image
+  source:
+    username: ((docker-username))
+    password: ((docker-password))
+    repository: ((docker-repository))/stratos-metrics-cf-exporter
 - name: stratos-metrics-firehose-init
   type: docker-image
   source:
@@ -175,6 +181,13 @@ jobs:
       - put: stratos-metrics-firehose-exporter
         params:
           dockerfile: metrics/build/Dockerfile.firehose-exporter
+          build: metrics/build/
+          tag: image-tag/release-tag
+          patch_base_reg: ((patch-base-reg))
+          patch_base_tag: ((patch-base-tag))
+      - put: stratos-metrics-cf-exporter
+        params:
+          dockerfile: metrics/build/Dockerfile.cf-exporter
           build: metrics/build/
           tag: image-tag/release-tag
           patch_base_reg: ((patch-base-reg))
