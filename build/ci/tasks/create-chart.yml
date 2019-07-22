@@ -35,7 +35,7 @@ run:
       set +x
       echo ""
       echo "====================================="
-      echo "Tag             : $GIT_TAG"
+      echo "Tag             : $TAG"
       echo "Commit          : $COMMIT"
       echo "Release Version : $RELEASE_VERSION"
       echo "====================================="
@@ -53,8 +53,8 @@ run:
       echo "${VERSION}"
 
       # Required for setupAndPushChange commit message
-      IMAGE_TAG=${GIT_TAG}
-      patchHelmChart ${GIT_TAG} ${DOCKER_ORG} ${DOCKER_REGISTRY} . ${RELEASE_VERSION} ${VERSION}
+      IMAGE_TAG=${TAG}
+      patchHelmChart ${TAG} ${DOCKER_ORG} ${DOCKER_REGISTRY} . ${RELEASE_VERSION}
 
       set +x
       echo "Patched Chart.yaml ..."

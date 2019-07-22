@@ -8,7 +8,6 @@ patchHelmChart () {
   local DOCKER_REG=$3
   local CHART_PATH=$4
   local CHART_VERSION=$5
-  local APP_VERSION=$6
 
   # Patch Helm chart
   sed -i -e 's/imageTag: opensuse/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
@@ -16,7 +15,7 @@ patchHelmChart () {
   sed -i -e 's@repository: splatform@repository: '"${DOCKER_REGISTRY}"'/'"${DOCKER_ORG}"'@g' ${CHART_PATH}/values.yaml
   sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
   sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' ${CHART_PATH}/values.yaml
-  sed -i -e 's/version: 0.1.0/version: '"${CHART_VERSION}"'/g' ${CHART_PATH}/Chart.yaml  
+  sed -i -e 's/version: 0.0.0/version: '"${CHART_VERSION}"'/g' ${CHART_PATH}/Chart.yaml  
 
   # Patch the image tag in place - otherwise --reuse-values won't work with helm upgrade
   sed -i -e 's/{{.Values.imageTag}}/'"${TAG}"'/g' ${CHART_PATH}/templates/deployment.yaml
