@@ -177,4 +177,3 @@ To deploy `stratos/metrics` helm chart:
 ```
 helm install stratos/metrics -f private_overrides.yaml --namespace=metrics
 ```
-
