@@ -33,9 +33,13 @@ run:
       fi
 
       set +x
+      echo ""
+      echo "====================================="
       echo "Tag             : $GIT_TAG"
       echo "Commit          : $COMMIT"
       echo "Release Version : $RELEASE_VERSION"
+      echo "====================================="
+      echo ""
       set -x
 
       # Helper
@@ -48,17 +52,14 @@ run:
       VERSION=$(cat Chart.yaml | grep version | cut -d' ' -f2 | tr -d '\n')
       echo "${VERSION}"
 
-      # Patch Helm chart
-      sed -i -e 's/imageTag: opensuse/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
-      sed -i -e 's/tag: opensuse/tag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
-      sed -i -e 's@repository: splatform@repository: '"${DOCKER_REGISTRY}"'/'"${DOCKER_ORG}"'@g' ${CHART_PATH}/values.yaml
-      sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
-      sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' ${CHART_PATH}/values.yaml
-      sed -i -e 's/version: 0.1.0/version: '"${TAG}"'/g' ${CHART_PATH}/Chart.yaml  
-
       # Required for setupAndPushChange commit message
       IMAGE_TAG=${GIT_TAG}
       patchHelmChart ${GIT_TAG} ${DOCKER_ORG} ${DOCKER_REGISTRY} . ${RELEASE_VERSION} ${VERSION}
+
+      set +x
+      echo "Patched Chart.yaml ..."
+      cat Chart.yaml
+      set -x
       
       # Generate imagelist.txt
       ${STRATOS_METRICS}/build/imagelist-gen.sh .

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Metrics
+
 patchHelmChart () {
   local TAG=$1
   local DOCKER_ORG=$2
@@ -7,16 +9,24 @@ patchHelmChart () {
   local CHART_PATH=$4
   local CHART_VERSION=$5
   local APP_VERSION=$6
-  sed -i -e 's/consoleVersion: latest/consoleVersion: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
-  sed -i -e 's/organization: splatform/organization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
-  sed -i -e 's/hostname: docker.io/hostname: '"${DOCKER_REG}"'/g' ${CHART_PATH}/values.yaml
 
+  # Patch Helm chart
+  sed -i -e 's/imageTag: opensuse/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
+  sed -i -e 's/tag: opensuse/tag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
+  sed -i -e 's@repository: splatform@repository: '"${DOCKER_REGISTRY}"'/'"${DOCKER_ORG}"'@g' ${CHART_PATH}/values.yaml
+  sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
+  sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' ${CHART_PATH}/values.yaml
   sed -i -e 's/version: 0.1.0/version: '"${CHART_VERSION}"'/g' ${CHART_PATH}/Chart.yaml  
-  sed -i -e 's/appVersion: 0.1.0/appVersion: '"${APP_VERSION}"'/g' ${CHART_PATH}/Chart.yaml
 
-  # Patch the console image tag in place - otherwise --reuse-values won't work with helm upgrade
+  # Patch the image tag in place - otherwise --reuse-values won't work with helm upgrade
   sed -i -e 's/{{.Values.imageTag}}/'"${TAG}"'/g' ${CHART_PATH}/templates/deployment.yaml
   sed -i -e 's/{{$values.imageTag}}/'"${TAG}"'/g' ${CHART_PATH}/templates/deployment.yaml
+  sed -i -e 's/{{.Values.imageTag}}/'"${TAG}"'/g' ${CHART_PATH}/templates/config-job.yaml
+  sed -i -e 's/{{$values.imageTag}}/'"${TAG}"'/g' ${CHART_PATH}/templates/config-job.yaml
+
+  sed -i -e 's/{{.Values.imageTag}}/'"${TAG}"'/g' ${CHART_PATH}/templates/cf-exporter.yaml
+  sed -i -e 's/{{$values.imageTag}}/'"${TAG}"'/g' ${CHART_PATH}/templates/cf-exporter.yaml
+
 }
 
 patchHelmChartDev () {
