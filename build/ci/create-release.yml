@@ -128,8 +128,8 @@ jobs:
       file: metrics/build/ci/tasks/check-gh-release.yml
       params:
         GITHUB_TOKEN: ((github-access-token))
-        GITHUB_USER: ((helm-repo-github-organization))
-        GITHUB_REPO: ((helm-repo-github-repository))
+        GITHUB_USER: ((release-github-organization))
+        GITHUB_REPO: ((release-github-repository))
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
         GIT_PRIVATE_KEY: ((github-private-key))
@@ -261,8 +261,8 @@ jobs:
       file: metrics/build/ci/tasks/update-gh-release.yml
       params:
         GITHUB_TOKEN: ((github-access-token))
-        GITHUB_USER: ((helm-repo-github-organization))
-        GITHUB_REPO: ((helm-repo-github-repository))
+        GITHUB_USER: ((release-github-organization))
+        GITHUB_REPO: ((release-github-repository))
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
         GIT_PRIVATE_KEY: ((github-private-key))
