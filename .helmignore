@@ -2,5 +2,6 @@
 values.yaml.tmpl
 .gitignore
 .helmignore
+.travis.yml
 build/
 tests/

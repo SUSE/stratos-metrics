@@ -61,9 +61,6 @@ run:
       cat Chart.yaml
       set -x
       
-      # Generate imagelist.txt
-      ${STRATOS_METRICS}/build/imagelist-gen.sh .
-
       CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}.tgz"
       if [ "${CHART_SUFFIX}" != "null" ]; then
         CHART_FILENAME="metrics-helm-chart-${RELEASE_VERSION}-${COMMIT}-${CHART_SUFFIX}.tgz"
@@ -71,6 +68,10 @@ run:
 
       # Generate Helm package
       updateHelmDependency
+
+      # Generate imagelist.txt (needs to be done after the dependencies have been updated)
+      ${STRATOS_METRICS}/build/imagelist-gen.sh .
+
       helm package ./
       mv metrics-*.tgz ${ROOT_DIR}/helm-chart/${CHART_FILENAME}
       cd ${ROOT_DIR}/helm-chart/

@@ -8,6 +8,9 @@ dockerRepository:
 firehoseExporter:
   enabled: true
 
+cfExporter:
+  enabled: true
+
 prometheus:
   kubeStateMetrics:
     enabled: true
