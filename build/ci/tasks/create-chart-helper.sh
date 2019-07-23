@@ -12,9 +12,9 @@ patchHelmChart () {
   # Patch Helm chart
   sed -i -e 's/imageTag: opensuse/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
   sed -i -e 's/tag: opensuse/tag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
-  sed -i -e 's@repository: splatform@repository: '"${DOCKER_REGISTRY}"'/'"${DOCKER_ORG}"'@g' ${CHART_PATH}/values.yaml
+  sed -i -e 's@repository: splatform@repository: '"${DOCKER_REG}"'/'"${DOCKER_ORG}"'@g' ${CHART_PATH}/values.yaml
   sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
-  sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REGISTRY}"'/g' ${CHART_PATH}/values.yaml
+  sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REG}"'/g' ${CHART_PATH}/values.yaml
   sed -i -e 's/version: [0-9].[0-9].[0-9]/version: '"${CHART_VERSION}"'/g' ${CHART_PATH}/Chart.yaml  
 
   # Patch the image tag in place - otherwise --reuse-values won't work with helm upgrade

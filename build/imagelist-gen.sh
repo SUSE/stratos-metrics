@@ -19,7 +19,15 @@ ls
 echo ""
 echo "Rendering template locally..."
 echo ""
-helm template -f ${__DIRNAME}/imagelist.values.yaml ${CHART_FOLDER} | grep "image:" | grep --extended --only-matching '([^"/[:space:]]+/)?[^"/[:space:]]+/[^:[:space:]]+:[a-zA-Z0-9\._-]+' | sort | uniq | awk -F'/' '{print $2}' > imagelist.txt
+
+IMAGES=$(helm template -f ${__DIRNAME}/imagelist.values.yaml ${CHART_FOLDER} | grep "image:" | grep --extended --only-matching '([^"/[:space:]]+/)?[^"/[:space:]]+/[^:[:space:]]+:[a-zA-Z0-9\._-]+' | sort | uniq )
+
+rm -rf ${CHART_FOLDER}/imagelist.txt
+touch ${CHART_FOLDER}/imagelist.txt
+while IFS= read -r line
+do
+  echo ${line##*/} >> ${CHART_FOLDER}/imagelist.txt
+done <<< "$IMAGES"
 
 echo ""
 printf "${CYAN}"
