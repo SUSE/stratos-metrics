@@ -68,6 +68,8 @@ cfExporter:
 
 nginx:
   image: stratos-metrics-nginx
+  # Name of secret to use for TLS rather than a self-signed certificate
+  tls:
   ssl:
     cert: |
       -----BEGIN CERTIFICATE-----

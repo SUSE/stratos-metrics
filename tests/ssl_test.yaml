@@ -1,0 +1,28 @@
+suite: test stratos metrics ssl config for nginx
+templates:
+  - deployment.yaml
+tests:
+  - it: should use default secret name
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: nginx
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ssl-cert
+            secret:
+              secretName: RELEASE-NAME-nginx-tls
+  - it: should use specified secret name
+    set:
+      nginx.tls: TLS_SECRET_TEST
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: nginx
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ssl-cert
+            secret:
+              secretName: TLS_SECRET_TEST

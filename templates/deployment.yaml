@@ -87,7 +87,11 @@ spec:
       volumes:
       - name: ssl-cert
         secret:
+        {{- if .Values.nginx.tls }}
+          secretName: "{{ .Values.nginx.tls }}"
+        {{- else }}
           secretName: "{{ .Release.Name }}-nginx-tls"
+        {{- end }}
       - name: nginx-config
         configMap:
           name: "{{ .Release.Name }}-stratos-metrics-config"
