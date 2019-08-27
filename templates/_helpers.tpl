@@ -182,21 +182,21 @@ Service port:
 {{/*
 Metrics Credentials - Username
 */}}
-{{- define "nginx.credentials-username" -}}
+{{- define "nginx.credentials-username-base64" -}}
 {{- if .Values.nginx.username -}}
-{{- .Values.nginx.username -}}
+{{- .Values.nginx.username | b64enc -}}
 {{- else -}}
-{{- .Values.metrics.username -}}
+{{- .Values.metrics.username | b64enc -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
 Metrics Credentials - Password
 */}}
-{{- define "nginx.credentials-password" -}}
+{{- define "nginx.credentials-password-base64" -}}
 {{- if .Values.nginx.username -}}
-{{- .Values.nginx.password -}}
+{{- .Values.nginx.password | b64enc -}}
 {{- else -}}
-{{- .Values.metrics.password -}}
+{{- .Values.metrics.password | b64enc -}}
 {{- end -}}
 {{- end -}}
