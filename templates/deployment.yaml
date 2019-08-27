@@ -26,9 +26,15 @@ spec:
         name: nginx
         env:
         - name: USERNAME
-          value: "{{ template "nginx.credentials-username" . }}"
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-metrics-credentials
+              key: username
         - name: PASSWORD
-          value: "{{ template "nginx.credentials-password" . }}"
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-metrics-credentials
+              key: password
         ports:
         - containerPort: 443
           name: https

@@ -10,6 +10,7 @@ This release contains several new features and improvements, notably:
 - Numerous tidy-ups to the values.yaml file
 - Improved README
 - Addition of an icon to the Helm Chart
+- Fix: Clear text username/pwds are being displayed when describing a stratos metrics pod [\#40](https://github.com/SUSE/stratos-metrics/issues/40)
 
 ## 1.0.0
 
