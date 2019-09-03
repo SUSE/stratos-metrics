@@ -1,3 +1,5 @@
+# Used by the Open Source version
+
 ---
 platform: linux
 inputs:
@@ -72,6 +74,9 @@ run:
       echo "Last tag Commit       : $LAST_TAG_COMMIT"
 
       echo "Making Metrics release"
+
+      # Check what git repository this is
+      git remote show origin -n
 
       # Check to see if the release tag already exists - if so, abort - we won't re-release
       set +e
