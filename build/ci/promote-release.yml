@@ -43,8 +43,8 @@ jobs:
       params:
         GIT_USER: ((concourse-user))
         GIT_EMAIL: ((concourse-email))
-        GITHUB_USER: ((metrics-repository-organization))
-        GITHUB_REPO: ((metrics-repository))
+        GITHUB_USER: ((release-github-organization))
+        GITHUB_REPO: ((release-github-repository))
         GITHUB_TOKEN: ((github-access-token))
         GIT_PRIVATE_KEY: ((github-private-key))
         DOCKER_ORG: ((docker-organization))

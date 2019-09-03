@@ -25,10 +25,10 @@ run:
       source ${STRATOS_METRICS}/build/ci/tasks/create-chart-helper.sh
       source ${STRATOS_METRICS}/build/ci/tasks//github-helper.sh
       SOURCE_REPO=${SOURCE_REPO_ORG}/${SOURCE_REPO_REPO}
-      ARTIFACT_REPO=${GITHUB_ORG}/${GITHUB_REPO}
+      ARTIFACT_REPO=${GITHUB_USER}/${GITHUB_REPO}
 
       HELM_REPO=${ROOT_DIR}/helm-repo/${HELM_REPO_PATH}
-      HELM_REPOSITORY=${GITHUB_ORG}/${GITHUB_REPO}
+      HELM_REPOSITORY=${GITHUB_USER}/${GITHUB_REPO}
 
       # Tags
       cd ${ROOT_DIR}/metrics
@@ -82,6 +82,9 @@ run:
       echo "Last tag Commit       : $LAST_TAG_COMMIT"
 
       echo "Making Metrics release"
+
+      # Check what git repository this is
+      git remote show origin -n      
 
       # Check to see if the release tag already exists - if so, abort - we won't re-release
       set +e
@@ -157,7 +160,7 @@ run:
       fi
 
       # Update Helm Repository
-      helm repo index ./ ${MERGE_INDEX} --url https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/releases/download/${VERSION}/
+      helm repo index ./ ${MERGE_INDEX} --url https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${VERSION}/
       cp index.yaml ${HELM_REPO}
       cd ${HELM_REPO}
       set +x
