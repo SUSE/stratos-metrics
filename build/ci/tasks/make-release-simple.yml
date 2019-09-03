@@ -59,6 +59,8 @@ run:
       echo "Last tag        : $LAST_TAG"
       echo "Git Tag Suffix  : $GIT_TAG_SUFFIX"
       echo "Version Tag     : $VERSION_TAG"
+      echo "Github User     : $GITHUB_USER"
+      echo "Github Repo     : $GITHUB_REPO"
       echo "=================================================================================================================="
       set -x
 
