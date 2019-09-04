@@ -14,3 +14,6 @@ cfExporter:
 prometheus:
   kubeStateMetrics:
     enabled: true
+    
+  nodeExporter:
+    enabled: true
