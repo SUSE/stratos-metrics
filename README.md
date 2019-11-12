@@ -137,6 +137,7 @@ The following table lists the configurable parameters of the Metrics chart and t
 |kubernetes.apiEndpoint|URL of the Kubernetes API Server||
 |prometheus.kubeStateMetrics.enabled|Enables the Kubernetes state metrics prometheus Exporter|false|
 |kube.auth|Set to "rbac" if the Kubernetes cluster supports Role-based access control|"rbac"|
+|prometheus.server.storageClass|Storage class to use for the Prometheus server|<none> (use default storage class)|
 
 
 # Advanced Topics
@@ -177,3 +178,10 @@ To deploy `stratos/metrics` helm chart:
 ```
 helm install stratos/metrics -f private_overrides.yaml --namespace=metrics
 ```
+
+## Advanced Prometheus Configuration
+
+Stratos Metrics uses the Prometheus Helm chart (https://github.com/helm/charts/tree/master/stable/prometheus) as a sub-chart.
+
+You can override settings for Prometeus, as described in this sub-chart, but prefixing the value with `prometheus`. For example, `prometheus.server.storageClass` changes the storage class used by the Promethus server.
+ 
