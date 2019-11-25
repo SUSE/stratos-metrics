@@ -135,8 +135,6 @@ spec:
       serviceAccountName: "metrics-config"
       {{- end }}
       terminationGracePeriodSeconds: 600
-      # Fail the job if after 10 tries it is still failing
-      backoffLimit: 10
       # Job should not take longer than 5 minutes
       activeDeadlineSeconds: 300
       # Depend on the config ConfigMap, so we know its created before we patch it with latest config
