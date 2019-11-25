@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.1.1
+
+This release contains one fix:
+
+- Deploying Metrics on AKS is failing [\#40](https://github.com/SUSE/stratos-metrics/issues/42)
+
 ## 1.1.0
 
 This release contains several new features and improvements, notably:
