@@ -1,0 +1,30 @@
+{{- if .Values.firehoseExporter.enabled }}
+{{ $releaseName := .Release.Name }}
+{{ $firehoseExporter := .Values.firehoseExporter }}
+{{ $appVersion := .Chart.AppVersion }}
+{{ $helmChartName :=  .Chart.Name }}
+{{ $helmChartVersion :=  .Chart.Version }}
+{{- range int .Values.firehoseExporter.instances | until }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $releaseName }}-f-exp-service-{{ . }}
+  labels:
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/instance: "{{ $releaseName }}"
+    app.kubernetes.io/version: "{{ $appVersion }}"
+    app.kubernetes.io/component: "stratos-metrics-firehose-exporter-service-{{ . }}"
+    helm.sh/chart: "{{ $helmChartName }}-{{ $helmChartVersion | replace "+" "_" }}"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9186
+    targetPort: 9186
+    protocol: TCP
+    name: f-exp-service
+  selector:
+    app.kubernetes.io/name: "stratos-metrics"
+    app.kubernetes.io/component: "stratos-metrics-firehose-exporters-{{ . }}"
+  {{- end }}
+{{- end }}

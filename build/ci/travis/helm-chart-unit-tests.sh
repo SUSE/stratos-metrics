@@ -24,8 +24,10 @@ helm dependency build
 # Since the chart is in the root folder, we need to ensure its in a folder named 'metrics'
 mkdir -p ./tmp/metrics
 cp *.yaml ./tmp/metrics
-cp -R templates/ ./tmp/metrics
-cp -R tests/ ./tmp/metrics
+cp *.lock ./tmp/metrics
+cp -R ./templates ./tmp/metrics
+cp -R ./tests ./tmp/metrics
+cp -R ./charts ./tmp/metrics
 
 # Run unit tests
 helm unittest ./tmp/metrics

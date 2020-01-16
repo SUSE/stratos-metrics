@@ -12,7 +12,7 @@ tests:
   - it: should have default ClusterIP configuration
     asserts:
       - hasDocuments:
-          count: 2
+          count: 1
       - equal:
           path: spec.type
           value: ClusterIP
@@ -28,7 +28,7 @@ tests:
       metrics.service.servicePort: 12443
     asserts:
       - hasDocuments:
-          count: 2
+          count: 1
       - equal:
           path: spec.type
           value: ClusterIP
@@ -74,7 +74,7 @@ tests:
       metrics.service.clusterIP: 5.6.7.8
     asserts:
       - hasDocuments:
-          count: 2
+          count: 1
       - equal:
           path: spec.clusterIP
           value: 5.6.7.8
@@ -83,7 +83,7 @@ tests:
       useLb: true
     asserts:
       - hasDocuments:
-          count: 2
+          count: 1
       - equal:
           path: spec.type
           value: LoadBalancer
@@ -93,7 +93,7 @@ tests:
       metrics.service.loadBalancerIP: 1.2.3.4
     asserts:
       - hasDocuments:
-          count: 2
+          count: 1
       - equal:
           path: spec.type
           value: LoadBalancer
@@ -105,7 +105,7 @@ tests:
       services.loadbalanced: true
     asserts:
       - hasDocuments:
-          count: 2
+          count: 1
       - equal:
           path: spec.type
           value: LoadBalancer
