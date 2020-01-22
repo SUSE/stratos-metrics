@@ -1,6 +1,10 @@
 {{ $firehoseClientSecret :=  default (randAlphaNum 64) .Values.firehoseExporter.uaa.clientSecret }}
 ---
+{{- if semverCompare ">=1.16" (printf "%s.%s" .Capabilities.KubeVersion.Major (trimSuffix "+" .Capabilities.KubeVersion.Minor) )}}
+apiVersion: apps/v1
+{{- else }}
 apiVersion: apps/v1beta1
+{{- end }}
 kind: Deployment
 metadata:
   name: "{{ .Release.Name }}-nginx"
@@ -115,10 +119,15 @@ spec:
 {{ $helmChartVersion :=  .Chart.Version }}
 {{ $values :=  .Values }}
 {{ $dot := . }}
+{{ $caps := .Capabilities }}
   {{- range int .Values.firehoseExporter.instances | until }}
 
 ---
+{{- if semverCompare ">=1.16" (printf "%s.%s" $caps.KubeVersion.Major (trimSuffix "+" $caps.KubeVersion.Minor) )}}
+apiVersion: apps/v1
+{{- else }}
 apiVersion: apps/v1beta1
+{{- end }}
 kind: Deployment
 metadata:
   name: "{{ $releaseName }}-firehose-exporters-{{ . }}"
