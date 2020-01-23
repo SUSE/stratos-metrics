@@ -1,9 +1,10 @@
 # See: https://hub.docker.com/r/prom/prometheus/~/dockerfile
+# See: https://github.com/prometheus/prometheus/blob/master/Dockerfile
 
 FROM splatform/stratos-bk-base:opensuse
 
 WORKDIR /
-ENV PROMETHEUS_VERSION 2.2.1
+ENV PROMETHEUS_VERSION 2.15.2
 ENV ARCH linux-amd64
 RUN zypper in -y tar wget
 
@@ -25,6 +26,6 @@ VOLUME     [ "/prometheus" ]
 WORKDIR    /prometheus
 ENTRYPOINT [ "/bin/prometheus" ]
 CMD        [ "-config.file=/etc/prometheus/prometheus.yml", \
-             "-storage.local.path=/prometheus", \
+             "-storage.tsdb.path=/prometheus", \
              "-web.console.libraries=/usr/share/prometheus/console_libraries", \
              "-web.console.templates=/usr/share/prometheus/consoles" ]
