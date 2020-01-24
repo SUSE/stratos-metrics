@@ -1,5 +1,12 @@
 # Change Log
 
+# 1.1.2
+
+This release contains one fix:
+
+- Fix for metrics failing to deploy on kube 1.16+ [\#44](https://github.com/SUSE/stratos-metrics/pull/44)
+
+
 ## 1.1.1
 
 This release contains one fix:
