@@ -1,6 +1,6 @@
 # Change Log
 
-# 1.1.2
+## 1.1.2
 
 This release contains one fix:
 
