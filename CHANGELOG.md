@@ -1,11 +1,16 @@
 # Change Log
 
+## 1.1.3
+
+This release contains one fix:
+
+- Add support for ingress [\#46](https://github.com/SUSE/stratos-metrics/issues/46)
+
 ## 1.1.2
 
 This release contains one fix:
 
 - Fix for metrics failing to deploy on kube 1.16+ [\#44](https://github.com/SUSE/stratos-metrics/pull/44)
-
 
 ## 1.1.1
 

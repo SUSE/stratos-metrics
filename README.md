@@ -124,6 +124,11 @@ The following table lists the configurable parameters of the Metrics chart and t
 |metrics.service.servicePort|Service port for the metrics service|443|
 |metrics.service.nodePort|Node port for the metrics service  (ignored if metrics.service.type is not NodePort)||
 |metrics.service.externalName|External name for the metrics service||
+|metrics.service.ingress.enabled|Enable ingress for the metrics service|false|
+|metrics.service.ingress.host|Host for the ingress resource|||
+|metrics.service.ingress.secretName|Name of an existing secret containing the TLS certificate for ingress|||
+|metrics.service.ingress.annotations|Annotations to be added to the ingress resource||
+|metrics.service.ingress.extraLabels|Additional labels to be added to the ingress resource||
 |nginx.ssl.cert|TLS Certificate for the metrics service|_self-signed dev certificate_|
 |nginx.ssl.key|TLS Private Key for the metrics service|_self-signed dev certificate_|
 |cloudFoundry.apiEndpoint|API Endpoint of the Cloud Foundry API Server (required by the Firehose and CF Exporters)||
@@ -157,6 +162,26 @@ If the Kubernetes cluster supports external IPs for services (see [Service Exter
 ```
 helm install stratos/metrics --devel --namespace=metrics -f <CONFIG_VALUES>.yaml --set metrics.service.externalIP=192.168.100.100
 ```
+
+## Using an Ingress Controller
+
+If your Kubernetes Cluster supports Ingress, you can expose Stratos Metrics through Ingress by supplying the appropriate ingress configuration when installing.
+
+This configuration is described below:
+
+|Parameter|Description|Default|
+|----|---|---|
+|metrics.service.ingress.enabled|Enables ingress|false|
+|metrics.service.ingress.annotations|Annotations to be added to the ingress resource.|{}|
+|metrics.service.ingress.extraLabels|Additional labels to be added to the ingress resource.|{}|
+|metrics.service.ingress.host|The host name that will be used for the Stratos Metrics service.||
+|metrics.service.ingress.secretName|The existing TLS secret that contains the certificate for ingress.||
+
+You must provide `metrics.service.ingress.host` when enabling ingress.
+
+By default a certificate will be generated for TLS. You can provide your own certificate by creating a secret and specifying this with `metrics.service.ingress.secretName`.
+
+> Note: If you do not supply `metrics.service.ingress.host` but do supply `env.DOMAIN` then the host `metrics.[env.DOMAIN]` will be used.
 
 ## Deploying Metrics from a Private Image Repository
 

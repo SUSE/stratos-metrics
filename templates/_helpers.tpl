@@ -200,3 +200,56 @@ Metrics Credentials - Password
 {{- .Values.metrics.password | b64enc -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "metrics.certName" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Generate self-signed certificate for ingress if needed
+*/}}
+{{- define "metrics.generateIngressCertificate" -}}
+{{- $altNames := list (printf "%s" .Values.metrics.service.ingress.host) (printf "%s.%s" (include "metrics.certName" .) .Release.Namespace ) ( printf "%s.%s.svc" (include "metrics.certName" .) .Release.Namespace ) -}}
+{{- $ca := genCA "stratos-ca" 365 -}}
+{{- $cert := genSignedCert ( include "metrics.certName" . ) nil $altNames 365 $ca -}}
+{{- if .Values.metrics.service.ingress.tls.crt }}
+  tls.crt: {{ .Values.metrics.service.ingress.tls.crt | b64enc | quote }}
+{{- else }}
+  tls.crt: {{ $cert.Cert | b64enc | quote }}
+{{- end -}}
+{{- if .Values.metrics.service.ingress.tls.key }}
+  tls.key: {{ .Values.metrics.service.ingress.tls.key | b64enc | quote }}
+{{- else }}
+  tls.key: {{ $cert.Key | b64enc | quote }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Ingress Host from .Values.metrics.service
+*/}}
+{{- define "ingress.host.value" -}}
+{{- if .Values.metrics.service -}}
+{{- if .Values.metrics.service.ingress -}}
+{{- if .Values.metrics.service.ingress.host -}}
+{{ .Values.metrics.service.ingress.host }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Ingress Host:
+*/}}
+{{- define "ingress.host" -}}
+{{ $host := (include "ingress.host.value" .) }}
+{{- if $host -}}
+{{ $host | quote }}
+{{- else if .Values.env.DOMAIN -}}
+{{ print "metrics." .Values.env.DOMAIN }}
+{{- else -}}
+{{ required "Host name is required" $host | quote }}
+{{- end -}}
+{{- end -}}
