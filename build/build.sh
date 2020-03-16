@@ -16,7 +16,7 @@ PROD_RELEASE=false
 DOCKER_REGISTRY=docker.io
 DOCKER_DEST_REGISTRY=${DOCKER_REGISTRY}
 DOCKER_ORG=splatform
-BASE_IMAGE_TAG=opensuse
+BASE_IMAGE_TAG=leap15_1
 OFFICIAL_TAG=cap
 TAG=$(date -u +"%Y%m%dT%H%M%SZ")
 ADD_OFFICIAL_TAG="false"
@@ -101,8 +101,9 @@ __DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 STRATOS_METRICS_PATH=${__DIRNAME}/..
 
+# Remove intermediate containers
+BUILD_ARGS="--rm=true"
 # Proxy support
-BUILD_ARGS=""
 RUN_ARGS=""
 if [ -n "${http_proxy:-}" -o -n "${HTTP_PROXY:-}" ]; then
   BUILD_ARGS="${BUILD_ARGS} --build-arg http_proxy=${http_proxy:-${HTTP_PROXY}}"
@@ -258,7 +259,7 @@ function patchDockerfile {
   pushd ${FOLDER} > /dev/null 2>&1
   pwd
   sed -i.bak "s@splatform@${DOCKER_REGISTRY}/${DOCKER_ORG}@g" ${PATCHED_DOCKER_FILE}
-  sed -i.bak "s/opensuse/${BASE_IMAGE_TAG}/g" ${PATCHED_DOCKER_FILE}
+  sed -i.bak "s/leap15_1/${BASE_IMAGE_TAG}/g" ${PATCHED_DOCKER_FILE}
   popd > /dev/null 2>&1
 }
 

@@ -10,7 +10,7 @@ set -eu
 # Set defaults
 DOCKER_REGISTRY=docker.io
 DOCKER_ORG=splatform
-BASE_IMAGE_TAG=opensuse
+BASE_IMAGE_TAG=leap15_1
 OFFICIAL_TAG=cap
 TAG=$(date -u +"%Y%m%dT%H%M%SZ")
 ADD_OFFICIAL_TAG="false"

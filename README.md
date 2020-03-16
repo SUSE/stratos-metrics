@@ -187,10 +187,13 @@ By default a certificate will be generated for TLS. You can provide your own cer
 
 If the images used by the chart are hosted in a private repository, the following needs to be specified. Save the following to a file called `private_overrides.yaml`. Replace `REGISTRY USER PASSSWORD`, `REGISTRY USERNAME`, `REGISTRY URL` with the appropriate values. `USER EMAIL` can be left blank.
 
+> Note: Stratos Metrics uses the Prometheus Helm Chart as a sub-chart - hence the secret for the private registry must be specified separately for these two components.
+
 ```
 prometheus:
   imagePullSecrets:
   - name: regsecret
+
 kube:
   registry:
     password: <REGISTRY USER PASSWORD>

@@ -1,19 +1,18 @@
-FROM splatform/stratos-ruby-build-base:opensuse as ruby-base
+FROM splatform/stratos-ruby-build-base:leap15_1 as ruby-base
 
-ADD install-uaac.sh /install-uaac.sh
-RUN /install-uaac.sh
+RUN gem install cf-uaac && \
+    cp /usr/bin/uaac.ruby2.5 /usr/bin/uaac
 
 # Use plain OS image without anything extra (e.g. no git)
-FROM splatform/stratos-base:opensuse
+FROM splatform/stratos-ruby-base:leap15_1
 
 WORKDIR /
 USER root
 
-RUN mkdir -p /usr/local/lib/ruby
-COPY --from=ruby-base /usr/local/lib/ruby /usr/local/lib/ruby
-COPY --from=ruby-base /usr/local/bin/* /usr/local/bin/
-
-RUN zypper in -y jq curl
+# Copy the uaac binary
+COPY --from=ruby-base /usr/bin/uaac /usr/bin/uaac
+# Copy ruby gems
+COPY --from=ruby-base /usr/lib64/ruby/gems/2.5.0 /usr/lib64/ruby/gems/2.5.0
 
 ADD create-configmaps.sh /create-configmaps.sh
 RUN chmod +x /create-configmaps.sh

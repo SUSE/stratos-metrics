@@ -1,16 +1,16 @@
-FROM splatform/stratos-bk-base:opensuse as cf-builder
+FROM splatform/stratos-bk-build-base:leap15_1 as cf-builder
 
 ENV CF_EXPORTER_VERSION 0.8.0
 ENV ARCH linux-amd64
 
 WORKDIR /
-RUN zypper in -y tar wget
+USER root
 RUN wget https://github.com/bosh-prometheus/cf_exporter/releases/download/v${CF_EXPORTER_VERSION}/cf_exporter-${CF_EXPORTER_VERSION}.${ARCH}.tar.gz -O /cf_exporter-${CF_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     tar -xzf /cf_exporter-${CF_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     cp /cf_exporter-${CF_EXPORTER_VERSION}.${ARCH}/cf_exporter /bin/cf_exporter
     
 # Final container - no need for tar etc
-FROM splatform/stratos-base:opensuse
+FROM splatform/stratos-base:leap15_1
 
 COPY --from=cf-builder /bin/cf_exporter /bin/cf_exporter
 ENTRYPOINT ["/bin/cf_exporter"]
