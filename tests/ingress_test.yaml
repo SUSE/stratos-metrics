@@ -1,0 +1,255 @@
+suite: test ingress
+templates:
+  - ingress.yaml
+
+tests:
+  - it: should not have ingress when not configured
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: should not have ingress when not configured (.ingress)
+    set:
+      metrics.service.ingress: {}
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: should not have ingress when configured false
+    set:
+      metrics.service.ingress.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: should have ingress when configured true
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.host: "hostname"
+    asserts:
+      - hasDocuments:
+          count: 2
+  - it: should allow existing tls secret to be used
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      metrics.service.ingress.host: "hostname"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.tls[0].secretName
+          value: "existingTestSecret"
+  - it: should create empty secret by default
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.host: "hostname"
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: "Secret"
+      - isNotEmpty:
+          path: data.tls\.crt
+      - isNotEmpty:
+          path: data.tls\.key
+          value: ""
+  - it: should create secret with specified values
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.tls.crt: "CRT_TEST"
+      metrics.service.ingress.tls.key: "KEY_TEST"
+      metrics.service.ingress.host: "hostname"
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: "Secret"
+      - equal:
+          path: data.tls\.crt
+          value: "Q1JUX1RFU1Q="
+      - equal:
+          path: data.tls\.key
+          value: "S0VZX1RFU1Q="
+  - it: should have correct metadata
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      metrics.service.ingress.host: "hostname"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: metadata.name
+          value: "test-release-ingress"
+      - equal:
+          path: metadata.labels.app\.kubernetes\.io\/instance
+          value: "test-release"
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.serviceName
+          value: "test-release-metrics-nginx"
+  - it: should use host name provided
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      metrics.service.ingress.host: "hostname"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: spec.rules[0].host
+          value: "hostname"
+      - equal:
+          path: spec.tls[0].hosts[0]
+          value: "hostname"
+  - it: should use metrics.DOMAIN if configured
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      env.DOMAIN: "domain.com"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: spec.rules[0].host
+          value: "metrics.domain.com"
+      - equal:
+          path: spec.tls[0].hosts[0]
+          value: "metrics.domain.com"
+  - it: should apply default annotation if not overriden
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      env.DOMAIN: "domain.com"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: metadata.annotations
+          value:
+            kubernetes.io/ingress.allow-http: "false"
+            kubernetes.io/ingress.class: "nginx"
+            nginx.ingress.kubernetes.io/secure-backends: "true"
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+            nginx.ingress.kubernetes.io/ssl-redirect: "false"
+            nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+            nginx.org/websocket-services: "test-release-metrics-nginx"
+  - it: should overide default annotation when provided
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      env.DOMAIN: "domain.com"
+      metrics.service.ingress.annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: metadata.annotations
+          value:
+            kubernetes.io/ingress.allow-http: "false"
+            kubernetes.io/ingress.class: "nginx"
+            nginx.ingress.kubernetes.io/secure-backends: "true"
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+            nginx.ingress.kubernetes.io/ssl-redirect: "false"
+            nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+            nginx.org/websocket-services: "test-release-metrics-nginx"
+  - it: should allow additional annotations to be specified
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      env.DOMAIN: "domain.com"
+      metrics.service.ingress.annotations:
+        test-annotation: "test"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: metadata.annotations
+          value:
+            test-annotation: "test"
+            kubernetes.io/ingress.allow-http: "false"
+            kubernetes.io/ingress.class: "nginx"
+            nginx.ingress.kubernetes.io/secure-backends: "true"
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+            nginx.ingress.kubernetes.io/ssl-redirect: "false"
+            nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+            nginx.org/websocket-services: "test-release-metrics-nginx"
+  - it: should have default labels
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      env.DOMAIN: "domain.com"
+      metrics.service.ingress.annotations:
+        test-annotation: "test"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/name: "stratos-metrics"
+            app.kubernetes.io/component: "metrics-ingress"
+            app.kubernetes.io/instance: "test-release"
+            app.kubernetes.io/version: "2.0.0"
+            helm.sh/chart: "metrics-1.2.0"
+  - it: should allow extra labels to be set
+    release:
+      name: test-release
+    set:
+      metrics.service.ingress.enabled: true
+      metrics.service.ingress.secretName: "existingTestSecret"
+      metrics.service.ingress.extraLabels:
+        label1: "testLabel"
+        label2: "testLabel2"
+      env.DOMAIN: "domain.com"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: "Ingress"
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/name: "stratos-metrics"
+            app.kubernetes.io/component: "metrics-ingress"
+            app.kubernetes.io/instance: "test-release"
+            app.kubernetes.io/version: "2.0.0"
+            helm.sh/chart: "metrics-1.2.0"
+            label1: "testLabel"
+            label2: "testLabel2"

@@ -1,26 +1,33 @@
+FROM splatform/stratos-bk-build-base:leap15_1 as prom_builder
+
+WORKDIR /
+USER root
+ENV PROMETHEUS_VERSION 2.15.2
+ENV ARCH linux-amd64
+
+RUN wget https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz -O prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz
+RUN tar -xzf /prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz && \
+    mv /prometheus-${PROMETHEUS_VERSION}.${ARCH} /prometheus
+ 
 # See: https://hub.docker.com/r/prom/prometheus/~/dockerfile
 # See: https://github.com/prometheus/prometheus/blob/master/Dockerfile
 
-FROM splatform/stratos-bk-base:opensuse
+FROM splatform/stratos-bk-init-base:leap15_1
 
 WORKDIR /
-ENV PROMETHEUS_VERSION 2.15.2
-ENV ARCH linux-amd64
-RUN zypper in -y tar wget
+USER root
+COPY --from=prom_builder /prometheus /prometheus
 
-RUN wget https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz -O prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz
 RUN mkdir  /usr/share/prometheus && \                               
     mkdir  /etc/prometheus  && \
-    tar -xzf /prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz && \
-    cp /prometheus-${PROMETHEUS_VERSION}.${ARCH}/prometheus                                /bin/prometheus && \
-    cp /prometheus-${PROMETHEUS_VERSION}.${ARCH}/promtool                                  /bin/promtool   && \
-    cp -r /prometheus-${PROMETHEUS_VERSION}.${ARCH}/console_libraries/                     /usr/share/prometheus/console_libraries/ && \
-    cp -r /prometheus-${PROMETHEUS_VERSION}.${ARCH}/consoles/                              /usr/share/prometheus/consoles/ && \
+    cp /prometheus/prometheus                                /bin/prometheus && \
+    cp /prometheus/promtool                                  /bin/promtool   && \
+    cp -r /prometheus/console_libraries/                     /usr/share/prometheus/console_libraries/ && \
+    cp -r /prometheus/consoles/                              /usr/share/prometheus/consoles/ && \
     ln -s /usr/share/prometheus/console_libraries /usr/share/prometheus/consoles/ /etc/prometheus/ && \
-    mkdir -p /prometheus && \
-    chown -R nobody:nogroup etc/prometheus /prometheus
+    mkdir -p /prometheus 
+    #chown -R nobody:nogroup etc/prometheus /prometheus
 
-USER       nobody
 EXPOSE     9090
 VOLUME     [ "/prometheus" ]
 WORKDIR    /prometheus

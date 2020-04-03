@@ -1,5 +1,4 @@
-FROM splatform/stratos-go-build-base:opensuse as builder
-RUN zypper in -y make
+FROM splatform/stratos-go-build-base:leap15_1 as builder
 
 # use --target=configmap-reload to build an image for Kubernetes
 FROM builder as configmap-reload-builder
@@ -9,39 +8,40 @@ RUN cd /tmp && \
     git checkout v0.2.1 && \
     make
 
-FROM  splatform/stratos-bk-base:opensuse as configmap-reload  
+FROM  splatform/stratos-bk-base:leap15_1 as configmap-reload  
 COPY --from=configmap-reload-builder /tmp/configmap-reload/out/configmap-reload /configmap-reload
 ENTRYPOINT ["/configmap-reload"]
 
 # use --target=kube-state-metrics to build an image for Kubernetes
 FROM builder as kube-state-metrics-builder
+ENV KUBE_STATE_METRICS_VERSION=1.9.5
 RUN cd /tmp && \
-    wget https://github.com/kubernetes/kube-state-metrics/archive/v1.3.0.tar.gz && \
+    wget https://github.com/kubernetes/kube-state-metrics/archive/v${KUBE_STATE_METRICS_VERSION}.tar.gz && \
     mkdir -p /tmp/src/k8s.io/kube-state-metrics && \
-    tar -xvf v1.3.0.tar.gz -C /tmp/src/k8s.io/kube-state-metrics --strip 1 && \
-    export GOPATH=/tmp && \
+    tar -xvf v${KUBE_STATE_METRICS_VERSION}.tar.gz -C /tmp/src/k8s.io/kube-state-metrics --strip 1 && \
     cd /tmp/src/k8s.io/kube-state-metrics && \
-    make build
+    git init && \
+    make build-local
 
 # use --target=kube-state-metrics to build an image for Kubernetes
-FROM  splatform/stratos-base:opensuse as kube-state-metrics
+FROM  splatform/stratos-base:leap15_1 as kube-state-metrics
 WORKDIR /
 USER root
 COPY --from=kube-state-metrics-builder /tmp/src/k8s.io/kube-state-metrics/kube-state-metrics /kube-state-metrics
 ENTRYPOINT ["/kube-state-metrics", "--port=8080", "--telemetry-port=8081"]
 
 # use --target=init-chown-data to build an image for Kubernetes
-FROM splatform/stratos-bk-base:opensuse as init-chown-data
+FROM splatform/stratos-bk-base:leap15_1 as init-chown-data
 
 # use --target=node-exporter to build an image for Kubernetes
 FROM builder as node-exporter-builder
-ENV NODE_EXPORTER_VERSION 0.16.0
+ENV NODE_EXPORTER_VERSION 0.18.1
 ENV ARCH linux-amd64
 RUN cd /tmp && \
     wget https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     tar -xvf node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     cp node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}/node_exporter /tmp
 
-FROM splatform/stratos-bk-base:opensuse as node-exporter
+FROM splatform/stratos-bk-base:leap15_1 as node-exporter
 COPY --from=node-exporter-builder /tmp/node_exporter /node_exporter
 ENTRYPOINT ["/node_exporter"]

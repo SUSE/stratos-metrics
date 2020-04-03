@@ -10,8 +10,8 @@ patchHelmChart () {
   local CHART_VERSION=$5
 
   # Patch Helm chart
-  sed -i -e 's/imageTag: opensuse/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
-  sed -i -e 's/tag: opensuse/tag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
+  sed -i -e 's/imageTag: [a-z0-9\.-]*/imageTag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
+  sed -i -e 's/tag: .*/tag: '"${TAG}"'/g' ${CHART_PATH}/values.yaml
   sed -i -e 's@repository: splatform@repository: '"${DOCKER_REG}"'/'"${DOCKER_ORG}"'@g' ${CHART_PATH}/values.yaml
   sed -i -e 's/dockerOrganization: splatform/dockerOrganization: '"${DOCKER_ORG}"'/g' ${CHART_PATH}/values.yaml
   sed -i -e 's/dockerRepository: docker.io/dockerRepository: '"${DOCKER_REG}"'/g' ${CHART_PATH}/values.yaml

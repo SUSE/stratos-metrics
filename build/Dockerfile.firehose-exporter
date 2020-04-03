@@ -1,25 +1,27 @@
-FROM splatform/stratos-ruby-build-base:opensuse as ruby-base
+FROM splatform/stratos-ruby-build-base:leap15_1 as ruby-base
 
-ADD install-uaac.sh /install-uaac.sh
-RUN /install-uaac.sh
+# Build uaac CLI
+RUN gem install cf-uaac && \
+    cp /usr/bin/uaac.ruby2.5 /usr/bin/uaac
 
-FROM splatform/stratos-base:opensuse as firehose-builder
+FROM splatform/stratos-bk-build-base:leap15_1 as firehose-builder
 
 ENV FIREHOSE_EXPORTER_VERSION 5.0.3
 ENV ARCH linux-amd64
 
+USER root
 WORKDIR /
-RUN zypper in -y tar wget
 RUN wget https://github.com/bosh-prometheus/firehose_exporter/releases/download/v${FIREHOSE_EXPORTER_VERSION}/firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz -O /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     tar -xzf /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     cp /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}/firehose_exporter /bin/firehose_exporter
     
-# Final container - no need for tar etc
-FROM splatform/stratos-base:opensuse
+# Final container
+FROM splatform/stratos-ruby-base:leap15_1
 
-RUN mkdir -p /usr/local/lib/ruby
-COPY --from=ruby-base /usr/local/lib/ruby /usr/local/lib/ruby
-COPY --from=ruby-base /usr/local/bin/* /usr/local/bin/
+# Copy the uaac binary
+COPY --from=ruby-base /usr/bin/uaac /usr/bin/uaac
+# Copy ruby gems
+COPY --from=ruby-base /usr/lib64/ruby/gems/2.5.0 /usr/lib64/ruby/gems/2.5.0
 
 COPY --from=firehose-builder /bin/firehose_exporter /bin/firehose_exporter
 

@@ -1,4 +1,4 @@
-FROM splatform/stratos-bk-base:opensuse as cf-dashboards 
+FROM splatform/stratos-bk-base:leap15_1 as cf-dashboards 
 
 RUN git clone https://github.com/bosh-prometheus/prometheus-boshrelease.git
 RUN pwd & ls -al

@@ -1,11 +1,18 @@
 # Change Log
 
+## 1.2.0
+
+This release contains the following fixes and updates:
+
+- Add support for ingress [\#46](https://github.com/SUSE/stratos-metrics/issues/46)
+- Kube State Metrics does not work with Kubernetes 1.16+ [\#47](https://github.com/SUSE/stratos-metrics/issues/47)
+- Bump base image OS to newer Leap15_1/SLE 15 SP1 [\#48](https://github.com/SUSE/stratos-metrics/issues/48)
+
 ## 1.1.2
 
 This release contains one fix:
 
 - Fix for metrics failing to deploy on kube 1.16+ [\#44](https://github.com/SUSE/stratos-metrics/pull/44)
-
 
 ## 1.1.1
 
