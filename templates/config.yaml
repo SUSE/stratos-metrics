@@ -11,7 +11,7 @@ data:
   nginx-config: |
     upstream prometheus {
         least_conn;
-        server                      {{ .Release.Name }}-prometheus-prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090;
+        server                      prometheus-server:9090;
         keepalive                   32;
     }
     server {

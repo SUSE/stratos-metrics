@@ -39,6 +39,10 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-metrics-credentials
               key: password
+        - name: RELEASE_NAME
+          value: "{{ .Release.Name }}"
+        - name: NAMESPACE
+          value: "{{ .Release.Namespace }}"              
         ports:
         - containerPort: 443
           name: https
