@@ -96,6 +96,9 @@ echo "Starting build of Stratos Metics images"
 
 echo ${NO_PATCH}
 
+# Raw tag without the Git hash
+VERSION=${TAG}
+
 # Copy values template
 __DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -227,9 +230,9 @@ function updateTagForRelease {
   pushd ${STRATOS_METRICS_PATH} > /dev/null 2>&1
   GIT_HASH=$(git rev-parse --short HEAD)
   echo "GIT_HASH: ${GIT_HASH}"
-  TAG="${TAG}-g${GIT_HASH}"
+  TAG="${TAG}-${GIT_HASH}"
   if [ "${ADD_OFFICIAL_TAG}" = "true" ]; then
-  TAG=${OFFICIAL_TAG}-${TAG}
+    TAG=${TAG}-${OFFICIAL_TAG}
   fi
   echo "New TAG: ${TAG}"
   popd > /dev/null 2>&1
@@ -285,7 +288,8 @@ buildAndPublishImage stratos-metrics-firehose-exporter Dockerfile.firehose-expor
 buildAndPublishImage stratos-metrics-cf-exporter Dockerfile.cf-exporter .
 buildAndPublishImage stratos-metrics-nginx Dockerfile.nginx .
 buildAndPublishImage stratos-metrics-prometheus Dockerfile.prometheus .
-buildAndPublishImage stratos-metrics-grafana Dockerfile.grafana .
+# Not used
+#buildAndPublishImage stratos-metrics-grafana Dockerfile.grafana .
 
 # Show the last 20 images
 docker images --filter "reference=${DOCKER_ORG}/stratos-metrics*" --format  "{{.ID | printf \"%-12s\" }}\t{{.Repository | printf \"%-48s\"}}\t{{.Tag | printf \"%-30s\" }}\t{{.CreatedSince | printf \"%-20s\"}}\t{{.Size}}" | head -20
@@ -293,7 +297,7 @@ docker images --filter "reference=${DOCKER_ORG}/stratos-metrics*" --format  "{{.
 # Build the helm chart using another script
 popd
 
-${__DIRNAME}/build-helm.sh -i ${TAG} -o ${DOCKER_ORG} -r ${DOCKER_DEST_REGISTRY}
+${__DIRNAME}/build-helm.sh -t ${VERSION} -i ${TAG} -o ${DOCKER_ORG} -r ${DOCKER_DEST_REGISTRY}
 
 echo
 echo "Stratos Metrics Build complete...."
