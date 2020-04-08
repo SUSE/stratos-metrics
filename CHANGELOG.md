@@ -7,6 +7,7 @@ This release contains the following fixes and updates:
 - Add support for ingress [\#46](https://github.com/SUSE/stratos-metrics/issues/46)
 - Kube State Metrics does not work with Kubernetes 1.16+ [\#47](https://github.com/SUSE/stratos-metrics/issues/47)
 - Bump base image OS to newer Leap15_1/SLE 15 SP1 [\#48](https://github.com/SUSE/stratos-metrics/issues/48)
+- Nginx pod crash loop backoff when domain name is not cluster.local [\#53](https://github.com/SUSE/stratos-metrics/issues/53)
 
 ## 1.1.2
 
