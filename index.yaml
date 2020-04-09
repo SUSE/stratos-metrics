@@ -1,0 +1,16 @@
+apiVersion: v1
+entries:
+  metrics:
+  - apiVersion: v1
+    appVersion: 2.0.0
+    created: "2020-04-09T12:27:43.447120574Z"
+    description: A Helm chart for Stratos Metrics
+    digest: 7b99b39f3302dffe7c29d2098f2acb32bb978b1932b7ff844cf3c6b40eef6808
+    icon: https://raw.githubusercontent.com/SUSE/stratos-metrics/master/icon.svg
+    name: metrics
+    sources:
+    - https://github.com/SUSE/stratos-metrics
+    urls:
+    - https://github.com/SUSE/stratos-metrics/releases/download/1.2.0-rc.2/metrics-helm-chart-1.2.0-rc.2-2f9b386-cap.tgz
+    version: 1.2.0-rc.2
+generated: "2020-04-09T12:27:43.42858196Z"
