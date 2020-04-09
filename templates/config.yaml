@@ -81,7 +81,7 @@ data:
       - job_name: cf-exporter
         static_configs:
           - targets:
-            - "{{ .Release.Name }}-cf-exp-service.{{ .Release.Namespace }}.svc.{{ default "cluster.local" $values.kube.clusterDomain }}:9193"
+            - "{{ .Release.Name }}-cf-exp-service.{{ .Release.Namespace }}.svc.{{ default "cluster.local" .Values.kube.clusterDomain }}:9193"
             labels:
               cloud_foundry: "{{ template "cloudFoundryApiEndpoint" . }}"
     {{- end }}
