@@ -10,7 +10,6 @@ image_resource:
   type: docker-image
   source:
    repository: splatform/stratos-ci-concourse
-   tag: "latest"
 
 run:
   path: bash
