@@ -145,6 +145,8 @@ env:
   # If DOMAIN is set, the CF API Endpoint will fallback to https://api.DOMAIN if not set
   DOMAIN:
 kube:
+  # Kubernetes Cluster domain (default is cluster.local)
+  clusterDomain:
   auth: "rbac"
   external_metrics_port: 7443
   registry:
@@ -187,6 +189,11 @@ prometheus:
     replicaCount: 1
     service:
       servicePort: 9090
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
   serviceAccounts:
     alertmanager:
       create: false
