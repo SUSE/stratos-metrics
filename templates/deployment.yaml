@@ -10,6 +10,11 @@ metadata:
   name: "{{ .Release.Name }}-nginx"
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name:  "stratos-metrics"
@@ -137,6 +142,11 @@ metadata:
   name: "{{ $releaseName }}-firehose-exporters-{{ . }}"
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name:  "stratos-metrics"

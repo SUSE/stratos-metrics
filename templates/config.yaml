@@ -11,7 +11,7 @@ data:
   nginx-config: |
     upstream prometheus {
         least_conn;
-        server                      prometheus-server:9090;
+        server                      {{ .Release.Name }}-prometheus-prometheus.{{ .Release.Namespace }}.svc.{{ default "cluster.local" .Values.kube.clusterDomain }}:9090;
         keepalive                   32;
     }
     server {
@@ -70,7 +70,7 @@ data:
         static_configs:
           - targets:
       {{- range int .Values.firehoseExporter.instances | until }}
-            - "{{ $releaseName }}-f-exp-service-{{.}}.{{ $namespace }}.svc.cluster.local:9186"
+            - "{{ $releaseName }}-f-exp-service-{{.}}.{{ $namespace }}.svc.{{ default "cluster.local" $values.kube.clusterDomain }}:9186"
       {{- end}}
             labels:
               cloud_foundry: "{{ template "cloudFoundryApiEndpoint" . }}"
@@ -81,7 +81,7 @@ data:
       - job_name: cf-exporter
         static_configs:
           - targets:
-            - "{{ .Release.Name }}-cf-exp-service.{{ .Release.Namespace }}.svc.cluster.local:9193"
+            - "{{ .Release.Name }}-cf-exp-service.{{ .Release.Namespace }}.svc.{{ default "cluster.local" $values.kube.clusterDomain }}:9193"
             labels:
               cloud_foundry: "{{ template "cloudFoundryApiEndpoint" . }}"
     {{- end }}

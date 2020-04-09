@@ -143,9 +143,13 @@ The following table lists the configurable parameters of the Metrics chart and t
 |prometheus.kubeStateMetrics.enabled|Enables the Kubernetes state metrics prometheus Exporter|false|
 |kube.auth|Set to "rbac" if the Kubernetes cluster supports Role-based access control|"rbac"|
 |prometheus.server.persistentVolume.storageClass|Storage class to use for the Prometheus server|<none> (use default storage class)|
-
+|kube.clusterDomain|Kubernetes domain|cluster.local|
 
 # Advanced Topics
+
+## Deploying to a cluster with a configured Kubernetes Domain
+
+The default domain used by a Kubernetes cluster is `cluster.local`. If your cluster has been configured with a different domain name, you must supply this in the Helm value `kube.clusterDomain`.
 
 ## Using a Load Balancer
 
