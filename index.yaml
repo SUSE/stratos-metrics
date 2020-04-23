@@ -3,6 +3,18 @@ entries:
   metrics:
   - apiVersion: v1
     appVersion: 2.0.0
+    created: "2020-04-23T11:41:59.306596602Z"
+    description: A Helm chart for Stratos Metrics
+    digest: e7ef8ba2b6748f5a80a095eb510c85fd97dc0fd0f2a0153caa80ff5bc04f9b3f
+    icon: https://raw.githubusercontent.com/SUSE/stratos-metrics/master/icon.svg
+    name: metrics
+    sources:
+    - https://github.com/SUSE/stratos-metrics
+    urls:
+    - https://github.com/SUSE/stratos-metrics/releases/download/1.2.0/metrics-helm-chart-1.2.0-bc511c9-cap.tgz
+    version: 1.2.0
+  - apiVersion: v1
+    appVersion: 2.0.0
     created: "2020-04-09T13:39:01.468070005Z"
     description: A Helm chart for Stratos Metrics
     digest: daa4389b85cc9e2d3ae66218081ae39a222138f82f0a411a543c416ccb930436
@@ -25,4 +37,4 @@ entries:
     urls:
     - https://github.com/SUSE/stratos-metrics/releases/download/1.1.2/metrics-helm-chart-1.1.2.tgz
     version: 1.1.2
-generated: "2020-04-15T12:44:39.961864324+01:00"
+generated: "2020-04-23T11:41:59.292189199Z"
