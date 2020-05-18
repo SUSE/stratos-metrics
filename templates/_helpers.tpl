@@ -253,3 +253,15 @@ Ingress Host:
 {{ required "Host name is required" $host | quote }}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Generate self-signed certificate for Metrics if needed
+*/}}
+{{- define "metrics.generateCertificate" -}}
+{{- $altNames := list (printf "%s.%s" (include "metrics.certName" .) .Release.Namespace ) ( printf "%s.%s.svc" (include "metrics.certName" .) .Release.Namespace ) -}}
+{{- $ca := genCA "stratos-ca" 365 -}}
+{{- $cert := genSignedCert ( include "metrics.certName" . ) nil $altNames 365 $ca -}}
+  cert.crt: {{ $cert.Cert | b64enc | quote }}
+  cert.key: {{ $cert.Key | b64enc | quote }}
+{{- end -}}
