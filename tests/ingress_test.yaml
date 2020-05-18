@@ -226,7 +226,7 @@ tests:
             app.kubernetes.io/component: "metrics-ingress"
             app.kubernetes.io/instance: "test-release"
             app.kubernetes.io/version: "2.0.0"
-            helm.sh/chart: "metrics-1.2.0"
+            helm.sh/chart: "metrics-1.2.1"
   - it: should allow extra labels to be set
     release:
       name: test-release
@@ -250,6 +250,6 @@ tests:
             app.kubernetes.io/component: "metrics-ingress"
             app.kubernetes.io/instance: "test-release"
             app.kubernetes.io/version: "2.0.0"
-            helm.sh/chart: "metrics-1.2.0"
+            helm.sh/chart: "metrics-1.2.1"
             label1: "testLabel"
             label2: "testLabel2"
