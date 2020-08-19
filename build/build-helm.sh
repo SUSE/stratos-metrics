@@ -103,7 +103,11 @@ sed -i.bak -e 's/dockerRepository: [a-z\.]*/dockerRepository: '"${DOCKER_REGISTR
 sed -i.bak -e 's/repository: [a-z\.]*/repository: '"${DOCKER_REPOSITORY}"'/g' values.yaml
 sed -i.bak -e 's/tag: .*/tag: '"${IMAGE_TAG}"'/g' values.yaml
 
+find ./templates -type f -name '*.yaml' | xargs sed -i.bak -e 's/{{.Values.imageTag}}/'"${IMAGE_TAG}"'/g'
+find ./templates -type f -name '*.yaml' | xargs sed -i.bak -e 's/{{$values.imageTag}}/'"${IMAGE_TAG}"'/g'
+
 rm -r *.bak
+find ./templates -type f -name '*.yaml.bak' | xargs rm
 
 popd > /dev/null 2>&1
 
