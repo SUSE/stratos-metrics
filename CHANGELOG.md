@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.2.1
+
+This release contains the following fix:
+
+- Default metrics self-signed certificate is out of date [\#58](https://github.com/SUSE/stratos-metrics/issues/58)
+
 ## 1.2.0
 
 This release contains the following fixes and updates:

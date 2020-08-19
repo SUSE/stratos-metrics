@@ -1,6 +1,8 @@
 suite: test stratos metrics ssl config for nginx
 templates:
   - deployment.yaml
+  - secrets.yaml
+
 tests:
   - it: should use default secret name
     asserts:
@@ -13,6 +15,8 @@ tests:
             name: ssl-cert
             secret:
               secretName: RELEASE-NAME-nginx-tls
+        template: deployment.yaml
+
   - it: should use specified secret name
     set:
       nginx.tls: TLS_SECRET_TEST
@@ -26,3 +30,55 @@ tests:
             name: ssl-cert
             secret:
               secretName: TLS_SECRET_TEST
+        template: deployment.yaml
+
+  - it: should use specified cert and key
+    set:
+      nginx.ssl.cert: "CRT_TEST"
+      nginx.ssl.certKey: "KEY_TEST"      
+    asserts:
+      - equal:
+          path: kind
+          value: "Secret"
+        template: secrets.yaml
+        documentIndex: 0
+      - equal:
+          path: data.cert\.crt
+          value: "Q1JUX1RFU1Q="
+        template: secrets.yaml
+        documentIndex: 0
+      - equal:
+          path: data.cert\.key
+          value: "S0VZX1RFU1Q="
+        template: secrets.yaml
+        documentIndex: 0
+
+
+  - it: should generate a cert and key
+    set:
+    asserts:
+      - equal:
+          path: kind
+          value: "Secret"
+        template: secrets.yaml
+        documentIndex: 0
+      - equal:
+          path: data.cert\.crt
+          value: "Q1JUX1RFU1Q="
+        template: secrets.yaml
+        documentIndex: 0
+        not: true
+      - equal:
+          path: data.cert\.key
+          value: "S0VZX1RFU1Q="
+        template: secrets.yaml
+        documentIndex: 0
+        not: true
+      - isNotEmpty:
+          path: data.cert\.crt
+        template: secrets.yaml
+        documentIndex: 0
+      - isNotEmpty:
+          path: data.cert\.key
+        template: secrets.yaml
+        documentIndex: 0
