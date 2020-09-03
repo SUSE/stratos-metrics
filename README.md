@@ -19,7 +19,7 @@ The Helm chart is published to the Stratos Helm repository. Ensure you've follow
 You will need to have the Stratos Helm repository added to your Helm setup, if you do not, run:
 
 ```
-helm repo add stratos https://cloudfoundry-incubator.github.io/stratos
+helm repo add stratos https://cloudfoundry.github.io/stratos
 ```
 
 You may need to refresh from this repository, if you already had it added, by running:
