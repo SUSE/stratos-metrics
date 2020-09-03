@@ -6,3 +6,12 @@ version: 1.2.1
 sources:
   - https://github.com/SUSE/stratos-metrics
 icon: https://raw.githubusercontent.com/SUSE/stratos-metrics/master/icon.svg
+maintainers:
+  - name: Stratos @ SUSE
+    email: "TODO: RC"
+    url: https://stratos.app
+keywords:
+  - Stratos
+  - "Cloud Foundry"
+  - Kubernetes
+  - Helm
