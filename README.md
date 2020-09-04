@@ -69,7 +69,11 @@ metrics:
 
 # Exporter Configuration
 
-## Firehose Exporter
+Exporters will connect to their targets and export metrics into Stratos's Prometheus.
+
+## Cloud Foundry Firehose Exporter
+
+The Cloud Foundry Firehose Exporter provides data required by [Stratos](https://github.com/SUSE/stratos-metrics) to show CF Application and Diego Cell information. For more information about the type of data collected see [here](https://github.com/bosh-prometheus/firehose_exporter).
 
 This exporter can be enabled/disabled via the Helm value `firehoseExporter.enabled`. By default this exporter is enabled.
 
@@ -89,6 +93,8 @@ firehoseExporter:
 Please note, the number of firehose nozzles should be proportional to the number of Traffic Controllers in your Cloud Foundry ([see docs](https://docs.cloudfoundry.org/loggregator/log-ops-guide.html)). Otherwise, Loggregator will not split the firehose between the nozzles.
 
 ## Cloud Foundry Exporter
+
+The Cloud Foundry Exporter is not required to view metrics in [Stratos](https://github.com/SUSE/stratos-metrics) but can provide interesting data for analysis separately. The type of data collected revolves around CF resource types such as organizations, spaces, service bindings, stacks, etc. For more information about the type of data collected see [here](https://github.com/bosh-prometheus/cf_exporter).
 
 This exporter can be enabled/disabled via the Helm value `cfExporter.enabled`. By default this exporter is disabled.
 
