@@ -7,9 +7,9 @@ sources:
   - https://github.com/SUSE/stratos-metrics
 icon: https://raw.githubusercontent.com/SUSE/stratos-metrics/master/icon.svg
 maintainers:
-  - name: Stratos @ SUSE
-    email: "TODO: RC"
-    url: https://stratos.app
+  - name: Stratos Maintainers
+    email: stratos-maintainers@suse.de
+    home: https://stratos.app
 keywords:
   - Stratos
   - "Cloud Foundry"
