@@ -16,10 +16,10 @@ Lastly, the Helm chart generates a small metadata file in the root of the nginx 
 
 The Helm chart is published to the Stratos Helm repository. Ensure you've followed the Stratos requirements for deploying to Kubernetes - https://github.com/SUSE/stratos/tree/master/deploy/kubernetes#requirements.
 
-You will need to have the Stratos Helm repository added to your Helm setup, if you do not, run:
+You will need to have the SUSE Helm repository added to your Helm setup, if you do not, run:
 
 ```
-helm repo add stratos https://cloudfoundry.github.io/stratos
+helm repo add suse https://kubernetes-charts.suse.com/
 ```
 
 You may need to refresh from this repository, if you already had it added, by running:
@@ -37,7 +37,7 @@ helm search metrics -l
 You can install with:
 
 ```
-helm install stratos/metrics --namespace=metrics -f <CONFIG_VALUES>.yaml
+helm install suse/metrics --namespace=metrics -f <CONFIG_VALUES>.yaml
 ```
 
 Where `<CONFIG_VALUES>.yaml` is the name of a configuration values file that you must create (see below).
