@@ -6,7 +6,7 @@ RUN gem install cf-uaac && \
 
 FROM splatform/stratos-bk-build-base:leap15_1 as firehose-builder
 
-ENV FIREHOSE_EXPORTER_VERSION 5.0.3
+ENV FIREHOSE_EXPORTER_VERSION 6.1.0
 ENV ARCH linux-amd64
 
 USER root

@@ -30,6 +30,7 @@ do
 done <<< "$IMAGES"
 
 echo ""
+echo -e "${YELLOW}Image List:${RESET}"
 printf "${CYAN}"
 cat ${CHART_FOLDER}/imagelist.txt
 printf "${RESET}"

@@ -115,15 +115,17 @@ prometheus:
   pushgateway:
     enabled: false
   configmapReload:
-    image:
-      repository: splatform/stratos-metrics-configmap-reload
-      tag: opensuse
+    prometheus:
+      image:
+        repository: splatform/stratos-metrics-configmap-reload
+        tag: opensuse
   initChownData:
     image:
       repository: splatform/stratos-metrics-init-chown-data
       tag: opensuse
   kubeStateMetrics:
     enabled: false
+  kube-state-metrics:
     image:
       repository: splatform/stratos-metrics-kube-state-metrics
       tag: opensuse

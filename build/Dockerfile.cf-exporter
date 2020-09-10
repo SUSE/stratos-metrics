@@ -1,6 +1,6 @@
 FROM splatform/stratos-bk-build-base:leap15_1 as cf-builder
 
-ENV CF_EXPORTER_VERSION 0.8.0
+ENV CF_EXPORTER_VERSION 0.10.0
 ENV ARCH linux-amd64
 
 WORKDIR /
