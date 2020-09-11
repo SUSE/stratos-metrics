@@ -62,6 +62,8 @@ cloudFoundry:
 # The firehose exporter collects data from Cloud Foundry and sends it to Prometheus
 firehoseExporter:
   enabled: true
+  # Should we exit on error - pod will then get rescheduled
+  exitOnError: true
   instances: 1
   # URL of the Doppler Endpoint - takes precendence if set over the API Endpoint
   dopplerUrl:

@@ -166,6 +166,8 @@ spec:
         imagePullPolicy: {{ $values.imagePullPolicy }}
         name: firehose-exporter
         env:
+        - name: FIREHOSE_EXIT_ON_CLOSE
+          value: {{ default "true" $values.firehoseExporter.exitOnError }}
         - name: USE_LEGACY_FIREHOSE
           value: True
         - name: FIREHOSE_EXPORTER_UAA_URL
