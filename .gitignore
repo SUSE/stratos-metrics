@@ -4,3 +4,4 @@ overrides/
 charts/
 tmp/
 metrics-*.tgz
+/temp/

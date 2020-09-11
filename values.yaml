@@ -62,6 +62,8 @@ cloudFoundry:
 # The firehose exporter collects data from Cloud Foundry and sends it to Prometheus
 firehoseExporter:
   enabled: true
+  # Should we exit on error - pod will then get rescheduled
+  exitOnError: true
   instances: 1
   # URL of the Doppler Endpoint - takes precendence if set over the API Endpoint
   dopplerUrl:
@@ -115,15 +117,17 @@ prometheus:
   pushgateway:
     enabled: false
   configmapReload:
-    image:
-      repository: splatform/stratos-metrics-configmap-reload
-      tag: opensuse
+    prometheus:
+      image:
+        repository: splatform/stratos-metrics-configmap-reload
+        tag: opensuse
   initChownData:
     image:
       repository: splatform/stratos-metrics-init-chown-data
       tag: opensuse
   kubeStateMetrics:
     enabled: false
+  kube-state-metrics:
     image:
       repository: splatform/stratos-metrics-kube-state-metrics
       tag: opensuse

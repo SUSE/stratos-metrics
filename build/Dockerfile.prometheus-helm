@@ -14,7 +14,7 @@ ENTRYPOINT ["/configmap-reload"]
 
 # use --target=kube-state-metrics to build an image for Kubernetes
 FROM builder as kube-state-metrics-builder
-ENV KUBE_STATE_METRICS_VERSION=1.9.5
+ENV KUBE_STATE_METRICS_VERSION=1.9.7
 RUN cd /tmp && \
     wget https://github.com/kubernetes/kube-state-metrics/archive/v${KUBE_STATE_METRICS_VERSION}.tar.gz && \
     mkdir -p /tmp/src/k8s.io/kube-state-metrics && \
@@ -35,7 +35,7 @@ FROM splatform/stratos-bk-base:leap15_1 as init-chown-data
 
 # use --target=node-exporter to build an image for Kubernetes
 FROM builder as node-exporter-builder
-ENV NODE_EXPORTER_VERSION 0.18.1
+ENV NODE_EXPORTER_VERSION 1.0.1
 ENV ARCH linux-amd64
 RUN cd /tmp && \
     wget https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.${ARCH}.tar.gz && \

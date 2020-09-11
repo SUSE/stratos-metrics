@@ -23,8 +23,9 @@ ADD_OFFICIAL_TAG="false"
 TAG_LATEST="false"
 PUSH="false"
 NO_PATCH="false"
+HELM_BUILD_ONLY="false"
 
-while getopts ":ho:r:t:Tcplub:Cu:-d:" opt; do
+while getopts ":ho:r:t:THcplub:Cu:-d:" opt; do
   case $opt in
     h)
       echo
@@ -71,6 +72,9 @@ while getopts ":ho:r:t:Tcplub:Cu:-d:" opt; do
     p)
       PUSH="true"
       ;;
+    H)
+      HELM_BUILD_ONLY="true"
+      ;;
     \?)
       echo "Invalid option: -${OPTARG}" >&2
       exit 1
@@ -83,6 +87,11 @@ while getopts ":ho:r:t:Tcplub:Cu:-d:" opt; do
 done
 
 echo
+echo -e "${CYAN}${BOLD}=============== <<<<<<<<<<<<<<<<<<<<<<<<<<${RESET}"
+echo -e "${CYAN}${BOLD}Stratos Metrics${RESET}"
+echo -e "${CYAN}${BOLD}=============== <<<<<<<<<<<<<<<<<<<<<<<<<<${RESET}"
+
+echo
 echo "PRODUCTION BUILD/RELEASE: ${PROD_RELEASE}"
 echo "REGISTRY: ${DOCKER_REGISTRY}"
 echo "ORG: ${DOCKER_ORG}"
@@ -90,11 +99,7 @@ echo "TAG: ${TAG}"
 echo "BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}"
 echo "PUSH IMAGES: ${PUSH}"
 echo "TAG_LATEST: ${TAG_LATEST}"
-
-echo
-echo "Starting build of Stratos Metics images"
-
-echo ${NO_PATCH}
+echo "NO_PATCH: ${NO_PATCH}"
 
 # Raw tag without the Git hash
 VERSION=${TAG}
@@ -128,11 +133,7 @@ fi
 BUILD_ARGS="$(echo -e "${BUILD_ARGS}" | $SED -e 's@^[[:space:]]*@@' -e 's@[[:space:]]*$@@')"
 RUN_ARGS="$(echo -e "${RUN_ARGS}" | $SED -e 's@^[[:space:]]*@@' -e 's@[[:space:]]*$@@')"
 
-if [ -n "${BUILD_ARGS}" ]; then
-  echo "Web Proxy detected from environment. Running Docker with:"
-  echo -e "- BUILD_ARGS:\t'${BUILD_ARGS}'"
-  echo -e "- RUN_ARGS:\t'${RUN_ARGS}'"
-fi
+echo "BUILD_ARGS: '${BUILD_ARGS}'"
 
 function buildAndPublishImage {
   NAME=${1}
@@ -203,12 +204,10 @@ function buildAndPublishImage {
 
 function cleanup {
   # Cleanup the SDL/instance defs
-  echo
-  echo "-- Cleaning up older values.yaml"
+  echo -e "${CYAN}Cleaning up older values.yaml${RESET}"
   rm -f values.yaml
   # Cleanup prior to generating the UI container
-  echo
-  echo "-- Cleaning up ${STRATOS_METRICS_PATH}/deploy/containers/nginx/dist"
+  echo -e "${CYAN}Cleaning up ${STRATOS_METRICS_PATH}/deploy/containers/nginx/dist${RESET}"
   rm -rf ${STRATOS_METRICS_PATH}/deploy/containers/nginx/dist
 
 }
@@ -234,7 +233,7 @@ function updateTagForRelease {
   if [ "${ADD_OFFICIAL_TAG}" = "true" ]; then
     TAG=${TAG}-${OFFICIAL_TAG}
   fi
-  echo "New TAG: ${TAG}"
+  echo -e "New TAG: ${YELLOW}${BOLD}${TAG}${RESET}"
   popd > /dev/null 2>&1
 }
 
@@ -269,7 +268,7 @@ function patchDockerfile {
 # MAIN ------------------------------------------------------
 #
 
-pushd ${__DIRNAME}
+pushd ${__DIRNAME} > /dev/null
 
 # cleanup output, intermediate artifacts
 cleanup
@@ -278,34 +277,46 @@ rm -rf Dockerfile.*.patched
 rm -rf Dockerfile.*.patched.bak
 
 updateTagForRelease
-# Build the images for Stratos Metrics
-buildAndPublishImage stratos-metrics-configmap-reload Dockerfile.prometheus-helm . configmap-reload
-buildAndPublishImage stratos-metrics-kube-state-metrics Dockerfile.prometheus-helm . kube-state-metrics
-buildAndPublishImage stratos-metrics-init-chown-data Dockerfile.prometheus-helm . init-chown-data
-buildAndPublishImage stratos-metrics-node-exporter Dockerfile.prometheus-helm . node-exporter
-buildAndPublishImage stratos-metrics-firehose-init Dockerfile.firehose-init .
-buildAndPublishImage stratos-metrics-firehose-exporter Dockerfile.firehose-exporter .
-buildAndPublishImage stratos-metrics-cf-exporter Dockerfile.cf-exporter .
-buildAndPublishImage stratos-metrics-nginx Dockerfile.nginx .
-buildAndPublishImage stratos-metrics-prometheus Dockerfile.prometheus .
-# Not used
-#buildAndPublishImage stratos-metrics-grafana Dockerfile.grafana .
 
-# Show the last 20 images
-docker images --filter "reference=${DOCKER_ORG}/stratos-metrics*" --format  "{{.ID | printf \"%-12s\" }}\t{{.Repository | printf \"%-48s\"}}\t{{.Tag | printf \"%-30s\" }}\t{{.CreatedSince | printf \"%-20s\"}}\t{{.Size}}" | head -20
+echo
+
+if [ "${HELM_BUILD_ONLY}" == "false" ]; then
+  echo -e "${YELLOW}Starting build of Stratos Metrics images${RESET}"
+
+  # Build the images for Stratos Metrics
+  buildAndPublishImage stratos-metrics-configmap-reload Dockerfile.prometheus-helm . configmap-reload
+  buildAndPublishImage stratos-metrics-kube-state-metrics Dockerfile.prometheus-helm . kube-state-metrics
+  buildAndPublishImage stratos-metrics-init-chown-data Dockerfile.prometheus-helm . init-chown-data
+  buildAndPublishImage stratos-metrics-node-exporter Dockerfile.prometheus-helm . node-exporter
+  buildAndPublishImage stratos-metrics-firehose-init Dockerfile.firehose-init .
+  buildAndPublishImage stratos-metrics-firehose-exporter Dockerfile.firehose-exporter .
+  buildAndPublishImage stratos-metrics-cf-exporter Dockerfile.cf-exporter .
+  buildAndPublishImage stratos-metrics-nginx Dockerfile.nginx .
+  buildAndPublishImage stratos-metrics-prometheus Dockerfile.prometheus .
+  # Not used
+  #buildAndPublishImage stratos-metrics-grafana Dockerfile.grafana .
+
+  # Show the last 20 images
+  docker images --filter "reference=${DOCKER_ORG}/stratos-metrics*" --format  "{{.ID | printf \"%-12s\" }}\t{{.Repository | printf \"%-48s\"}}\t{{.Tag | printf \"%-30s\" }}\t{{.CreatedSince | printf \"%-20s\"}}\t{{.Size}}" | head -20
+else
+  echo -e "${YELLOW}Only building Helm Chart ...${RESET}"
+fi
 
 # Build the helm chart using another script
-popd
+popd > /dev/null
 
 ${__DIRNAME}/build-helm.sh -t ${VERSION} -i ${TAG} -o ${DOCKER_ORG} -r ${DOCKER_DEST_REGISTRY}
 
 echo
-echo "Stratos Metrics Build complete...."
+echo -e "${CYAN}${BOLD}Stratos Metrics Build complete....${RESET}"
+echo
 echo "Registry: ${DOCKER_REGISTRY}"
 echo "Org: ${DOCKER_ORG}"
 echo "Tag: ${TAG}"
 if [ ${CONCOURSE_BUILD:-"not-set"} == "not-set" ]; then
-  echo "To deploy using Helm, execute the following: "
-  echo "helm install stratos-metrics -f values.yaml --namespace metrics --name my-metrics"
+  echo "To deploy using Helm 3, execute the following: "
+  echo
+  echo -e "${CYAN}helm install my-metrics -n metrics stratos-metrics -f values.yaml${RESET}"
+  echo 
 fi
 

@@ -16,10 +16,10 @@ Lastly, the Helm chart generates a small metadata file in the root of the nginx 
 
 The Helm chart is published to the Stratos Helm repository. Ensure you've followed the Stratos requirements for deploying to Kubernetes - https://github.com/SUSE/stratos/tree/master/deploy/kubernetes#requirements.
 
-You will need to have the Stratos Helm repository added to your Helm setup, if you do not, run:
+You will need to have the SUSE Helm repository added to your Helm setup, if you do not, run:
 
 ```
-helm repo add stratos https://cloudfoundry.github.io/stratos
+helm repo add suse https://kubernetes-charts.suse.com/
 ```
 
 You may need to refresh from this repository, if you already had it added, by running:
@@ -37,7 +37,7 @@ helm search metrics -l
 You can install with:
 
 ```
-helm install stratos/metrics --namespace=metrics -f <CONFIG_VALUES>.yaml
+helm install suse/metrics --namespace=metrics -f <CONFIG_VALUES>.yaml
 ```
 
 Where `<CONFIG_VALUES>.yaml` is the name of a configuration values file that you must create (see below).
@@ -105,13 +105,20 @@ You must provide the following Helm Chart values for this Exporter to work corre
 - `cloudFoundry.uaaAdminClientSecret` - Admin client secret of the UAA used by the Cloud Foundry serve
 - `cloudFoundry.skipSslVerification` - Whether to skip SSL verification when communicating with Cloud Foundry and the UAA APIs
 
-## Kubernetes Monitoring
+## Kubernetes State Metrics Exporter
 
-This exporter can be enabled/disabled via the Helm value `prometheus.kubeStateMetrics.enabled`. By default this exporter is disabled. 
+The Kubernetes State Metrics Exporter can be enabled/disabled via the Helm value `prometheus.kubeStateMetrics.enabled`. By default this exporter is disabled. 
 
 You must provide the following Helm Chart values for this Exporter to work correctly:
 
 - `kubernetes.apiEndpoint` - The API Endpoint of the Kubernetes API Server
+
+## Node Exporter
+
+The Node Exporter can be enabled/disabled via the Helm value `prometheus.nodeExporter.enabled`. By default this exporter is disabled. 
+
+> Note: If your cluster is deployed with RBAC you must set the Helm value `prometheus.podSecurityPolicy.enabled=true`.
+
 
 # Helm Chart Configuration
 
@@ -147,6 +154,8 @@ The following table lists the configurable parameters of the Metrics chart and t
 |cfExporter.enabled|Flag to enable ot disable the Prometheus CF Exporter|false|
 |kubernetes.apiEndpoint|URL of the Kubernetes API Server||
 |prometheus.kubeStateMetrics.enabled|Enables the Kubernetes state metrics prometheus Exporter|false|
+|prometheus.nodeExporter.enabled|Enables the Node Exporter|false|
+|prometheus.podSecurityPolicy.enabled|Set to "true" if the Kubernetes cluster supports Role-based access control|false|
 |kube.auth|Set to "rbac" if the Kubernetes cluster supports Role-based access control|"rbac"|
 |prometheus.server.persistentVolume.storageClass|Storage class to use for the Prometheus server|<none> (use default storage class)|
 |kube.clusterDomain|Kubernetes domain|cluster.local|
