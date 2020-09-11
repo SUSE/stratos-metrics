@@ -23,7 +23,7 @@ echo ""
 # Get the version number from the package.json file
 
 # This is the base repository
-REPO=${1:-cloudfoundry/stratos}
+REPO=${1:-SUSE/stratos-metrics}
 FORK=""
 
 # Check if this is a fork
