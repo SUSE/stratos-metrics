@@ -18,6 +18,9 @@ helm version --client
 echo "Install Helm unit test plugin"
 helm plugin install https://github.com/cf-stratos/helm-unittest
 
+# Add upstream repo for Prometheus
+helm repo add prometheus https://prometheus-community.github.io/helm-charts
+
 # Fetch dependencies
 helm dependency build
 
