@@ -3,6 +3,30 @@ entries:
   metrics:
   - apiVersion: v1
     appVersion: 2.0.0
+    created: "2020-09-11T15:18:46.400188541Z"
+    description: A Helm chart for Stratos Metrics
+    digest: 7ca7587b7140b7df11a3434397aa6a14f8bd9188f2bc09ecce5d99193ddb0c51
+    home: https://stratos.app
+    icon: https://raw.githubusercontent.com/SUSE/stratos-metrics/master/icon.svg
+    keywords:
+    - Stratos
+    - Cloud Foundry
+    - Kubernetes
+    - Helm
+    - Monitoring
+    - Prometheus
+    - Metrics
+    maintainers:
+    - email: stratos-maintainers@suse.de
+      name: Stratos Maintainers
+    name: metrics
+    sources:
+    - https://github.com/SUSE/stratos-metrics
+    urls:
+    - https://github.com/SUSE/stratos-metrics/releases/download/1.3.0-rc.1/metrics-helm-chart-1.3.0-rc.1-0ad13e8-cap.tgz
+    version: 1.3.0-rc.1
+  - apiVersion: v1
+    appVersion: 2.0.0
     created: "2020-04-23T11:41:59.306596602Z"
     description: A Helm chart for Stratos Metrics
     digest: e7ef8ba2b6748f5a80a095eb510c85fd97dc0fd0f2a0153caa80ff5bc04f9b3f
@@ -37,4 +61,4 @@ entries:
     urls:
     - https://github.com/SUSE/stratos-metrics/releases/download/1.1.2/metrics-helm-chart-1.1.2.tgz
     version: 1.1.2
-generated: "2020-04-23T11:41:59.292189199Z"
+generated: "2020-09-11T15:18:46.38723798Z"
