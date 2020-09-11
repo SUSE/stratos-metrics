@@ -6,3 +6,15 @@ version: 1.3.0
 sources:
   - https://github.com/SUSE/stratos-metrics
 icon: https://raw.githubusercontent.com/SUSE/stratos-metrics/master/icon.svg
+maintainers:
+  - name: Stratos Maintainers
+    email: stratos-maintainers@suse.de
+home: https://stratos.app
+keywords:
+  - Stratos
+  - "Cloud Foundry"
+  - Kubernetes
+  - Helm
+  - Monitoring
+  - Prometheus
+  - Metrics
