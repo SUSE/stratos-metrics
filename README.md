@@ -105,13 +105,20 @@ You must provide the following Helm Chart values for this Exporter to work corre
 - `cloudFoundry.uaaAdminClientSecret` - Admin client secret of the UAA used by the Cloud Foundry serve
 - `cloudFoundry.skipSslVerification` - Whether to skip SSL verification when communicating with Cloud Foundry and the UAA APIs
 
-## Kubernetes Monitoring
+## Kubernetes State Metrics Exporter
 
-This exporter can be enabled/disabled via the Helm value `prometheus.kubeStateMetrics.enabled`. By default this exporter is disabled. 
+The Kubernetes State Metrics Exporter can be enabled/disabled via the Helm value `prometheus.kubeStateMetrics.enabled`. By default this exporter is disabled. 
 
 You must provide the following Helm Chart values for this Exporter to work correctly:
 
 - `kubernetes.apiEndpoint` - The API Endpoint of the Kubernetes API Server
+
+## Node Exporter
+
+The Node Exporter can be enabled/disabled via the Helm value `prometheus.nodeExporter.enabled`. By default this exporter is disabled. 
+
+> Note: If your cluster is deployed with RBAC you must set the Helm value `prometheus.podSecurityPolicy.enabled=true`.
+
 
 # Helm Chart Configuration
 
@@ -147,6 +154,8 @@ The following table lists the configurable parameters of the Metrics chart and t
 |cfExporter.enabled|Flag to enable ot disable the Prometheus CF Exporter|false|
 |kubernetes.apiEndpoint|URL of the Kubernetes API Server||
 |prometheus.kubeStateMetrics.enabled|Enables the Kubernetes state metrics prometheus Exporter|false|
+|prometheus.nodeExporter.enabled|Enables the Node Exporter|false|
+|prometheus.podSecurityPolicy.enabled|Set to "true" if the Kubernetes cluster supports Role-based access control|false|
 |kube.auth|Set to "rbac" if the Kubernetes cluster supports Role-based access control|"rbac"|
 |prometheus.server.persistentVolume.storageClass|Storage class to use for the Prometheus server|<none> (use default storage class)|
 |kube.clusterDomain|Kubernetes domain|cluster.local|
