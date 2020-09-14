@@ -6,12 +6,17 @@ RUN gem install cf-uaac && \
 
 FROM splatform/stratos-bk-build-base:leap15_1 as firehose-builder
 
-ENV FIREHOSE_EXPORTER_VERSION 5.0.3
+ENV FIREHOSE_EXPORTER_VERSION 6.3.0
+# Use our fork of the Firehose Exporter
+#ENV FIREHOSE_GITHUB_ORG=bosh-prometheus
+ENV FIREHOSE_GITHUB_ORG=cf-stratos
 ENV ARCH linux-amd64
-
+# Upstream tags with a v before the version
+#ENV VERSION_PREFIX=v
+ENV VERSION_PREFIX=
 USER root
 WORKDIR /
-RUN wget https://github.com/bosh-prometheus/firehose_exporter/releases/download/v${FIREHOSE_EXPORTER_VERSION}/firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz -O /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
+RUN wget https://github.com/${FIREHOSE_GITHUB_ORG}/firehose_exporter/releases/download/${VERSION_PREFIX}${FIREHOSE_EXPORTER_VERSION}/firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz -O /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     tar -xzf /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}.tar.gz && \
     cp /firehose_exporter-${FIREHOSE_EXPORTER_VERSION}.${ARCH}/firehose_exporter /bin/firehose_exporter
     

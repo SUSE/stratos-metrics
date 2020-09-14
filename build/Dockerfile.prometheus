@@ -2,7 +2,7 @@ FROM splatform/stratos-bk-build-base:leap15_1 as prom_builder
 
 WORKDIR /
 USER root
-ENV PROMETHEUS_VERSION 2.15.2
+ENV PROMETHEUS_VERSION 2.20.1
 ENV ARCH linux-amd64
 
 RUN wget https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz -O prometheus-${PROMETHEUS_VERSION}.${ARCH}.tar.gz
