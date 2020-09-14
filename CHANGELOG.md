@@ -1,5 +1,23 @@
 # Change Log
 
+## 1.3.0
+
+[Full Changelog](https://github.com/SUSE/stratos-metrics/compare/1.2.1...1.3.0)
+
+This release contains a number of fixes and improvements:
+
+**Improvements:**
+
+- Bump Prometheus Node Exporter to version 1.0.1 [\#70](https://github.com/SUSE/stratos-metrics/issues/70)
+- Bump Kube State Metrics Exporter to version 1.9.7 [\#69](https://github.com/SUSE/stratos-metrics/issues/69)
+- Bump CF Exporter to version 0.10.0 [\#68](https://github.com/SUSE/stratos-metrics/issues/68)
+- Bump CF Firehose exporter to version 6.1.0 [\#67](https://github.com/SUSE/stratos-metrics/issues/67)
+- Bump Prometheus version to 2.20.1 and Helm Chart Version 11.15.0 [\#66](https://github.com/SUSE/stratos-metrics/issues/66)
+
+**Fixes:**
+
+- Firehose exporter can sometimes stop ingesting metrics [\#73](https://github.com/SUSE/stratos-metrics/issues/73)
+
 
 ## 1.2.1
 

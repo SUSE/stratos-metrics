@@ -38,7 +38,14 @@ if [[ $REPO_URL =~ $REGEX ]]; then
   fi
 fi
 
-MILESTONE=$(grep -oP "^version: (\K.*)" Chart.yaml)
+MILESTONE=$(cat Chart.yaml | grep "version:")
+MILESTONE_REGEX="^version: (.*)"
+if [[ $MILESTONE =~ $MILESTONE_REGEX ]]; then
+ MILESTONE=${BASH_REMATCH[1]}
+else
+  echo "Can not read version from Chart.yaml"
+fi
+
 echo -e "${YELLOW}Current version  : ${BOLD}${MILESTONE}${RESET}"
 
 # Find the last release from the Changelog
@@ -129,7 +136,7 @@ rm -f ${CHANGELOG}.breaking
 log ""
 
 tail -n +2 CHANGELOG.old >> ${CHANGELOG}
-rm CHANGELOG.old 
-rm CHANGELOG.md.bak
+rm -f CHANGELOG.old 
 
 sed -i.bak 's/\# Change Log.*\#\# ${CURRENT}//' ${CHANGELOG}
+rm -f CHANGELOG.md.bak
