@@ -31,6 +31,11 @@ spec:
         app.kubernetes.io/component: "stratos-metrics-cf-exporter"
         helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
+      {{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+      serviceAccountName: "metrics-basic"
+      {{- end }}
+      securityContext:
+        runAsNonRoot: false    
       containers:
       - image: {{.Values.dockerRepository}}/{{.Values.dockerOrganization}}/{{.Values.cfExporter.image}}:{{.Values.imageTag}}
         imagePullPolicy: {{ .Values.imagePullPolicy }}

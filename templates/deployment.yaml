@@ -103,6 +103,11 @@ spec:
       imagePullSecrets:
       - name: {{.Values.dockerRegistrySecret}}
       {{- end }}
+      {{- if and (eq (printf "%s" .Values.kube.auth) "rbac") (.Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+      serviceAccountName: "metrics-basic"
+      {{- end }}
+      securityContext:
+        runAsNonRoot: false       
       volumes:
       - name: ssl-cert
         secret:
@@ -206,6 +211,10 @@ spec:
       imagePullSecrets:
       - name: {{ $values.dockerRegistrySecret}}
      {{- end }}
-   
+      {{- if and (eq (printf "%s" $values.kube.auth) "rbac") ($caps.APIVersions.Has "rbac.authorization.k8s.io/v1") }}
+      serviceAccountName: "metrics-basic"
+      {{- end }}
+      securityContext:
+        runAsNonRoot: false     
   {{- end }}
 {{- end }}
