@@ -26,6 +26,16 @@ metadata:
     app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
     helm.sh/chart:  "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 rules:
+{{- if .Values.metrics.pspEnabled }}
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+  resourceNames:
+  - {{ default (printf "%s-psp" .Release.Name) .Values.metrics.pspName }}
+{{- end }}
 - apiGroups:
   - ""
   resources:
@@ -138,6 +148,8 @@ spec:
       # Job should not take longer than 5 minutes
       activeDeadlineSeconds: 300
       # Depend on the config ConfigMap, so we know its created before we patch it with latest config
+      securityContext:
+        runAsNonRoot: false      
       volumes:
       - name: nginx-config
         configMap:

@@ -9,6 +9,19 @@ metrics:
   # Preferred way of setting username and password for the nginx server that fronts Prometheus
   username: metrics
   password: s3cr3t
+
+  # Whether PodSecurityPolicy is enabled
+  pspEnabled: false
+
+  # Optional name of a PodSecurityPolicy to use - if not specified, a default will be created
+  pspName:  
+
+  # Custom annotations to apply to Pod Security Policies
+  pspAnnotations: {}  
+
+  # Extra labels to apply to Pod Security Policies
+  pspExtraLabels: {}  
+
   # Metrics service
   service:
     annotations: []

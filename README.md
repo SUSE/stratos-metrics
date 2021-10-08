@@ -155,12 +155,30 @@ The following table lists the configurable parameters of the Metrics chart and t
 |kubernetes.apiEndpoint|URL of the Kubernetes API Server||
 |prometheus.kubeStateMetrics.enabled|Enables the Kubernetes state metrics prometheus Exporter|false|
 |prometheus.nodeExporter.enabled|Enables the Node Exporter|false|
-|prometheus.podSecurityPolicy.enabled|Set to "true" if the Kubernetes cluster supports Role-based access control|false|
+|prometheus.podSecurityPolicy.enabled|Set to true if the Kubernetes cluster supports Role-based access control|false|
 |kube.auth|Set to "rbac" if the Kubernetes cluster supports Role-based access control|"rbac"|
 |prometheus.server.persistentVolume.storageClass|Storage class to use for the Prometheus server|<none> (use default storage class)|
 |kube.clusterDomain|Kubernetes domain|cluster.local|
+|metrics.pspEnabled|Enable Pod Security Policies. Set this to true if you cluster is configured with PSPs enabled|false|
+|metrics.pspName|Name of an existing Pod Security Policy to use instead of the one created by the chart when PSPs are enabled||
+|metrics.pspAnnotations|Annotations to be added to all pod security policy resources||
+|metrics.pspExtraLabels|Additional labels to be added to all pod security policy resources||
 
 # Advanced Topics
+
+
+## Deploying with Pod Security Policies enabled
+
+If your Kubernetes cluster has Pod Security Policies enabeld, you need to supply additional Helm values:
+
+```
+metrics:
+  pspEnabled: true
+prometheus
+  podSecurityPolicy:
+    enabled: true
+
+```
 
 ## Deploying to a cluster with a configured Kubernetes Domain
 
